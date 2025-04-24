@@ -19,6 +19,9 @@
         .edit-form { display: none; margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 5px; }
         .comments-section { margin-top: 20px; }
         .comment { border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; border-radius: 5px; }
+        .comment-actions { margin-top: 10px; }
+        .edit-comment-btn { background: #ffc107; }
+        .delete-comment-btn { background: #dc3545; }
     </style>
 </head>
 <body>
@@ -156,11 +159,24 @@
                     const comments = await res.json();
                     const commentsContainer = document.getElementById(`commentsContainer-${postId}`);
                     commentsContainer.innerHTML = comments.map(comment => `
-                        <div class="comment">
+                        <div class="comment" id="comment-${comment.id}">
                             <p>${comment.content}</p>
                             <small>By User: ${comment.userId}</small>
+                            <div class="comment-actions">
+                                <button class="edit-comment-btn" data-id="${comment.id}" data-post-id="${postId}">Edit</button>
+                                <button class="delete-comment-btn" data-id="${comment.id}" data-post-id="${postId}">Delete</button>
+                            </div>
                         </div>
                     `).join('');
+
+                    // Add event listeners for edit and delete buttons
+                    document.querySelectorAll(`#commentsContainer-${postId} .edit-comment-btn`).forEach(button => {
+                        button.addEventListener('click', handleEditComment);
+                    });
+
+                    document.querySelectorAll(`#commentsContainer-${postId} .delete-comment-btn`).forEach(button => {
+                        button.addEventListener('click', handleDeleteComment);
+                    });
                 } else {
                     console.error('Failed to fetch comments');
                 }
@@ -233,6 +249,68 @@
 
             // Fetch comments for each post
             posts.forEach(post => fetchComments(post.id));
+        }
+
+        // Handle editing a comment
+        async function handleEditComment(event) {
+            const commentId = event.target.getAttribute('data-id');
+            const postId = event.target.getAttribute('data-post-id');
+            const commentElement = document.getElementById(`comment-${commentId}`);
+            const currentContent = commentElement.querySelector('p').innerText;
+
+            // Replace the comment content with an editable textarea
+            commentElement.innerHTML = `
+                <textarea id="editCommentContent-${commentId}" style="width: 100%;">${currentContent}</textarea>
+                <button id="saveCommentBtn-${commentId}">Save</button>
+                <button id="cancelEditBtn-${commentId}">Cancel</button>
+            `;
+
+            // Add event listeners for Save and Cancel buttons
+            document.getElementById(`saveCommentBtn-${commentId}`).addEventListener('click', async () => {
+                const updatedContent = document.getElementById(`editCommentContent-${commentId}`).value;
+
+                try {
+                    const res = await fetch(`${COMMENT_API_URL}/${commentId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ content: updatedContent })
+                    });
+
+                    if (res.ok) {
+                        fetchComments(postId); // Refresh comments
+                    } else {
+                        alert('Failed to update comment');
+                    }
+                } catch (err) {
+                    alert(`Error: ${err.message}`);
+                }
+            });
+
+            document.getElementById(`cancelEditBtn-${commentId}`).addEventListener('click', () => {
+                fetchComments(postId); // Reload comments to cancel edit
+            });
+        }
+
+        // Handle deleting a comment
+        async function handleDeleteComment(event) {
+            const commentId = event.target.getAttribute('data-id');
+            const postId = event.target.getAttribute('data-post-id');
+
+            if (confirm('Are you sure you want to delete this comment?')) {
+                try {
+                    const res = await fetch(`${COMMENT_API_URL}/${commentId}`, {
+                        method: 'DELETE'
+                    });
+
+                    if (res.ok) {
+                        fetchComments(postId); // Refresh comments
+                    } else {
+                        alert('Failed to delete comment');
+                    }
+                } catch (err) {
+                    alert(`Error: ${err.message}`);
+                }
+            }
         }
 
         // Initial load of posts
