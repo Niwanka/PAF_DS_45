@@ -33,7 +33,9 @@ public class SecurityConfig {
             )
             .csrf(csrf -> csrf
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-            );
+            )
+
+            .csrf(csrf -> csrf.disable());
         
         return http.build();
     }
