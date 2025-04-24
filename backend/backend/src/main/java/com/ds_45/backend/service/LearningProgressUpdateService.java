@@ -1,12 +1,14 @@
 package com.ds_45.backend.service;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.ds_45.backend.model.LearningProgressUpdate;
 import com.ds_45.backend.repository.LearningProgressUpdateRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-
+@Service
 public class LearningProgressUpdateService {
 
     @Autowired
