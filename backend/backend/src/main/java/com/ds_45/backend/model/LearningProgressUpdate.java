@@ -14,7 +14,7 @@ public class LearningProgressUpdate {
     private String id;
 
     //User associated with this update
-    private String userID;
+    private String userId;
 
     //Fields for learning updates
     private String title;
