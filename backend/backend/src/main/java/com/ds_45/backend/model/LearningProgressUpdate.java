@@ -23,6 +23,57 @@ public class LearningProgressUpdate {
     private String mediaUrl;
     private LocalDateTime dateCreated;
     private LocalDateTime lastUpdated;
+
+    
+    public String getTitle() {
+        return title;
+    }
+    
+    public void setTitle(String title) {
+        this.title = title;
+    }
+    
+    public String getDescription() {
+        return description;
+    }
+    
+    public void setDescription(String description) {
+        this.description = description;
+    }
+    
+    public TemplateType getTemplateType() {
+        return templateType;
+    }
+    
+    public void setTemplateType(TemplateType templateType) {
+        this.templateType = templateType;
+    }
+    
+    public String getMediaUrl() {
+        return mediaUrl;
+    }
+    
+    public void setMediaUrl(String mediaUrl) {
+        this.mediaUrl = mediaUrl;
+    }
+    
+    public LocalDateTime getDateCreated() {
+        return dateCreated;
+    }
+    
+    public void setDateCreated(LocalDateTime dateCreated) {
+        this.dateCreated = dateCreated;
+    }
+    
+    public LocalDateTime getLastUpdated() {
+        return lastUpdated;
+    }
+    
+    public void setLastUpdated(LocalDateTime lastUpdated) {
+        this.lastUpdated = lastUpdated;
+    }
+    
     
 
 }
+
