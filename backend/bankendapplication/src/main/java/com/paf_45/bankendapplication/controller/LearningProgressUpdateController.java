@@ -63,9 +63,14 @@ public class LearningProgressUpdateController {
     // Delete a progress update
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable String id) {
-        service.deleteUpdate(id);
-        return ResponseEntity.noContent().build();
+    boolean deleted = service.deleteProgressUpdate(id);
+    if (deleted) {
+        return ResponseEntity.noContent().build(); // 204 if deleted
+    } else {
+        return ResponseEntity.notFound().build();  // 404 if not found
     }
+}
+
 
 
 }
