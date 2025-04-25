@@ -220,6 +220,15 @@
                 </div>
             `).join('');
 
+            // Add event listeners for post edit and delete buttons
+            document.querySelectorAll('.edit-btn').forEach(button => {
+                button.addEventListener('click', handleEditPost);
+            });
+
+            document.querySelectorAll('.delete-btn').forEach(button => {
+                button.addEventListener('click', handleDeletePost);
+            });
+
             // Add event listeners for comment forms
             document.querySelectorAll('.commentForm').forEach(form => {
                 form.addEventListener('submit', async (e) => {
@@ -249,6 +258,72 @@
 
             // Fetch comments for each post
             posts.forEach(post => fetchComments(post.id));
+        }
+
+        // Handle editing a post
+        async function handleEditPost(event) {
+            const postId = event.target.getAttribute('data-id');
+            const postElement = document.getElementById(`post-${postId}`);
+            const currentTitle = postElement.querySelector('h3').innerText;
+            const currentContent = postElement.querySelector('p:nth-of-type(3)').innerText;
+
+            // Replace the post content with an editable form
+            postElement.innerHTML = `
+                <form id="editPostForm-${postId}">
+                    <input type="text" id="editTitle-${postId}" value="${currentTitle}" required>
+                    <textarea id="editContent-${postId}" required>${currentContent}</textarea>
+                    <button type="submit">Save</button>
+                    <button type="button" id="cancelEditPost-${postId}">Cancel</button>
+                </form>
+            `;
+
+            // Add event listeners for Save and Cancel buttons
+            document.getElementById(`editPostForm-${postId}`).addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const updatedTitle = document.getElementById(`editTitle-${postId}`).value;
+                const updatedContent = document.getElementById(`editContent-${postId}`).value;
+
+                try {
+                    const res = await fetch(`${API_BASE_URL}/${postId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ title: updatedTitle, content: updatedContent })
+                    });
+
+                    if (res.ok) {
+                        fetchAllPosts(); // Refresh posts
+                    } else {
+                        alert('Failed to update post');
+                    }
+                } catch (err) {
+                    alert(`Error: ${err.message}`);
+                }
+            });
+
+            document.getElementById(`cancelEditPost-${postId}`).addEventListener('click', () => {
+                fetchAllPosts(); // Reload posts to cancel edit
+            });
+        }
+
+        // Handle deleting a post
+        async function handleDeletePost(event) {
+            const postId = event.target.getAttribute('data-id');
+
+            if (confirm('Are you sure you want to delete this post?')) {
+                try {
+                    const res = await fetch(`${API_BASE_URL}/${postId}`, {
+                        method: 'DELETE'
+                    });
+
+                    if (res.ok) {
+                        fetchAllPosts(); // Refresh posts
+                    } else {
+                        alert('Failed to delete post');
+                    }
+                } catch (err) {
+                    alert(`Error: ${err.message}`);
+                }
+            }
         }
 
         // Handle editing a comment
