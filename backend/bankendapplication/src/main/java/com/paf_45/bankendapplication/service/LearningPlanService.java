@@ -1,5 +1,6 @@
 package com.paf_45.bankendapplication.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,6 +24,9 @@ public class LearningPlanService {
 
     // Create a new Learning Plan
     public LearningPlan createLearningPlan(LearningPlan learningPlan) {
+        // Automatically set the createdAt timestamp
+        learningPlan.setCreatedAt(LocalDateTime.now());
+
         return learningPlanRepository.save(learningPlan);
     }
 
