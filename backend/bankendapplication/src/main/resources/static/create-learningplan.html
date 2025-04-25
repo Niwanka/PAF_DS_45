@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Learning Plan Test Form</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+      }
+      input,
+      textarea {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 10px;
+      }
+      button {
+        padding: 10px 15px;
+        background: #4caf50;
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+      #response {
+        margin-top: 20px;
+        padding: 10px;
+        background: #f4f4f4;
+        border: 1px solid #ddd;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Test Learning Plan Insertion (Port 9090)</h1>
+
+    <form id="testForm">
+      <label>Title:</label><br />
+      <input
+        type="text"
+        id="title"
+        placeholder="e.g., Learn Spring Boot"
+        required
+      /><br />
+
+      <label>Description:</label><br />
+      <textarea
+        id="description"
+        placeholder="e.g., Master backend development"
+        required
+      ></textarea
+      ><br />
+
+      <label>Topics (comma-separated):</label><br />
+      <textarea
+        id="topics"
+        placeholder="e.g., Spring Security, REST APIs, MongoDB"
+        required
+      ></textarea
+      ><br />
+
+      <label>Completion Date:</label><br />
+      <input type="date" id="completionDate" required /><br /><br />
+
+      <button type="submit">Test Insert</button>
+    </form>
+
+    <div id="response"></div>
+
+    <script>
+      document
+        .getElementById("testForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+
+          const data = {
+            title: document.getElementById("title").value,
+            description: document.getElementById("description").value,
+            topics: document.getElementById("topics").value,
+            completionDate: document.getElementById("completionDate").value,
+          };
+
+          try {
+            const response = await fetch(
+              "http://localhost:9090/api/learning-plans",
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data),
+              }
+            );
+
+            const result = await response.json();
+            document.getElementById("response").innerHTML = `
+                    <strong>✅ Success!</strong><br>
+                    <pre>${JSON.stringify(result, null, 2)}</pre>
+                    <p>Check MongoDB to verify the record.</p>
+                `;
+          } catch (error) {
+            document.getElementById("response").innerHTML = `
+                    <strong>❌ Error!</strong><br>
+                    <p>${error.message}</p>
+                `;
+          }
+        });
+    </script>
+  </body>
+</html>
