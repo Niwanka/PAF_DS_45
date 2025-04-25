@@ -8,6 +8,6 @@ import java.util.List;
 @Repository
 public interface LearningProgressUpdateRepository extends MongoRepository<LearningProgressUpdate, String> {
     
-    List<LearningProgressUpdate> findByUserId(String userId); //find updates by user ID
+    List<LearningProgressUpdate> findByUserId(String userId); //find progress updates by user ID
 
 }
