@@ -6,19 +6,27 @@
       body {
         font-family: Arial, sans-serif;
         padding: 20px;
+        background-color: #f9f9f9;
       }
       input,
-      textarea {
+      textarea,
+      select {
         width: 100%;
         padding: 8px;
         margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
       }
       button {
         padding: 10px 15px;
         background: #4caf50;
         color: white;
         border: none;
+        border-radius: 4px;
         cursor: pointer;
+      }
+      button:hover {
+        background-color: #45a049;
       }
       #response {
         margin-top: 20px;
@@ -29,35 +37,46 @@
     </style>
   </head>
   <body>
-    <h1>Test Learning Plan Insertion (Port 9090)</h1>
+    <h1>Test Learning Plan Insertion</h1>
 
     <form id="testForm">
-      <label>Title:</label><br />
+      <label>Title:</label>
       <input
         type="text"
         id="title"
         placeholder="e.g., Learn Spring Boot"
         required
-      /><br />
+      />
 
-      <label>Description:</label><br />
+      <label>Description:</label>
       <textarea
         id="description"
         placeholder="e.g., Master backend development"
         required
-      ></textarea
-      ><br />
+      ></textarea>
 
-      <label>Topics (comma-separated):</label><br />
+      <label>Topics:</label>
       <textarea
         id="topics"
-        placeholder="e.g., Spring Security, REST APIs, MongoDB"
+        placeholder="(comma-separated) e.g., Spring Security, REST APIs, MongoDB"
         required
-      ></textarea
-      ><br />
+      ></textarea>
 
-      <label>Completion Date:</label><br />
-      <input type="date" id="completionDate" required /><br /><br />
+      <label>Completion Date:</label>
+      <input type="date" id="completionDate" required />
+
+      <label>Resources:</label>
+      <textarea
+        id="resources"
+        placeholder="(comma-separated URLs) e.g., https://youtube.com/..., https://docs.spring.io/..."
+      ></textarea>
+
+      <label>Status:</label>
+      <select id="status">
+        <option value="draft">Draft</option>
+        <option value="in-progress">In Progress</option>
+        <option value="completed">Completed</option>
+      </select>
 
       <button type="submit">Test Insert</button>
     </form>
@@ -75,6 +94,12 @@
             description: document.getElementById("description").value,
             topics: document.getElementById("topics").value,
             completionDate: document.getElementById("completionDate").value,
+            resources: document
+              .getElementById("resources")
+              .value.split(",")
+              .map((url) => url.trim())
+              .filter((url) => url !== ""),
+            status: document.getElementById("status").value,
           };
 
           try {
@@ -89,15 +114,15 @@
 
             const result = await response.json();
             document.getElementById("response").innerHTML = `
-                    <strong>✅ Success!</strong><br>
-                    <pre>${JSON.stringify(result, null, 2)}</pre>
-                    <p>Check MongoDB to verify the record.</p>
-                `;
+            <strong> Success!</strong><br>
+            <pre>${JSON.stringify(result, null, 2)}</pre>
+            <!-- <p>Check MongoDB to verify the record.</p> -->
+          `;
           } catch (error) {
             document.getElementById("response").innerHTML = `
-                    <strong>❌ Error!</strong><br>
-                    <p>${error.message}</p>
-                `;
+            <strong>Error!</strong><br>
+            <p>${error.message}</p>
+          `;
           }
         });
     </script>
