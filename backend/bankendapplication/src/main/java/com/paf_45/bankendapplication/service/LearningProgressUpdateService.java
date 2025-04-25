@@ -54,9 +54,15 @@ public class LearningProgressUpdateService {
     }
 
     // Delete a progress update
-    public void deleteUpdate(String id){
-        repository.deleteById(id);
+    public boolean deleteProgressUpdate(String id) {
+        if (repository.existsById(id)) {
+            repository.deleteById(id);
+            return true;  // Deleted successfully
+        } else {
+            return false; // Nothing to delete
+        }
     }
+    
 
 
 }
