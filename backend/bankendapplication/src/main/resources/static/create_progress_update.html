@@ -72,6 +72,14 @@
         const updatesContainer = document.getElementById('updatesContainer');
         const createResponse = document.getElementById('createResponse');
 
+        // Extract link from HATEOAS response
+        function getLink(links, rel) {
+            if (links && links[rel]) {
+                return links[rel].href;
+            }
+            return null;
+        }
+
         // Create Progress Update
         form.addEventListener('submit', async function(event) {
             event.preventDefault();
@@ -144,7 +152,9 @@
             try {
                 const res = await fetch(API_BASE_URL);
                 if (res.ok) {
-                    const updates = await res.json();
+                    const data = await res.json();
+                    // HATEOAS responses include _embedded object with actual data
+                    const updates = data._embedded ? data._embedded.learningProgressUpdateResponseList : data;
                     displayUpdates(updates);
                 } else {
                     const error = await res.json();
@@ -176,7 +186,6 @@
                     ${update.mediaUrl ? `<p><strong>Media:</strong> <a href="${update.mediaUrl}" target="_blank">${update.mediaUrl}</a></p>` : ''}
                     <p><small>Created at: ${new Date(update.dateCreated).toLocaleString()}</small></p>
                     <p><small>Last updated: ${new Date(update.lastUpdated).toLocaleString()}</small></p>
-
                     <div class="edit-form" id="edit-form-${update.id}">
                         <h4>Edit Progress Update</h4>
                         <form class="update-form" data-id="${update.id}">
