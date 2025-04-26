@@ -2,8 +2,13 @@ package com.paf_45.bankendapplication.controller;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,7 +20,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.paf_45.bankendapplication.model.Post;
+import com.paf_45.bankendapplication.model.PostResponse;
 import com.paf_45.bankendapplication.service.PostService;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("/api/posts")
@@ -24,30 +33,95 @@ public class PostController {
     @Autowired
     private PostService postService;
 
-    // Get all posts
+    // Get all posts with HATEOAS links
     @GetMapping
-    public ResponseEntity<List<Post>> getAllPosts() {
-        return ResponseEntity.ok(postService.getAllPosts());
+    public ResponseEntity<CollectionModel<PostResponse>> getAllPosts() {
+        List<Post> posts = postService.getAllPosts();
+        
+        List<PostResponse> postResponses = posts.stream()
+            .map(post -> {
+                PostResponse response = new PostResponse(post);
+                
+                // Add self link
+                Link selfLink = linkTo(methodOn(PostController.class)
+                        .getPostById(post.getId())).withSelfRel();
+                response.add(selfLink);
+                
+                // Add link to all posts
+                Link postsLink = linkTo(methodOn(PostController.class)
+                        .getAllPosts()).withRel("posts");
+                response.add(postsLink);
+                
+                // Add link to comments for this post
+                Link commentsLink = linkTo(methodOn(CommentController.class)
+                        .getCommentsByPostId(post.getId())).withRel("comments");
+                response.add(commentsLink);
+                
+                return response;
+            })
+            .collect(Collectors.toList());
+        
+        // Create collection model with links
+        CollectionModel<PostResponse> collectionModel = CollectionModel.of(postResponses);
+        
+        // Add link to self (collection)
+        collectionModel.add(linkTo(methodOn(PostController.class)
+                .getAllPosts()).withSelfRel());
+        
+        return ResponseEntity.ok(collectionModel);
     }
 
-    // Get a post by ID
+    // Get a post by ID with HATEOAS links
     @GetMapping("/{id}")
-    public ResponseEntity<Post> getPostById(@PathVariable String id) {
+    public ResponseEntity<PostResponse> getPostById(@PathVariable String id) {
         Optional<Post> post = postService.getPostById(id);
-        return post.map(ResponseEntity::ok)
-                   .orElseGet(() -> ResponseEntity.notFound().build());
+        
+        if (!post.isPresent()) {
+            return ResponseEntity.notFound().build();
+        }
+        
+        PostResponse response = new PostResponse(post.get());
+        
+        // Add self link
+        Link selfLink = linkTo(methodOn(PostController.class)
+                .getPostById(id)).withSelfRel();
+        response.add(selfLink);
+        
+        // Add link to all posts
+        Link postsLink = linkTo(methodOn(PostController.class)
+                .getAllPosts()).withRel("posts");
+        response.add(postsLink);
+        
+        // Add link to comments for this post
+        Link commentsLink = linkTo(methodOn(CommentController.class)
+                .getCommentsByPostId(id)).withRel("comments");
+        response.add(commentsLink);
+        
+        return ResponseEntity.ok(response);
     }
 
-    // Create a new post
+    // Create a new post with HATEOAS links
     @PostMapping
-    public ResponseEntity<Post> createPost(@RequestBody Post post) {
+    public ResponseEntity<PostResponse> createPost(@RequestBody Post post) {
         Post savedPost = postService.createPost(post);
-        return ResponseEntity.status(201).body(savedPost);
+        PostResponse response = new PostResponse(savedPost);
+        
+        // Add self link
+        Link selfLink = linkTo(methodOn(PostController.class)
+                .getPostById(savedPost.getId())).withSelfRel();
+        response.add(selfLink);
+        
+        // Add link to all posts
+        Link postsLink = linkTo(methodOn(PostController.class)
+                .getAllPosts()).withRel("posts");
+        response.add(postsLink);
+        
+        return ResponseEntity.status(201).body(response);
     }
 
-    // Update an existing post
+    // Update an existing post with HATEOAS links
     @PutMapping("/{id}")
-    public ResponseEntity<Post> updatePost(@PathVariable String id, @RequestBody Post postDetails) {
+    public ResponseEntity<PostResponse> updatePost(@PathVariable String id, @RequestBody Post postDetails) {
         Optional<Post> existingPost = postService.getPostById(id);
         
         if (!existingPost.isPresent()) {
@@ -63,7 +137,19 @@ public class PostController {
         postToUpdate.setMediaUrls(postDetails.getMediaUrls());
         
         Post updatedPost = postService.updatePost(id, postToUpdate);
-        return ResponseEntity.ok(updatedPost);
+        PostResponse response = new PostResponse(updatedPost);
+        
+        // Add self link
+        Link selfLink = linkTo(methodOn(PostController.class)
+                .getPostById(updatedPost.getId())).withSelfRel();
+        response.add(selfLink);
+        
+        // Add link to all posts
+        Link postsLink = linkTo(methodOn(PostController.class)
+                .getAllPosts()).withRel("posts");
+        response.add(postsLink);
+        
+        return ResponseEntity.ok(response);
     }
 
     // Delete a post
