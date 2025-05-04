@@ -6,16 +6,9 @@ const ChatBot = () => {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef(null);
-  
-  // Check if API key exists
-  const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
-  if (!API_KEY) {
-    console.error('Missing Gemini API key');
-  }
 
-  // Initialize Gemini API
-  const genAI = new GoogleGenerativeAI(API_KEY);
-  const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+  // Initialize Gemini API with simplified configuration
+  const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -27,13 +20,6 @@ const ChatBot = () => {
 
   const handleSend = async () => {
     if (!input.trim()) return;
-    if (!API_KEY) {
-      setMessages(prev => [...prev, { 
-        text: "Error: Missing API key. Please configure the environment variables.", 
-        isUser: false 
-      }]);
-      return;
-    }
 
     const userMessage = input;
     setInput('');
@@ -41,16 +27,17 @@ const ChatBot = () => {
     setIsLoading(true);
 
     try {
+      const model = genAI.getGenerativeModel({ model: "gemini-pro" });
       const prompt = userMessage.trim();
+      
       const result = await model.generateContent(prompt);
-      const response = await result.response;
-      const text = response.text();
+      const text = await result.response.text();
 
       setMessages(prev => [...prev, { text, isUser: false }]);
     } catch (error) {
       console.error('Gemini API Error:', error);
       setMessages(prev => [...prev, { 
-        text: `Error: ${error.message || 'Something went wrong. Please try again.'}`, 
+        text: `Error: ${error.message || 'Something went wrong. Please check your API key.'}`, 
         isUser: false 
       }]);
     }
