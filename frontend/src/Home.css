@@ -1,10 +1,11 @@
 .home {
   background-color: #f3f2ef;
   min-height: 100vh;
+  font-family: 'Inter', sans-serif;
 }
 
 .navbar {
-  background: white;
+  background: #1a237e;
   padding: 0 24px;
   height: 60px;
   display: flex;
@@ -24,12 +25,13 @@
 }
 
 .logo h2 {
-  color: #0a66c2;
+  color: white;
   font-size: 24px;
+  font-weight: 700;
 }
 
 .search {
-  background: #eef3f8;
+  background: rgba(255, 255, 255, 0.1);
   padding: 8px 16px;
   border-radius: 6px;
   display: flex;
@@ -42,6 +44,11 @@
   background: transparent;
   width: 280px;
   font-size: 14px;
+  color: white;
+}
+
+.search input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .nav-right {
@@ -59,14 +66,14 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  color: #666;
+  color: rgba(255, 255, 255, 0.7);
   text-decoration: none;
   font-size: 12px;
   gap: 4px;
 }
 
 .nav-link.active {
-  color: #0a66c2;
+  color: white;
 }
 
 .nav-link i {
@@ -85,15 +92,17 @@
 }
 
 .profile-card {
-  background: white;
+  backdrop-filter: blur(8px);
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 10px;
   overflow: hidden;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
 }
 
 .cover-photo {
   height: 60px;
-  background: linear-gradient(to right, #0a66c2, #0077b5);
+  background: linear-gradient(rgba(26, 35, 126, 0.92), rgba(26, 35, 126, 0.97));
 }
 
 .profile-info {
@@ -110,12 +119,19 @@
   margin-top: -50px;
 }
 
+.profile-info h3 {
+  color: #1a237e;
+  font-weight: 600;
+}
+
 .skills-card {
-  background: white;
+  backdrop-filter: blur(8px);
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 10px;
   padding: 20px;
   margin-top: 20px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
 }
 
 .skills-list {
@@ -126,11 +142,12 @@
 }
 
 .skill-tag {
-  background: #f3f2ef;
+  background: rgba(26, 35, 126, 0.1);
   padding: 6px 12px;
   border-radius: 20px;
   font-size: 13px;
-  color: #0a66c2;
+  color: #1a237e;
+  font-weight: 500;
 }
 
 .feed {
@@ -140,13 +157,15 @@
 }
 
 .post-composer {
-  background: white;
+  backdrop-filter: blur(8px);
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 10px;
   padding: 16px;
   display: flex;
   align-items: center;
   gap: 15px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
 }
 
 .post-composer img {
@@ -165,6 +184,7 @@
   background: white;
   cursor: pointer;
   transition: background-color 0.2s;
+  font-family: 'Inter', sans-serif;
 }
 
 .start-post:hover {
@@ -172,10 +192,12 @@
 }
 
 .post {
-  background: white;
+  backdrop-filter: blur(8px);
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 10px;
   padding: 20px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
 }
 
 .post-header {
@@ -232,17 +254,20 @@
   border-radius: 4px;
   cursor: pointer;
   transition: background-color 0.2s;
+  font-family: 'Inter', sans-serif;
 }
 
 .post-actions button:hover {
-  background: #f3f2ef;
+  background: rgba(26, 35, 126, 0.05);
 }
 
 .trending-card {
-  background: white;
+  backdrop-filter: blur(8px);
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 10px;
   padding: 20px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
 }
 
 .trending-item {
@@ -258,7 +283,7 @@
 }
 
 .trending-item i {
-  color: #0a66c2;
+  color: #1a237e;
   font-size: 20px;
 }
 
@@ -292,5 +317,8 @@
   }
   .nav-links span {
     display: none;
+  }
+  .navbar {
+    padding: 0 16px;
   }
 }
