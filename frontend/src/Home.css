@@ -1,0 +1,296 @@
+.home {
+  background-color: #f3f2ef;
+  min-height: 100vh;
+}
+
+.navbar {
+  background: white;
+  padding: 0 24px;
+  height: 60px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: fixed;
+  width: 100%;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.nav-left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.logo h2 {
+  color: #0a66c2;
+  font-size: 24px;
+}
+
+.search {
+  background: #eef3f8;
+  padding: 8px 16px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.search input {
+  border: none;
+  background: transparent;
+  width: 280px;
+  font-size: 14px;
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+}
+
+.nav-links {
+  display: flex;
+  gap: 25px;
+}
+
+.nav-link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #666;
+  text-decoration: none;
+  font-size: 12px;
+  gap: 4px;
+}
+
+.nav-link.active {
+  color: #0a66c2;
+}
+
+.nav-link i {
+  font-size: 20px;
+}
+
+.main-content {
+  margin-top: 80px;
+  padding: 0 50px;
+  display: grid;
+  grid-template-columns: 300px 1fr 300px;
+  gap: 24px;
+  max-width: 1400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.profile-card {
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.cover-photo {
+  height: 60px;
+  background: linear-gradient(to right, #0a66c2, #0077b5);
+}
+
+.profile-info {
+  padding: 20px;
+  text-align: center;
+  position: relative;
+}
+
+.profile-info img {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: 3px solid white;
+  margin-top: -50px;
+}
+
+.skills-card {
+  background: white;
+  border-radius: 10px;
+  padding: 20px;
+  margin-top: 20px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.skills-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 15px;
+}
+
+.skill-tag {
+  background: #f3f2ef;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  color: #0a66c2;
+}
+
+.feed {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.post-composer {
+  background: white;
+  border-radius: 10px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.post-composer img {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+}
+
+.start-post {
+  flex: 1;
+  padding: 12px 16px;
+  border: 1px solid #dadada;
+  border-radius: 30px;
+  text-align: left;
+  color: #666;
+  background: white;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.start-post:hover {
+  background: #f3f2ef;
+}
+
+.post {
+  background: white;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.post-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 15px;
+}
+
+.post-header img {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+}
+
+.post-info h4 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.post-info p {
+  margin: 2px 0;
+  color: #666;
+  font-size: 14px;
+}
+
+.post-info span {
+  font-size: 12px;
+  color: #00000099;
+}
+
+.post-image {
+  width: 100%;
+  border-radius: 8px;
+  margin: 15px 0;
+}
+
+.post-actions {
+  display: flex;
+  justify-content: space-around;
+  padding-top: 15px;
+  border-top: 1px solid #dadada;
+  margin-top: 15px;
+}
+
+.post-actions button {
+  background: transparent;
+  border: none;
+  color: #666;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.post-actions button:hover {
+  background: #f3f2ef;
+}
+
+.trending-card {
+  background: white;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.trending-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid #dadada;
+}
+
+.trending-item:last-child {
+  border-bottom: none;
+}
+
+.trending-item i {
+  color: #0a66c2;
+  font-size: 20px;
+}
+
+.trending-item h5 {
+  margin: 0;
+  font-size: 14px;
+}
+
+.trending-item p {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: #666;
+}
+
+@media (max-width: 1200px) {
+  .main-content {
+    grid-template-columns: 280px 1fr;
+  }
+  .right-sidebar {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    grid-template-columns: 1fr;
+    padding: 0 20px;
+  }
+  .left-sidebar {
+    display: none;
+  }
+  .nav-links span {
+    display: none;
+  }
+}
