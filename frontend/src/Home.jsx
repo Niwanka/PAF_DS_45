@@ -10,7 +10,7 @@ const Home = () => {
         <div className="nav-left">
           <div className="logo">
             <img src="/logo.png" alt="logo" className="logo-img" />
-            <h2>DevConnect</h2>
+            <h2>Skill Share</h2>
           </div>
           <div className="search">
             <i className="fas fa-search"></i>
