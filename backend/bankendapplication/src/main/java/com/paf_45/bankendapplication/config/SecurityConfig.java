@@ -20,7 +20,7 @@ public class SecurityConfig {
             )
             .oauth2Login(oauth2 -> oauth2
                 .loginPage("/")
-                .defaultSuccessUrl("http://localhost:5173/dashboard", true) // React dashboard
+                .defaultSuccessUrl("http://localhost:5173/home", true) // React dashboard
                 .failureUrl("/?error=true")
             )
             .logout(logout -> logout
