@@ -1,27 +1,20 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
+import ChatBot from './components/ChatBot';
 import './Home.css';
 
 const Home = () => {
-  const navigate = useNavigate();
-  const [showUserMenu, setShowUserMenu] = useState(false);
-
-  const handleLogout = () => {
-    window.location.href = 'http://localhost:9090/logout';
-  };
-
   return (
     <div className="home">
-      {/* Navigation */}
+      {/* Add back the navbar */}
       <nav className="navbar">
         <div className="nav-left">
           <div className="logo">
-            <img src="https://via.placeholder.com/40" alt="Logo" className="logo-img" />
-            <h2>SkillShare</h2>
+            <img src="/logo.png" alt="logo" className="logo-img" />
+            <h2>DevConnect</h2>
           </div>
           <div className="search">
             <i className="fas fa-search"></i>
-            <input type="text" placeholder="Search skills, people, courses..." />
+            <input type="text" placeholder="Search..." />
           </div>
         </div>
         <div className="nav-right">
@@ -35,49 +28,32 @@ const Home = () => {
               <span>Network</span>
             </a>
             <a href="#" className="nav-link">
-              <i className="fas fa-graduation-cap"></i>
-              <span>Learning</span>
-            </a>
-            <a href="#" className="nav-link">
               <i className="fas fa-briefcase"></i>
               <span>Jobs</span>
             </a>
-            <a href="#" className="nav-link notification-link">
-              <i className="fas fa-bell"></i>
-              <span>Notifications</span>
+            <a href="#" className="nav-link">
+              <i className="fas fa-comment-dots"></i>
+              <span>Messages</span>
               <span className="notification-badge">3</span>
             </a>
+            <a href="#" className="nav-link">
+              <i className="fas fa-bell"></i>
+              <span>Notifications</span>
+              <span className="notification-badge">5</span>
+            </a>
           </div>
-          <div className="user-profile" onClick={() => setShowUserMenu(!showUserMenu)}>
-            <img src="https://ui-avatars.com/api/?name=John+Doe&background=1a237e&color=fff" alt="profile" />
-            <span className="user-name">Me <i className="fas fa-caret-down"></i></span>
-            {showUserMenu && (
-              <div className="user-menu">
-                <div className="user-menu-header">
-                  <img src="https://ui-avatars.com/api/?name=John+Doe&background=1a237e&color=fff" alt="profile" />
-                  <div>
-                    <h4>John Doe</h4>
-                    <p>Full Stack Developer</p>
-                  </div>
-                </div>
-                <div className="user-menu-items">
-                  <a href="#"><i className="fas fa-user"></i> View Profile</a>
-                  <a href="#"><i className="fas fa-cog"></i> Settings</a>
-                  <a href="#"><i className="fas fa-question-circle"></i> Help</a>
-                  <button onClick={handleLogout} className="logout-btn">
-                    <i className="fas fa-sign-out-alt"></i> Sign Out
-                  </button>
-                </div>
-              </div>
-            )}
+          <div className="user-profile">
+            <img 
+              src="https://ui-avatars.com/api/?name=John+Doe&background=1a237e&color=fff" 
+              alt="profile" 
+            />
           </div>
         </div>
       </nav>
 
-      {/* Main Content */}
       <main className="main-content">
-        {/* Left Sidebar */}
-        <aside className="left-sidebar">
+        {/* Left sidebar and feed sections remain unchanged */}
+        <div className="left-sidebar">
           <div className="profile-card">
             <div className="cover-photo">
               <img src="https://source.unsplash.com/random/800x200/?gradient" alt="cover" />
@@ -124,10 +100,9 @@ const Home = () => {
               </div>
             </div>
           </div>
-        </aside>
-
-        {/* Main Feed */}
-        <section className="feed">
+        </div>
+        
+        <div className="feed">
           <div className="post-composer">
             <img 
               src="https://ui-avatars.com/api/?name=John+Doe&background=1a237e&color=fff" 
@@ -154,7 +129,6 @@ const Home = () => {
           </div>
 
           <div className="posts">
-            {/* Featured Post */}
             <article className="post featured">
               <div className="post-badge">
                 <i className="fas fa-star"></i> Featured
@@ -193,7 +167,6 @@ const Home = () => {
               </div>
             </article>
 
-            {/* Regular Post */}
             <article className="post">
               <div className="post-header">
                 <img 
@@ -226,69 +199,12 @@ const Home = () => {
               </div>
             </article>
           </div>
-        </section>
+        </div>
 
-        {/* Right Sidebar */}
-        <aside className="right-sidebar">
-          <div className="trending-card">
-            <h4><i className="fas fa-chart-line"></i> Trending in Tech</h4>
-            <div className="trending-list">
-              <div className="trending-item">
-                <div className="trending-number">#1</div>
-                <div>
-                  <h5>Machine Learning</h5>
-                  <p>1,234 people learning</p>
-                </div>
-              </div>
-              <div className="trending-item">
-                <div className="trending-number">#2</div>
-                <div>
-                  <h5>Cloud Computing</h5>
-                  <p>892 people learning</p>
-                </div>
-              </div>
-              <div className="trending-item">
-                <div className="trending-number">#3</div>
-                <div>
-                  <h5>DevOps</h5>
-                  <p>645 people learning</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="suggestions-card">
-            <h4><i className="fas fa-user-plus"></i> Suggested Connections</h4>
-            <div className="suggestions-list">
-              <div className="suggestion-item">
-                <img 
-                  src="https://ui-avatars.com/api/?name=Alex+Johnson&background=1a237e&color=fff" 
-                  alt="Alex" 
-                />
-                <div>
-                  <h5>Alex Johnson</h5>
-                  <p>Senior Developer at Google</p>
-                  <button className="connect-btn">
-                    <i className="fas fa-plus"></i> Connect
-                  </button>
-                </div>
-              </div>
-              <div className="suggestion-item">
-                <img 
-                  src="https://ui-avatars.com/api/?name=Emily+Chen&background=1a237e&color=fff" 
-                  alt="Emily" 
-                />
-                <div>
-                  <h5>Emily Chen</h5>
-                  <p>UX Designer at Apple</p>
-                  <button className="connect-btn">
-                    <i className="fas fa-plus"></i> Connect
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </aside>
+        {/* Right sidebar with ChatBot */}
+        <div className="right-sidebar">
+          <ChatBot />
+        </div>
       </main>
     </div>
   );
