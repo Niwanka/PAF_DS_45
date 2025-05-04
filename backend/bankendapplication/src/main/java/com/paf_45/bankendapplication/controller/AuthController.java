@@ -15,7 +15,15 @@ public class AuthController {
     @GetMapping("/user")
     @ResponseBody
     public Map<String, Object> user(@AuthenticationPrincipal OAuth2User principal) {
-        return Collections.singletonMap("name", principal.getAttribute("name"));
+        if (principal == null) {
+            // Not authenticated
+            return Collections.emptyMap();
+        }
+        return Map.of(
+            "name", principal.getAttribute("name"),
+            "email", principal.getAttribute("email"),
+            "picture", principal.getAttribute("picture")
+        );
     }
 
     @GetMapping("/")
@@ -30,4 +38,4 @@ public class AuthController {
         model.addAttribute("picture", principal.getAttribute("picture"));
         return "dashboard";
     }
-} 
+}

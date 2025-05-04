@@ -20,11 +20,11 @@ public class SecurityConfig {
             )
             .oauth2Login(oauth2 -> oauth2
                 .loginPage("/")
-                .defaultSuccessUrl("/dashboard", true)
+                .defaultSuccessUrl("http://localhost:5173/dashboard", true) // React dashboard
                 .failureUrl("/?error=true")
             )
             .logout(logout -> logout
-                .logoutSuccessUrl("/")
+                .logoutSuccessUrl("http://localhost:5173/") // React login page
                 .clearAuthentication(true)
                 .invalidateHttpSession(true)
                 .deleteCookies("JSESSIONID")
