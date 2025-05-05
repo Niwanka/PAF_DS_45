@@ -1,11 +1,15 @@
 package com.paf_45.bankendapplication.controller;
 
+import com.paf_45.bankendapplication.dto.UserProfileDTO;
 import com.paf_45.bankendapplication.model.UserProfile;
 import com.paf_45.bankendapplication.service.UserProfileService;
 import com.paf_45.bankendapplication.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/profile")
@@ -51,6 +55,25 @@ public class UserProfileController {
                     userProfileService.deleteProfile(userId);
                     return ResponseEntity.noContent().<Void>build();
                 })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    // Get all users
+    @GetMapping("/all")
+    public ResponseEntity<List<UserProfileDTO>> getAllUsers() {
+        List<UserProfile> users = userProfileService.getAllUsers();
+        List<UserProfileDTO> userDTOs = users.stream()
+                .map(UserProfileDTO::fromUserProfile)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(userDTOs);
+    }
+
+    // Get user by ID
+    @GetMapping("/{userId}")
+    public ResponseEntity<UserProfileDTO> getUserById(@PathVariable String userId) {
+        return userProfileService.getUserById(userId)
+                .map(UserProfileDTO::fromUserProfile)
+                .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 }
