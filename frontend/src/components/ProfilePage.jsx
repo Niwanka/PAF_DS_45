@@ -124,127 +124,222 @@ const ProfilePage = () => {
   if (!userProfile) return <div>User not found</div>;
 
   return (
-    <div className="profile-page">
-      <div className="profile-header">
-        <div className="cover-photo">
-          <img src="https://source.unsplash.com/random/800x200/?gradient" alt="cover" />
+    <div className="home">
+      {/* Navbar - Matching Home page theme */}
+      <nav className="navbar">
+        <div className="nav-left">
+          <img src="/logo.png" alt="Logo" className="nav-logo" />
+          <div className="search-box">
+            <i className="fas fa-search search-icon"></i>
+            <input type="text" placeholder="Search" />
+          </div>
         </div>
-        <div className="profile-info">
-          <img 
-            src={userProfile.picture || `https://ui-avatars.com/api/?name=${userProfile.firstName}+${userProfile.lastName}`}
-            alt="profile"
-            className="profile-avatar"
-          />
-          {isEditing ? (
-            <div className="edit-fields">
-              <input
-                type="text"
-                name="firstName"
-                value={editedProfile.firstName}
-                onChange={handleChange}
-                placeholder="First Name"
+        <div className="nav-menu">
+          <a href="/home" className="nav-item">
+            <i className="fas fa-home"></i>
+            <span>Home</span>
+          </a>
+          <a href="#network" className="nav-item">
+            <i className="fas fa-user-friends"></i>
+            <span>Network</span>
+          </a>
+          <a href="#jobs" className="nav-item">
+            <i className="fas fa-briefcase"></i>
+            <span>Jobs</span>
+          </a>
+          <a href="#messaging" className="nav-item">
+            <i className="fas fa-comment-dots"></i>
+            <span>Messaging</span>
+          </a>
+          <a href="#notifications" className="nav-item">
+            <i className="fas fa-bell"></i>
+            <span>Notifications</span>
+          </a>
+          <div className="nav-item active">
+            <img 
+              src={userProfile?.picture || `https://ui-avatars.com/api/?name=${userProfile?.firstName}+${userProfile?.lastName}`}
+              alt="Profile"
+              className="nav-profile-photo"
+            />
+            <span>Me</span>
+          </div>
+        </div>
+      </nav>
+
+      <div className="profile-main-content">
+        <div className="profile-container">
+          <div className="profile-header-wrapper">
+            <div className="cover-photo-container">
+              <img 
+                src="https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=1200" 
+                alt="cover" 
+                className="cover-image"
               />
-              <input
-                type="text"
-                name="lastName"
-                value={editedProfile.lastName}
-                onChange={handleChange}
-                placeholder="Last Name"
-              />
+              {isEditing && (
+                <button className="change-cover-btn">
+                  <i className="fas fa-camera"></i> Change Cover
+                </button>
+              )}
             </div>
-          ) : (
-            <h2>{`${userProfile.firstName} ${userProfile.lastName}`}</h2>
-          )}
-        </div>
-      </div>
+            
+            <div className="profile-header-content">
+              <div className="profile-photo-container">
+                <img 
+                  src={userProfile?.picture || `https://ui-avatars.com/api/?name=${userProfile?.firstName}+${userProfile?.lastName}&size=200`}
+                  alt="profile" 
+                  className="profile-photo"
+                />
+                {isEditing && (
+                  <button className="change-photo-btn">
+                    <i className="fas fa-camera"></i>
+                  </button>
+                )}
+              </div>
 
-      <div className="profile-content">
-        <div className="profile-section">
-          <h3>About</h3>
-          {isEditing ? (
-            <textarea
-              name="bio"
-              value={editedProfile.bio}
-              onChange={handleChange}
-              placeholder="Tell us about yourself"
-            />
-          ) : (
-            <p>{userProfile.bio}</p>
-          )}
-        </div>
+              <div className="profile-info-container">
+                {isEditing ? (
+                  <div className="edit-form">
+                    <div className="edit-name-container">
+                      <input
+                        type="text"
+                        name="firstName"
+                        value={editedProfile.firstName}
+                        onChange={handleChange}
+                        placeholder="First Name"
+                        className="name-input"
+                      />
+                      <input
+                        type="text"
+                        name="lastName"
+                        value={editedProfile.lastName}
+                        onChange={handleChange}
+                        placeholder="Last Name"
+                        className="name-input"
+                      />
+                    </div>
+                    <input
+                      type="text"
+                      name="profession"
+                      value={editedProfile.profession}
+                      onChange={handleChange}
+                      placeholder="Headline"
+                      className="headline-input"
+                    />
+                    <input
+                      type="text"
+                      name="location"
+                      value={editedProfile.location}
+                      onChange={handleChange}
+                      placeholder="Location"
+                      className="location-input"
+                    />
+                  </div>
+                ) : (
+                  <>
+                    <h1 className="profile-name">{`${userProfile?.firstName} ${userProfile?.lastName}`}</h1>
+                    <p className="profile-headline">{userProfile?.profession || 'Add your profession'}</p>
+                    <p className="profile-location">
+                      <i className="fas fa-map-marker-alt"></i> {userProfile?.location || 'Add location'}
+                    </p>
+                  </>
+                )}
+              </div>
 
-        <div className="profile-section">
-          <h3>Professional Information</h3>
-          {isEditing ? (
-            <>
-              <input
-                type="text"
-                name="profession"
-                value={editedProfile.profession}
-                onChange={handleChange}
-                placeholder="Profession"
-              />
-              <input
-                type="text"
-                name="location"
-                value={editedProfile.location}
-                onChange={handleChange}
-                placeholder="Location"
-              />
-            </>
-          ) : (
-            <>
-              <p><strong>Profession:</strong> {userProfile.profession}</p>
-              <p><strong>Location:</strong> {userProfile.location}</p>
-            </>
-          )}
-        </div>
-
-        <div className="profile-section">
-          <h3>Skills</h3>
-          {isEditing ? (
-            <input
-              type="text"
-              value={editedProfile.skills?.join(', ')}
-              onChange={handleSkillsChange}
-              placeholder="Enter skills (comma-separated)"
-            />
-          ) : (
-            <div className="skills-list">
-              {userProfile.skills?.map((skill, index) => (
-                <span key={index} className="skill-tag">{skill}</span>
-              ))}
+              <div className="profile-actions">
+                {isEditing ? (
+                  <>
+                    <button className="btn-save" onClick={handleSave}>
+                      <i className="fas fa-check"></i> Save Changes
+                    </button>
+                    <button className="btn-cancel" onClick={handleCancel}>
+                      <i className="fas fa-times"></i> Cancel
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button className="btn-edit" onClick={handleEdit}>
+                      <i className="fas fa-pen"></i> Edit Profile
+                    </button>
+                    <button className="btn-delete" onClick={handleDelete}>
+                      <i className="fas fa-trash"></i> Delete Account
+                    </button>
+                  </>
+                )}
+              </div>
             </div>
-          )}
-        </div>
+          </div>
 
-        <div className="profile-section">
-          <h3>Education</h3>
-          {isEditing ? (
-            <input
-              type="text"
-              name="education"
-              value={editedProfile.education}
-              onChange={handleChange}
-              placeholder="Education"
-            />
-          ) : (
-            <p>{userProfile.education}</p>
-          )}
-        </div>
+          <div className="profile-grid">
+            <div className="profile-card about-card">
+              <h3><i className="fas fa-user"></i> About</h3>
+              {isEditing ? (
+                <textarea
+                  name="bio"
+                  value={editedProfile.bio}
+                  onChange={handleChange}
+                  placeholder="Tell us about yourself..."
+                  className="bio-input"
+                />
+              ) : (
+                <p>{userProfile?.bio || 'Add a bio to tell your story'}</p>
+              )}
+            </div>
 
-        <div className="profile-actions">
-          {isEditing ? (
-            <>
-              <button className="btn-save" onClick={handleSave}>Save Changes</button>
-              <button className="btn-cancel" onClick={handleCancel}>Cancel</button>
-            </>
-          ) : (
-            <>
-              <button className="btn-edit" onClick={handleEdit}>Edit Profile</button>
-              <button className="btn-delete" onClick={handleDelete}>Delete Account</button>
-            </>
-          )}
+            <div className="profile-card experience-card">
+              <h3><i className="fas fa-briefcase"></i> Experience</h3>
+              {isEditing ? (
+                <input
+                  type="text"
+                  name="experience"
+                  value={editedProfile.experience}
+                  onChange={handleChange}
+                  placeholder="Add your experience"
+                  className="experience-input"
+                />
+              ) : (
+                <div className="experience-list">
+                  {userProfile?.experience || 'Add your professional experience'}
+                </div>
+              )}
+            </div>
+
+            <div className="profile-card education-card">
+              <h3><i className="fas fa-graduation-cap"></i> Education</h3>
+              {isEditing ? (
+                <input
+                  type="text"
+                  name="education"
+                  value={editedProfile.education}
+                  onChange={handleChange}
+                  placeholder="Add your education"
+                  className="education-input"
+                />
+              ) : (
+                <div className="education-list">
+                  {userProfile?.education || 'Add your education'}
+                </div>
+              )}
+            </div>
+
+            <div className="profile-card skills-card">
+              <h3><i className="fas fa-code"></i> Skills</h3>
+              {isEditing ? (
+                <input
+                  type="text"
+                  value={editedProfile.skills?.join(', ')}
+                  onChange={handleSkillsChange}
+                  placeholder="Add skills (comma-separated)"
+                  className="skills-input"
+                />
+              ) : (
+                <div className="skills-container">
+                  {userProfile?.skills?.map((skill, index) => (
+                    <span key={index} className="skill-badge">{skill}</span>
+                  )) || 'Add your skills'}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </div>
