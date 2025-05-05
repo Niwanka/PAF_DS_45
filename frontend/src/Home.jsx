@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Home.css";
+import SearchBox from './components/SearchBox';
 
 const Home = () => {
   const [user, setUser] = useState(null);
@@ -53,10 +54,7 @@ const Home = () => {
           <a href="/home" className="nav-brand">
             Skill Share
           </a>
-          <div className="search-box">
-            <i className="fas fa-search search-icon"></i>
-            <input type="text" placeholder="Search" />
-          </div>
+          <SearchBox />
         </div>
         <div className="nav-menu">
           <a href="/home" className="nav-item active">

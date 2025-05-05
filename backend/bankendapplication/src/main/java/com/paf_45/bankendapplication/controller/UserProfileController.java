@@ -76,4 +76,14 @@ public class UserProfileController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
+
+    // Search users by query
+    @GetMapping("/search")
+    public ResponseEntity<List<UserProfileDTO>> searchUsers(@RequestParam String query) {
+        List<UserProfile> users = userProfileService.searchUsers(query);
+        List<UserProfileDTO> userDTOs = users.stream()
+                .map(UserProfileDTO::fromUserProfile)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(userDTOs);
+    }
 }

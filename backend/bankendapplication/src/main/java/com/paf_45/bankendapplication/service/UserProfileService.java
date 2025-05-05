@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UserProfileService {
@@ -34,5 +35,15 @@ public class UserProfileService {
 
     public void deleteProfile(String userId) {
         userProfileRepository.deleteBySub(userId);
+    }
+
+    public List<UserProfile> searchUsers(String query) {
+        String searchQuery = query.toLowerCase();
+        return userProfileRepository.findAll().stream()
+                .filter(user -> 
+                    (user.getFirstName() != null && user.getFirstName().toLowerCase().contains(searchQuery)) ||
+                    (user.getLastName() != null && user.getLastName().toLowerCase().contains(searchQuery)) ||
+                    (user.getProfileName() != null && user.getProfileName().toLowerCase().contains(searchQuery)))
+                .collect(Collectors.toList());
     }
 }
