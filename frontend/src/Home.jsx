@@ -28,7 +28,9 @@ const Home = () => {
     <div className="home">
       <nav className="navbar">
         <div className="nav-left">
-          <a href="/home" className="nav-brand">Skill Share</a>
+          <a href="/home" className="nav-brand">
+            Skill Share
+          </a>
           <div className="search-box">
             <i className="fas fa-search search-icon"></i>
             <input type="text" placeholder="Search" />
@@ -55,7 +57,10 @@ const Home = () => {
             <i className="fas fa-bell"></i>
             <span>Notifications</span>
           </a>
-          <div className="nav-item " onClick={() => navigate(`/profile/${user?.sub}`)}>
+          <div
+            className="nav-item "
+            onClick={() => navigate(`/profile/${user?.sub}`)}
+          >
             <img
               src={
                 user?.picture ||
@@ -93,6 +98,17 @@ const Home = () => {
                 <span>Post impressions</span>
                 <strong>251</strong>
               </div>
+            </div>
+            <div class="learning-nav">
+              <div class="learning-nav-title">Learning Navigation</div>
+              <a href="/learning-planning" class="learning-nav-link">
+                <i class="fas fa-tasks"></i>
+                Learning Planning
+              </a>
+              <a href="/learning-progress" class="learning-nav-link">
+                <i class="fas fa-chart-line"></i>
+                Learning Progress
+              </a>
             </div>
           </div>
         </aside>

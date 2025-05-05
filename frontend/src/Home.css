@@ -107,12 +107,12 @@
 
 /* Main Content Layout */
 .main-content {
-  max-width: 1440px; /* Increased from 1280px */
+  max-width: 1440px;
   margin: 80px auto 0;
-  padding: 24px 8px; /* Reduced padding further */
+  padding: 24px 8px;
   display: grid;
-  grid-template-columns: 250px 650px 350px; /* Adjusted column widths */
-  gap: 32px; /* Increased gap between columns */
+  grid-template-columns: 300px 650px 350px; /* Increased left column from 250px to 300px */
+  gap: 32px;
 }
 
 /* Profile Section */
@@ -299,11 +299,53 @@
   color: #666;
 }
 
+/* Add new styles for learning navigation */
+.learning-nav {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(26, 35, 126, 0.1);
+  margin-top: 16px;
+  padding: 16px;
+}
+
+.learning-nav-title {
+  color: #1a237e;
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(26, 35, 126, 0.1);
+}
+
+.learning-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  color: #666;
+  text-decoration: none;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  margin-bottom: 8px;
+}
+
+.learning-nav-link i {
+  font-size: 20px;
+  color: #1a237e;
+}
+
+.learning-nav-link:hover {
+  background: rgba(26, 35, 126, 0.05);
+  color: #1a237e;
+}
+
 /* Responsive Design */
 @media (max-width: 1440px) {
   .main-content {
     max-width: 1200px;
-    grid-template-columns: 225px 580px 300px;
+    grid-template-columns: 275px 580px 300px; /* Adjusted for new left column width */
     gap: 24px;
   }
 }
