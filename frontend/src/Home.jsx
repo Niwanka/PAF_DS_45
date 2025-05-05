@@ -4,6 +4,7 @@ import "./Home.css";
 
 const Home = () => {
   const [user, setUser] = useState(null);
+  const [userProfile, setUserProfile] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -23,6 +24,27 @@ const Home = () => {
 
     fetchUserData();
   }, [navigate]);
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const response = await fetch('http://localhost:9090/api/profile', {
+          credentials: 'include'
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch user profile');
+        }
+        
+        const data = await response.json();
+        setUserProfile(data);
+      } catch (err) {
+        console.error('Error fetching user profile:', err);
+      }
+    };
+
+    fetchUserProfile();
+  }, []);
 
   return (
     <div className="home">
@@ -57,14 +79,14 @@ const Home = () => {
             <i className="fas fa-bell"></i>
             <span>Notifications</span>
           </a>
-          <div
-            className="nav-item "
-            onClick={() => navigate(`/profile/${user?.sub}`)}
+          <div 
+            className="nav-item"
+            onClick={() => navigate(`/profile/${userProfile?.sub}`)}
           >
             <img
               src={
-                user?.picture ||
-                `https://ui-avatars.com/api/?name=${user?.name || "User"}`
+                userProfile?.picture ||
+                `https://ui-avatars.com/api/?name=${userProfile?.firstName}+${userProfile?.lastName || "User"}`
               }
               alt="Profile"
               className="nav-profile-photo"
@@ -81,35 +103,37 @@ const Home = () => {
           <div className="profile-content">
             <img
               src={
-                user?.picture ||
-                `https://ui-avatars.com/api/?name=${user?.name || "User"}`
+                userProfile?.picture ||
+                `https://ui-avatars.com/api/?name=${userProfile?.firstName}+${userProfile?.lastName || "User"}`
               }
               alt="Profile"
               className="profile-photo"
             />
-            <h2 className="profile-name">{user?.name}</h2>
-            <p className="profile-headline">Software Developer</p>
-            <div className="profile-stats">
-              <div className="stat-item">
-                <span>Who's viewed your profile</span>
-                <strong>47</strong>
-              </div>
-              <div className="stat-item">
-                <span>Post impressions</span>
-                <strong>251</strong>
-              </div>
+            <h2 className="profile-name">
+              {userProfile ? `${userProfile.firstName} ${userProfile.lastName}` : 'Loading...'}
+            </h2>
+            <p className="profile-headline">{userProfile?.profession || 'Add a headline'}</p>
+          </div>
+          <div className="profile-stats">
+            <div className="stat-item">
+              <span>Who's viewed your profile</span>
+              <strong>47</strong>
             </div>
-            <div class="learning-nav">
-              <div class="learning-nav-title">Learning Navigation</div>
-              <a href="/learning-planning" class="learning-nav-link">
-                <i class="fas fa-tasks"></i>
-                Learning Planning
-              </a>
-              <a href="/learning-progress" class="learning-nav-link">
-                <i class="fas fa-chart-line"></i>
-                Learning Progress
-              </a>
+            <div className="stat-item">
+              <span>Post impressions</span>
+              <strong>251</strong>
             </div>
+          </div>
+          <div class="learning-nav">
+            <div class="learning-nav-title">Learning Navigation</div>
+            <a href="/learning-planning" class="learning-nav-link">
+              <i class="fas fa-tasks"></i>
+              Learning Planning
+            </a>
+            <a href="/learning-progress" class="learning-nav-link">
+              <i class="fas fa-chart-line"></i>
+              Learning Progress
+            </a>
           </div>
         </aside>
 
