@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import Post from './Post';
 import './PostList.css';
 
 const PostList = () => {
@@ -43,7 +44,6 @@ const PostList = () => {
       await axios.post(`http://localhost:9090/api/posts/${postId}/like`, {}, {
         withCredentials: true
       });
-      // Update posts to reflect the new like
       setPosts(posts.map(post => 
         post.id === postId 
           ? { ...post, likes: post.likes + 1 }
@@ -55,7 +55,6 @@ const PostList = () => {
   };
 
   const handleShare = (postId) => {
-    // Implement share functionality
     console.log('Sharing post:', postId);
   };
 
@@ -76,73 +75,13 @@ const PostList = () => {
   return (
     <div className="posts-container">
       {posts.map((post) => (
-        <article key={post.id} className="post-card">
-          <div className="post-header">
-            <div className="post-author">
-              <img 
-                src={post.authorPicture || `https://ui-avatars.com/api/?name=${post.authorName}`}
-                alt={post.authorName}
-                className="author-avatar"
-              />
-              <div className="author-info">
-                <h4>{post.authorName}</h4>
-                <p className="post-meta">
-                  {post.authorTitle}
-                  <span className="post-time">
-                    • {new Date(post.createdAt).toLocaleDateString()}
-                  </span>
-                </p>
-              </div>
-            </div>
-            {currentUserProfile?.sub === post.userId && (
-              <div className="post-actions-menu">
-                <button className="action-button">
-                  <i className="fas fa-ellipsis-h"></i>
-                </button>
-              </div>
-            )}
-          </div>
-
-          <div className="post-content">
-            <h3 className="post-title">{post.title}</h3>
-            <p className="post-text">{post.content}</p>
-            {post.image && (
-              <div className="post-media">
-                <img src={post.image} alt="Post content" />
-              </div>
-            )}
-          </div>
-
-          <div className="post-stats">
-            <span className="likes">
-              <i className="fas fa-thumbs-up"></i> {post.likes || 0}
-            </span>
-            <span className="comments">
-              {post.comments?.length || 0} comments
-            </span>
-          </div>
-
-          <div className="post-actions">
-            <button 
-              className="action-button"
-              onClick={() => handleLike(post.id)}
-            >
-              <i className="far fa-thumbs-up"></i>
-              Like
-            </button>
-            <button className="action-button">
-              <i className="far fa-comment"></i>
-              Comment
-            </button>
-            <button 
-              className="action-button"
-              onClick={() => handleShare(post.id)}
-            >
-              <i className="far fa-share-square"></i>
-              Share
-            </button>
-          </div>
-        </article>
+        <Post
+          key={post.id}
+          post={post}
+          currentUserProfile={currentUserProfile}
+          onLike={handleLike}
+          onShare={handleShare}
+        />
       ))}
     </div>
   );
