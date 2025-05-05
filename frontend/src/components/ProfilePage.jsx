@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import './ProfilePage.css';
 
 const ProfilePage = () => {
@@ -62,7 +64,6 @@ const ProfilePage = () => {
 
   const handleSave = async () => {
     try {
-      // Create a cleaned profile object with only the fields you want to update
       const updatedProfileData = {
         firstName: editedProfile.firstName,
         lastName: editedProfile.lastName,
@@ -90,10 +91,24 @@ const ProfilePage = () => {
       const updatedProfile = await response.json();
       setUserProfile(updatedProfile);
       setIsEditing(false);
-      alert('Profile updated successfully!');
+      toast.success('Profile updated successfully!', {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true
+      });
     } catch (err) {
       console.error('Update error:', err);
-      alert('Failed to update profile: ' + err.message);
+      toast.error('Failed to update profile: ' + err.message, {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true
+      });
     }
   };
 
@@ -115,13 +130,25 @@ const ProfilePage = () => {
           throw new Error(errorData.message || 'Failed to delete account');
         }
 
-        // On successful deletion
-        alert('Account deleted successfully');
-        // Redirect to logout endpoint
-        window.location.href = 'http://localhost:9090/logout';
+        toast.success('Account deleted successfully', {
+          position: "top-center",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          onClose: () => window.location.href = 'http://localhost:9090/logout'
+        });
       } catch (err) {
         console.error('Delete error:', err);
-        setError(err.message);
+        toast.error(err.message, {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true
+        });
       }
     }
   };
@@ -349,6 +376,18 @@ const ProfilePage = () => {
           </div>
         </div>
       </div>
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
     </div>
   );
 };
