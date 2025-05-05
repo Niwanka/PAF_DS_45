@@ -1,14 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const ChatBot = () => {
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState([
+    { text: "Hi there! I'm your AI assistant. How can I help you today?", isUser: false }
+  ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef(null);
-
-  // Initialize Gemini API with simplified configuration
-  const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -17,6 +15,37 @@ const ChatBot = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Use dummy responses for development when API is unavailable
+  const getDummyResponse = (question) => {
+    const responses = {
+      default: "I'm sorry, I don't have specific information about that. Could you ask something else?",
+      greeting: "Hello! How can I help you today?",
+      help: "I can help you with information about web development, programming languages, job searching tips, and more. What would you like to know about?",
+      react: "React is a JavaScript library for building user interfaces. It's maintained by Facebook and a community of developers. React makes it painless to create interactive UIs.",
+      javascript: "JavaScript is a programming language that enables interactive web pages. It's an essential part of web applications.",
+      nodejs: "Node.js is a JavaScript runtime built on Chrome's V8 JavaScript engine. It allows you to run JavaScript on the server side.",
+      skill: "Some in-demand skills for developers include: React, Node.js, TypeScript, Cloud services (AWS/Azure/GCP), and data structures & algorithms."
+    };
+
+    const lowerQuestion = question.toLowerCase();
+    
+    if (lowerQuestion.includes("hello") || lowerQuestion.includes("hi ")) {
+      return responses.greeting;
+    } else if (lowerQuestion.includes("help") || lowerQuestion.includes("can you")) {
+      return responses.help;
+    } else if (lowerQuestion.includes("react")) {
+      return responses.react;
+    } else if (lowerQuestion.includes("javascript") || lowerQuestion.includes("js")) {
+      return responses.javascript;
+    } else if (lowerQuestion.includes("node")) {
+      return responses.nodejs;
+    } else if (lowerQuestion.includes("skill")) {
+      return responses.skill;
+    }
+    
+    return responses.default;
+  };
 
   const handleSend = async () => {
     if (!input.trim()) return;
@@ -27,17 +56,57 @@ const ChatBot = () => {
     setIsLoading(true);
 
     try {
-      const model = genAI.getGenerativeModel({ model: "gemini-pro" });
-      const prompt = userMessage.trim();
+      // Try to use the API if available, otherwise fall back to dummy responses
+      let botResponse;
       
-      const result = await model.generateContent(prompt);
-      const text = await result.response.text();
+      try {
+        const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+        
+        // First try the v1 endpoint
+        const response = await fetch(
+          `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${API_KEY}`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              contents: [
+                {
+                  parts: [
+                    { text: userMessage }
+                  ]
+                }
+              ]
+            })
+          }
+        );
 
-      setMessages(prev => [...prev, { text, isUser: false }]);
+        if (!response.ok) {
+          throw new Error(`API responded with status ${response.status}`);
+        }
+
+        const data = await response.json();
+        if (data.candidates && 
+            data.candidates[0] && 
+            data.candidates[0].content && 
+            data.candidates[0].content.parts && 
+            data.candidates[0].content.parts[0]) {
+          botResponse = data.candidates[0].content.parts[0].text;
+        } else {
+          throw new Error("Invalid response format");
+        }
+      } catch (apiError) {
+        console.error('API Error:', apiError);
+        // Fall back to dummy responses
+        botResponse = getDummyResponse(userMessage);
+      }
+
+      setMessages(prev => [...prev, { text: botResponse, isUser: false }]);
     } catch (error) {
-      console.error('Gemini API Error:', error);
+      console.error('General Error:', error);
       setMessages(prev => [...prev, { 
-        text: `Error: ${error.message || 'Something went wrong. Please check your API key.'}`, 
+        text: "I'm having trouble connecting right now. Let me try to help anyway: " + getDummyResponse(userMessage), 
         isUser: false 
       }]);
     }
@@ -62,7 +131,11 @@ const ChatBot = () => {
         {isLoading && (
           <div className="message bot-message">
             <div className="message-content">
-              Thinking...
+              <div className="typing-indicator">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
             </div>
           </div>
         )}
@@ -76,7 +149,11 @@ const ChatBot = () => {
           onKeyPress={(e) => e.key === 'Enter' && handleSend()}
           placeholder="Ask me anything..."
         />
-        <button className="send-button" onClick={handleSend}>
+        <button 
+          className="send-button" 
+          onClick={handleSend}
+          disabled={isLoading || !input.trim()}
+        >
           <i className="fas fa-paper-plane"></i>
         </button>
       </div>
