@@ -240,63 +240,62 @@
   color: #1a237e;
 }
 
-/* News Section */
+/* News Section - Convert to Chatbot Section */
 .news-section {
   background: white;
   border-radius: 16px;
   padding: 20px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   border: 1px solid rgba(26, 35, 126, 0.1);
-  margin-right: -8px; /* Add negative margin to move right */
-  width: 350px; /* Match grid column width */
+  margin-right: -8px;
+  width: 350px;
+  height: calc(100vh - 120px); /* Adjust height to fill viewport */
+  position: sticky;
+  top: 80px; /* Account for navbar height */
 }
 
-.news-header {
+/* Hide news related elements */
+.news-header, .news-item {
+  display: none;
+}
+
+/* Enhance chatbot styling */
+.chatbot-wrapper {
+  height: 100%;
+  margin: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.chatbot-container {
+  height: 100%;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid rgba(26, 35, 126, 0.1);
+  flex-direction: column;
 }
 
-.news-title {
-  font-size: 16px;
-  font-weight: 600;
-  color: #1a237e;
+.chat-messages {
+  max-height: calc(100% - 60px); /* Leave space for input */
+  overflow-y: auto;
+  padding: 16px;
 }
 
-.news-item {
-  display: flex;
-  gap: 12px;
-  padding: 12px 0;
-  border-bottom: 1px solid rgba(26, 35, 126, 0.1);
-  cursor: pointer;
-  transition: all 0.3s ease;
+/* Add these new styles for better chat appearance */
+.chat-input-container {
+  padding: 16px;
+  border-top: 1px solid rgba(26, 35, 126, 0.1);
+  background: white;
 }
 
-.news-item:hover {
-  background: rgba(26, 35, 126, 0.02);
+.chat-input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid rgba(26, 35, 126, 0.2);
+  border-radius: 8px;
+  outline: none;
 }
 
-.news-bullet {
-  width: 8px;
-  height: 8px;
-  background: #1a237e;
-  border-radius: 50%;
-  margin-top: 6px;
-}
-
-.news-content h4 {
-  font-size: 14px;
-  margin: 0 0 4px;
-  color: #333;
-  font-weight: 500;
-}
-
-.news-time {
-  font-size: 12px;
-  color: #666;
+.chat-input:focus {
+  border-color: #1a237e;
 }
 
 /* Add new styles for learning navigation */

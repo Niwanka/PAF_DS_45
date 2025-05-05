@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Home.css";
 import SearchBox from './components/SearchBox';
+import ChatBot from './components/ChatBot';
 
 const Home = () => {
   const [user, setUser] = useState(null);
@@ -174,20 +175,10 @@ const Home = () => {
         </section>
 
         {/* Right Sidebar - News Section */}
-        <aside className="news-section">
-          <div className="news-header">
-            <h2 className="news-title">Latest News</h2>
-            <i className="fas fa-info-circle"></i>
+        <aside >
+          <div className="chatbot-wrapper">
+            <ChatBot />
           </div>
-          {/* News items */}
-          <div className="news-item">
-            <div className="news-bullet"></div>
-            <div className="news-content">
-              <h4>Top news: Tech industry updates</h4>
-              <span className="news-time">4h ago • 4,305 readers</span>
-            </div>
-          </div>
-          {/* Add more news items */}
         </aside>
       </main>
     </div>
