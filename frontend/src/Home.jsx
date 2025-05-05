@@ -28,7 +28,7 @@ const Home = () => {
     <div className="home">
       <nav className="navbar">
         <div className="nav-left">
-          <img src="/logo.png" alt="Logo" className="nav-logo" />
+          <a href="/home" className="nav-brand">Skill Share</a>
           <div className="search-box">
             <i className="fas fa-search search-icon"></i>
             <input type="text" placeholder="Search" />
