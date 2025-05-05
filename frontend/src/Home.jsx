@@ -3,11 +3,16 @@ import { useNavigate } from "react-router-dom";
 import "./Home.css";
 import SearchBox from './components/SearchBox';
 import ChatBot from './components/ChatBot';
+import PostList from './components/PostList';
+import PostModal from './components/PostModal';
+
+
 
 const Home = () => {
   const [user, setUser] = useState(null);
   const [userProfile, setUserProfile] = useState(null);
   const navigate = useNavigate();
+  const [isPostModalOpen, setIsPostModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -147,7 +152,12 @@ const Home = () => {
                 }
                 alt="Profile"
               />
-              <button className="post-button">Start a post</button>
+              <button 
+                className="post-button"
+                onClick={() => setIsPostModalOpen(true)}
+              >
+                Start a post
+              </button>
             </div>
             <div className="post-actions">
               <div className="post-action">
@@ -172,6 +182,9 @@ const Home = () => {
             </div>
           </div>
           {/* Add posts here */}
+          <div>
+          <PostList/>
+          </div>
         </section>
 
         {/* Right Sidebar - News Section */}
@@ -181,6 +194,10 @@ const Home = () => {
           </div>
         </aside>
       </main>
+      <PostModal 
+        isOpen={isPostModalOpen}
+        onClose={() => setIsPostModalOpen(false)}
+      />
     </div>
   );
 };
