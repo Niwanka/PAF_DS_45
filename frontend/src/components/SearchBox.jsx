@@ -65,12 +65,19 @@ const SearchBox = () => {
     return (
         <div className="search-container" ref={searchRef}>
             <div className="search-input-container">
+                <i className="fas fa-search" style={{ 
+                    position: 'absolute', 
+                    left: '12px', 
+                    color: '#666',
+                    fontSize: '14px'
+                }}></i>
                 <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search users..."
                     className="search-input"
+                    style={{ paddingLeft: '35px' }}
                 />
                 {isLoading && <div className="search-spinner"></div>}
             </div>
@@ -79,9 +86,9 @@ const SearchBox = () => {
                 <div className="search-results">
                     {searchResults.map((user) => (
                         <div
-                            key={user.id}
+                            key={user.sub}
                             className="search-result-item"
-                            onClick={() => handleSelectUser(user.id)}
+                            onClick={() => handleSelectUser(user.sub)}
                         >
                             <img
                                 src={user.picture || `https://ui-avatars.com/api/?name=${user.firstName}+${user.lastName}`}
@@ -93,7 +100,7 @@ const SearchBox = () => {
                                     {user.firstName} {user.lastName}
                                 </div>
                                 <div className="search-result-username">
-                                    {user.profileName}
+                                    {user.profileName || user.profession || 'User'}
                                 </div>
                             </div>
                         </div>
