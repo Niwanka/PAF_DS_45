@@ -59,7 +59,8 @@ const SearchBox = () => {
     const handleSelectUser = (userId) => {
         setShowResults(false);
         setSearchQuery('');
-        navigate(`/profile/${userId}`);
+        console.log(userId)
+        navigate(`/Userprofile/${userId}`);
     };
 
     return (
@@ -86,9 +87,9 @@ const SearchBox = () => {
                 <div className="search-results">
                     {searchResults.map((user) => (
                         <div
-                            key={user.sub}
+                            key={user.id}
                             className="search-result-item"
-                            onClick={() => handleSelectUser(user.sub)}
+                            onClick={() => handleSelectUser(user.id)}
                         >
                             <img
                                 src={user.picture || `https://ui-avatars.com/api/?name=${user.firstName}+${user.lastName}`}
