@@ -62,31 +62,38 @@ const ProfilePage = () => {
 
   const handleSave = async () => {
     try {
+      // Create a cleaned profile object with only the fields you want to update
+      const updatedProfileData = {
+        firstName: editedProfile.firstName,
+        lastName: editedProfile.lastName,
+        profession: editedProfile.profession,
+        location: editedProfile.location,
+        bio: editedProfile.bio,
+        experience: editedProfile.experience,
+        education: editedProfile.education,
+        skills: editedProfile.skills,
+      };
+
       const response = await fetch('http://localhost:9090/api/profile', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'Access-Control-Allow-Credentials': 'true'
         },
         credentials: 'include',
-        mode: 'cors',
-        body: JSON.stringify(editedProfile)
+        body: JSON.stringify(updatedProfileData)
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to update profile');
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const updatedProfile = await response.json();
       setUserProfile(updatedProfile);
       setIsEditing(false);
-      // Show success message
       alert('Profile updated successfully!');
     } catch (err) {
       console.error('Update error:', err);
-      setError(err.message);
+      alert('Failed to update profile: ' + err.message);
     }
   };
 
