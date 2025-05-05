@@ -197,6 +197,7 @@ const Home = () => {
       <PostModal 
         isOpen={isPostModalOpen}
         onClose={() => setIsPostModalOpen(false)}
+        userId={userProfile?.sub} 
       />
     </div>
   );

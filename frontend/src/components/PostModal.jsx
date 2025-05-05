@@ -1,7 +1,7 @@
 import React from 'react';
 import PostForm from './PostForm';
 
-const PostModal = ({ isOpen, onClose }) => {
+const PostModal = ({ isOpen, onClose, userId }) => {
   if (!isOpen) return null;
 
   return (
@@ -13,7 +13,8 @@ const PostModal = ({ isOpen, onClose }) => {
         >
           <i className="fas fa-times"></i>
         </button>
-        <PostForm onSuccess={onClose} />
+        <PostForm onSuccess={onClose} 
+        userId={userId} />
       </div>
     </div>
   );

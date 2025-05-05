@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
-const PostForm = ({ onPostCreated }) => {
+const PostForm = ({ onPostCreated , userId}) => {
   const [formData, setFormData] = useState({
     title: '',
     content: '',
@@ -39,7 +39,7 @@ const PostForm = ({ onPostCreated }) => {
     try {
       const postData = {
         ...formData,
-        userId: "123456", // Replace with actual user ID from auth system
+        userId: userId,
         tags: formData.tags ? formData.tags.split(',').map(tag => tag.trim()) : [],
         mediaUrls: formData.mediaUrl ? [formData.mediaUrl] : []
       };
