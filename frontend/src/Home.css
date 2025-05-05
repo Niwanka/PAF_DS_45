@@ -107,12 +107,12 @@
 
 /* Main Content Layout */
 .main-content {
-  max-width: 1128px;
+  max-width: 1440px; /* Increased from 1280px */
   margin: 80px auto 0;
-  padding: 24px;
+  padding: 24px 8px; /* Reduced padding further */
   display: grid;
-  grid-template-columns: 225px 555px 300px;
-  gap: 24px;
+  grid-template-columns: 250px 650px 350px; /* Adjusted column widths */
+  gap: 32px; /* Increased gap between columns */
 }
 
 /* Profile Section */
@@ -122,6 +122,7 @@
   overflow: hidden;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   border: 1px solid rgba(26, 35, 126, 0.1);
+  margin-left: -8px; /* Add negative margin to move left */
 }
 
 .profile-background {
@@ -179,6 +180,8 @@
   margin-bottom: 24px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   border: 1px solid rgba(26, 35, 126, 0.1);
+  width: 100%; /* Ensure full width */
+  max-width: 650px; /* Match grid column width */
 }
 
 .post-input {
@@ -244,6 +247,8 @@
   padding: 20px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   border: 1px solid rgba(26, 35, 126, 0.1);
+  margin-right: -8px; /* Add negative margin to move right */
+  width: 350px; /* Match grid column width */
 }
 
 .news-header {
@@ -295,9 +300,18 @@
 }
 
 /* Responsive Design */
+@media (max-width: 1440px) {
+  .main-content {
+    max-width: 1200px;
+    grid-template-columns: 225px 580px 300px;
+    gap: 24px;
+  }
+}
+
 @media (max-width: 1024px) {
   .main-content {
     grid-template-columns: 225px 1fr;
+    padding: 24px 12px;
   }
   .news-section {
     display: none;
