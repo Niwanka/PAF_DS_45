@@ -1,20 +1,25 @@
 import React from 'react';
 import PostForm from './PostForm';
+import './PostModal.css';
 
 const PostModal = ({ isOpen, onClose, userId }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-2xl relative">
-        <button 
-          onClick={onClose}
-          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
-        >
-          <i className="fas fa-times"></i>
-        </button>
-        <PostForm onSuccess={onClose} 
-        userId={userId} />
+    <div className="modal-overlay">
+      <div className="modal-container">
+        <div className="modal-header">
+          <h2>Create a post</h2>
+          <button 
+            onClick={onClose}
+            className="close-button"
+          >
+            <i className="fas fa-times"></i>
+          </button>
+        </div>
+        <div className="modal-content">
+          <PostForm onSuccess={onClose} userId={userId} />
+        </div>
       </div>
     </div>
   );

@@ -1,0 +1,148 @@
+.posts-container {
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+.post-card {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 16px;
+  padding: 16px;
+}
+
+.post-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.post-author {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.author-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.author-info h4 {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0;
+  color: #1a1a1a;
+}
+
+.post-meta {
+  font-size: 14px;
+  color: #666;
+  margin: 4px 0 0;
+}
+
+.post-time {
+  margin-left: 8px;
+}
+
+.post-content {
+  margin: 16px 0;
+}
+
+.post-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 8px;
+  color: #1a1a1a;
+}
+
+.post-text {
+  font-size: 15px;
+  line-height: 1.5;
+  color: #333;
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.post-media {
+  margin: 16px 0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.post-media img {
+  width: 100%;
+  max-height: 400px;
+  object-fit: cover;
+}
+
+.post-stats {
+  display: flex;
+  gap: 16px;
+  padding: 8px 0;
+  border-top: 1px solid #eee;
+  border-bottom: 1px solid #eee;
+  color: #666;
+  font-size: 14px;
+}
+
+.post-actions {
+  display: flex;
+  justify-content: space-around;
+  padding: 8px 0 0;
+}
+
+.action-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  color: #666;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-size: 14px;
+}
+
+.action-button:hover {
+  background-color: #f2f2f2;
+  color: #1a1a1a;
+}
+
+.action-button i {
+  font-size: 16px;
+}
+
+.loading-spinner {
+  text-align: center;
+  padding: 32px;
+}
+
+.spinner {
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #0a66c2;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 16px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.error-message {
+  text-align: center;
+  color: #dc2626;
+  padding: 16px;
+  background: #fee2e2;
+  border-radius: 8px;
+  margin: 16px 0;
+}
