@@ -154,7 +154,7 @@
 
 .change-cover-btn {
   position: absolute;
-  bottom: 20px;
+  top: 20px;
   right: 20px;
   background: rgba(0, 0, 0, 0.6);
   color: white;
