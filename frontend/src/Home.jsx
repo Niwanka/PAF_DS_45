@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import './Home.css';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import "./Home.css";
 
 const Home = () => {
   const [user, setUser] = useState(null);
@@ -9,15 +9,15 @@ const Home = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await fetch('http://localhost:9090/user', {
-          credentials: 'include'
+        const response = await fetch("http://localhost:9090/user", {
+          credentials: "include",
         });
-        if (!response.ok) throw new Error('Not authenticated');
+        if (!response.ok) throw new Error("Not authenticated");
         const userData = await response.json();
         setUser(userData);
       } catch (error) {
-        console.error('Error fetching user data:', error);
-        navigate('/');
+        console.error("Error fetching user data:", error);
+        navigate("/");
       }
     };
 
@@ -35,7 +35,7 @@ const Home = () => {
           </div>
         </div>
         <div className="nav-menu">
-          <a href="#home" className="nav-item active">
+          <a href="/home" className="nav-item active">
             <i className="fas fa-home"></i>
             <span>Home</span>
           </a>
@@ -55,12 +55,14 @@ const Home = () => {
             <i className="fas fa-bell"></i>
             <span>Notifications</span>
           </a>
-          <div className="nav-item" onClick={() => navigate(`/profile/${user?.sub}`)}>
-            <img 
-              src={user?.picture || `https://ui-avatars.com/api/?name=${user?.name || 'User'}`}
+          <div className="nav-item " onClick={() => navigate(`/profile/${user?.sub}`)}>
+            <img
+              src={
+                user?.picture ||
+                `https://ui-avatars.com/api/?name=${user?.name || "User"}`
+              }
               alt="Profile"
-              className="profile-photo"
-              style={{ width: '24px', height: '24px', borderRadius: '50%' }}
+              className="nav-profile-photo"
             />
             <span>Me</span>
           </div>
@@ -73,7 +75,10 @@ const Home = () => {
           <div className="profile-background"></div>
           <div className="profile-content">
             <img
-              src={user?.picture || `https://ui-avatars.com/api/?name=${user?.name || 'User'}`}
+              src={
+                user?.picture ||
+                `https://ui-avatars.com/api/?name=${user?.name || "User"}`
+              }
               alt="Profile"
               className="profile-photo"
             />
@@ -97,26 +102,32 @@ const Home = () => {
           <div className="post-box">
             <div className="post-input">
               <img
-                src={user?.picture || `https://ui-avatars.com/api/?name=${user?.name || 'User'}`}
+                src={
+                  user?.picture ||
+                  `https://ui-avatars.com/api/?name=${user?.name || "User"}`
+                }
                 alt="Profile"
               />
               <button className="post-button">Start a post</button>
             </div>
             <div className="post-actions">
               <div className="post-action">
-                <i className="fas fa-image" style={{color: '#70b5f9'}}></i>
+                <i className="fas fa-image" style={{ color: "#70b5f9" }}></i>
                 <span>Photo</span>
               </div>
               <div className="post-action">
-                <i className="fas fa-video" style={{color: '#7fc15e'}}></i>
+                <i className="fas fa-video" style={{ color: "#7fc15e" }}></i>
                 <span>Video</span>
               </div>
               <div className="post-action">
-                <i className="fas fa-calendar" style={{color: '#e7a33e'}}></i>
+                <i className="fas fa-calendar" style={{ color: "#e7a33e" }}></i>
                 <span>Event</span>
               </div>
               <div className="post-action">
-                <i className="fas fa-newspaper" style={{color: '#fc9295'}}></i>
+                <i
+                  className="fas fa-newspaper"
+                  style={{ color: "#fc9295" }}
+                ></i>
                 <span>Write article</span>
               </div>
             </div>
