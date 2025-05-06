@@ -1,6 +1,7 @@
 package com.paf_45.bankendapplication.service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -51,5 +52,23 @@ public class PostService {
     // Delete a post
     public void deletePost(String id) {
         postRepository.deleteById(id);
+    }
+
+    // Toggle like on a post
+    public Optional<Post> toggleLike(String postId, String userId) {
+        return postRepository.findById(postId).map(post -> {
+            List<String> likes = post.getLikes() != null ? post.getLikes() : new ArrayList<>();
+            
+            if (likes.contains(userId)) {
+                // Unlike
+                likes.remove(userId);
+            } else {
+                // Like
+                likes.add(userId);
+            }
+            
+            post.setLikes(likes);
+            return postRepository.save(post);
+        });
     }
 }

@@ -39,23 +39,10 @@ const PostList = () => {
     fetchPosts();
   }, []);
 
-  const handleLike = async (postId) => {
-    try {
-      await axios.post(`http://localhost:9090/api/posts/${postId}/like`, {}, {
-        withCredentials: true
-      });
-      setPosts(posts.map(post => 
-        post.id === postId 
-          ? { ...post, likes: post.likes + 1 }
-          : post
-      ));
-    } catch (error) {
-      console.error('Error liking post:', error);
-    }
-  };
-
-  const handleShare = (postId) => {
-    console.log('Sharing post:', postId);
+  const handlePostUpdate = (updatedPost) => {
+    setPosts(posts.map(post => 
+      post.id === updatedPost.id ? updatedPost : post
+    ));
   };
 
   if (loading) return (
@@ -79,8 +66,7 @@ const PostList = () => {
           key={post.id}
           post={post}
           currentUserProfile={currentUserProfile}
-          onLike={handleLike}
-          onShare={handleShare}
+          onPostUpdate={handlePostUpdate}
         />
       ))}
     </div>

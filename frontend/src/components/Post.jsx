@@ -1,9 +1,60 @@
 import React, { useState } from 'react';
+import axios from 'axios';
+import { toast } from 'react-toastify';
 import CommentList from './CommentList';
+import { sharePost } from '../utils/shareUtils';
 import './Post.css';
 
-const Post = ({ post, currentUserProfile, onLike, onShare }) => {
+const Post = ({ post, currentUserProfile, onPostUpdate }) => {
     const [showComments, setShowComments] = useState(false);
+    const [isLiked, setIsLiked] = useState(post.likes?.includes(currentUserProfile?.sub));
+    const [likeCount, setLikeCount] = useState(post.likes?.length || 0);
+    const [isLoading, setIsLoading] = useState(false);
+
+    const handleLike = async () => {
+        if (!currentUserProfile) {
+            toast.error('Please log in to like posts');
+            return;
+        }
+
+        setIsLoading(true);
+        try {
+            const response = await axios.post(
+                `http://localhost:9090/api/posts/${post.id}/like?userId=${currentUserProfile.sub}`,
+                {},
+                { withCredentials: true }
+            );
+
+            const updatedPost = response.data;
+            const hasLiked = updatedPost.likes?.includes(currentUserProfile.sub);
+            
+            setIsLiked(hasLiked);
+            setLikeCount(updatedPost.likes?.length || 0);
+            onPostUpdate(updatedPost);
+
+            toast.success(hasLiked ? 'Post liked!' : 'Post unliked', {
+                position: "bottom-right",
+                autoClose: 2000
+            });
+        } catch (error) {
+            toast.error('Failed to like post');
+            console.error('Error liking post:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleShare = async () => {
+        const result = await sharePost(post);
+        
+        if (result === true) {
+            toast.success('Post shared successfully!');
+        } else if (result === 'copied') {
+            toast.success('Link copied to clipboard!');
+        } else {
+            toast.error('Failed to share post');
+        }
+    };
 
     return (
         <article className="post-card">
@@ -45,7 +96,8 @@ const Post = ({ post, currentUserProfile, onLike, onShare }) => {
 
             <div className="post-stats">
                 <span className="likes">
-                    <i className="fas fa-thumbs-up"></i> {post.likes || 0}
+                    <i className={`fas fa-thumbs-up ${isLiked ? 'liked' : ''}`}></i>
+                    {likeCount}
                 </span>
                 <span className="comments">
                     {post.comments?.length || 0} comments
@@ -54,11 +106,12 @@ const Post = ({ post, currentUserProfile, onLike, onShare }) => {
 
             <div className="post-actions">
                 <button 
-                    className="action-button"
-                    onClick={() => onLike(post.id)}
+                    className={`action-button ${isLiked ? 'liked' : ''} ${isLoading ? 'loading' : ''}`}
+                    onClick={handleLike}
+                    disabled={isLoading}
                 >
-                    <i className="far fa-thumbs-up"></i>
-                    Like
+                    <i className={`${isLiked ? 'fas' : 'far'} fa-thumbs-up`}></i>
+                    {isLiked ? 'Liked' : 'Like'}
                 </button>
                 <button 
                     className="action-button"
@@ -69,7 +122,7 @@ const Post = ({ post, currentUserProfile, onLike, onShare }) => {
                 </button>
                 <button 
                     className="action-button"
-                    onClick={() => onShare(post.id)}
+                    onClick={handleShare}
                 >
                     <i className="far fa-share-square"></i>
                     Share
