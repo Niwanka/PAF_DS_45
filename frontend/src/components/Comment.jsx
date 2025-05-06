@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
+import axios from 'axios';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import './comment.css';
 
-const Comment = ({ comment, currentUserId, onDelete }) => {
+const Comment = ({ comment, currentUserId, onDelete, userProfile }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [editedContent, setEditedContent] = useState(comment.content);
-    const [showMenu, setShowMenu] = useState(false);
+    const [showOptions, setShowOptions] = useState(false);
 
     const handleEdit = async () => {
         try {
@@ -15,8 +18,34 @@ const Comment = ({ comment, currentUserId, onDelete }) => {
             });
             setIsEditing(false);
             comment.content = editedContent;
+            toast.success('Comment updated successfully!', {
+                position: "top-right",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true
+            });
         } catch (err) {
-            console.error('Failed to update comment:', err);
+            toast.error('Failed to update comment', {
+                position: "top-right",
+                autoClose: 3000
+            });
+        }
+    };
+
+    const handleDelete = async () => {
+        try {
+            await onDelete(comment.id);
+            toast.success('Comment deleted successfully!', {
+                position: "top-right",
+                autoClose: 3000
+            });
+        } catch (err) {
+            toast.error('Failed to delete comment', {
+                position: "top-right",
+                autoClose: 3000
+            });
         }
     };
 
@@ -28,13 +57,14 @@ const Comment = ({ comment, currentUserId, onDelete }) => {
         if (diffInSeconds < 60) return 'Just now';
         if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m`;
         if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h`;
+        if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)}d`;
         return commentDate.toLocaleDateString();
     };
 
     return (
-        <div className="comment">
+        <div className="comment" onMouseEnter={() => setShowOptions(true)} onMouseLeave={() => setShowOptions(false)}>
             <img
-                src={comment.authorPicture || `https://ui-avatars.com/api/?name=${comment.userId}&size=32`}
+                src={userProfile?.picture || `https://ui-avatars.com/api/?name=${userProfile?.firstName}+${userProfile?.lastName}&background=random`}
                 alt="User avatar"
                 className="comment-avatar"
             />
@@ -44,60 +74,64 @@ const Comment = ({ comment, currentUserId, onDelete }) => {
                         e.preventDefault();
                         handleEdit();
                     }}>
-                        <input
-                            type="text"
+                        <textarea
                             value={editedContent}
                             onChange={(e) => setEditedContent(e.target.value)}
                             className="comment-edit-input"
+                            autoFocus
                         />
                         <div className="comment-edit-actions">
                             <button type="submit" className="comment-edit-btn comment-save-btn">
-                                Save
+                                <i className="fas fa-check"></i> Save
                             </button>
                             <button 
                                 type="button" 
                                 className="comment-edit-btn comment-cancel-btn"
-                                onClick={() => setIsEditing(false)}
+                                onClick={() => {
+                                    setIsEditing(false);
+                                    setEditedContent(comment.content);
+                                }}
                             >
-                                Cancel
+                                <i className="fas fa-times"></i> Cancel
                             </button>
                         </div>
                     </form>
                 ) : (
                     <>
                         <div className="comment-header">
-                            <span className="comment-author">User {comment.userId}</span>
-                            <span className="comment-time">{formatTimeAgo(comment.createdAt)}</span>
+                            <div className="comment-author-info">
+                                <span className="comment-author">
+                                    {userProfile?.firstName} {userProfile?.lastName}
+                                </span>
+                                <span className="comment-time">{formatTimeAgo(comment.createdAt)}</span>
+                            </div>
+                            {currentUserId === comment.userId && showOptions && (
+                                <div className="comment-actions">
+                                    <button 
+                                        className="comment-action-btn"
+                                        onClick={() => setIsEditing(true)}
+                                        title="Edit comment"
+                                    >
+                                        <i className="fas fa-edit"></i>
+                                    </button>
+                                    <button 
+                                        className="comment-action-btn delete"
+                                        onClick={handleDelete}
+                                        title="Delete comment"
+                                    >
+                                        <i className="fas fa-trash-alt"></i>
+                                    </button>
+                                </div>
+                            )}
                         </div>
                         <p className="comment-text">{comment.content}</p>
-                        <div className="comment-actions">
-                            <button className="comment-action-link">Like</button>
-                            <button className="comment-action-link">Reply</button>
+                        <div className="comment-footer">
+                            <button className="comment-reaction">Like</button>
+                            <button className="comment-reaction">Reply</button>
                         </div>
                     </>
                 )}
             </div>
-            
-            {currentUserId === comment.userId && (
-                <div className="comment-menu">
-                    <button 
-                        className="comment-menu-btn"
-                        onClick={() => setShowMenu(!showMenu)}
-                    >
-                        <i className="fas fa-ellipsis-h"></i>
-                    </button>
-                    {showMenu && (
-                        <div className="comment-menu-dropdown">
-                            <button onClick={() => setIsEditing(true)}>
-                                <i className="fas fa-edit"></i> Edit
-                            </button>
-                            <button onClick={() => onDelete(comment.id)}>
-                                <i className="fas fa-trash-alt"></i> Delete
-                            </button>
-                        </div>
-                    )}
-                </div>
-            )}
         </div>
     );
 };
