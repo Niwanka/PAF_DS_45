@@ -125,10 +125,10 @@ const Comment = ({ comment, currentUserId, onDelete, userProfile }) => {
                             )}
                         </div>
                         <p className="comment-text">{comment.content}</p>
-                        <div className="comment-footer">
+                        {/* <div className="comment-footer">
                             <button className="comment-reaction">Like</button>
                             <button className="comment-reaction">Reply</button>
-                        </div>
+                        </div> */}
                     </>
                 )}
             </div>
