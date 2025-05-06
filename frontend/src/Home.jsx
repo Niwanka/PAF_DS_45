@@ -5,6 +5,8 @@ import SearchBox from './components/SearchBox';
 import ChatBot from './components/ChatBot';
 import PostList from './components/PostList';
 import PostModal from './components/PostModal';
+import { useNavigate, Link } from "react-router-dom";
+
 
 
 
@@ -130,10 +132,10 @@ const Home = () => {
           </div>
           <div class="learning-nav">
             <div class="learning-nav-title">Learning Navigation</div>
-            <a href="/learning-planning" class="learning-nav-link">
-              <i class="fas fa-tasks"></i>
-              Learning Planning
-            </a>
+            <Link to="/learning-plans" className="learning-nav-link">
+              <i className="fas fa-tasks"></i>
+              Learning Plans
+            </Link>
             <a href="/learning-progress" class="learning-nav-link">
               <i class="fas fa-chart-line"></i>
               Learning Progress
