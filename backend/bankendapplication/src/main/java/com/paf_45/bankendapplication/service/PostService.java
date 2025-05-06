@@ -15,6 +15,9 @@ import com.paf_45.bankendapplication.repository.PostRepository;
 public class PostService {
     @Autowired
     private PostRepository postRepository;
+    
+    @Autowired
+    private NotificationService notificationService;
 
     // Fetch all posts
     public List<Post> getAllPosts() {
@@ -59,12 +62,17 @@ public class PostService {
         return postRepository.findById(postId).map(post -> {
             List<String> likes = post.getLikes() != null ? post.getLikes() : new ArrayList<>();
             
-            if (likes.contains(userId)) {
-                // Unlike
-                likes.remove(userId);
-            } else {
-                // Like
+            if (!likes.contains(userId)) {
                 likes.add(userId);
+                // Create notification for post owner
+                notificationService.createNotification(
+                    post.getUserId(),  // recipient (post owner)
+                    userId,           // sender (user who liked)
+                    postId,          // post ID
+                    "LIKE"           // notification type
+                );
+            } else {
+                likes.remove(userId);
             }
             
             post.setLikes(likes);

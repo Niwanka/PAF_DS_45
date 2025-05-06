@@ -5,6 +5,7 @@ import SearchBox from './components/SearchBox';
 import ChatBot from './components/ChatBot';
 import PostList from './components/PostList';
 import PostModal from './components/PostModal';
+import NotificationList from './components/NotificationList';
 
 
 
@@ -81,7 +82,7 @@ const Home = () => {
           </a>
           <a href="#notifications" className="nav-item">
             <i className="fas fa-bell"></i>
-            <span>Notifications</span>
+            <NotificationList userId={userProfile?.sub} />
           </a>
           <div 
             className="nav-item"
