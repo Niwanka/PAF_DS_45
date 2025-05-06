@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import axios from 'axios';
-import './Comment.css';
+import './comment.css';
 
 const Comment = ({ comment, currentUserId, onDelete }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [editedContent, setEditedContent] = useState(comment.content);
+    const [showMenu, setShowMenu] = useState(false);
 
     const handleEdit = async () => {
         try {
@@ -20,41 +20,30 @@ const Comment = ({ comment, currentUserId, onDelete }) => {
         }
     };
 
-    const formatTimestamp = (timestamp) => {
-        return new Date(timestamp).toLocaleDateString('en-US', {
-            month: 'short',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
+    const formatTimeAgo = (timestamp) => {
+        const now = new Date();
+        const commentDate = new Date(timestamp);
+        const diffInSeconds = Math.floor((now - commentDate) / 1000);
+
+        if (diffInSeconds < 60) return 'Just now';
+        if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m`;
+        if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h`;
+        return commentDate.toLocaleDateString();
     };
 
     return (
         <div className="comment">
-            <div className="comment-header">
-                <img
-                    src={`https://ui-avatars.com/api/?name=${comment.userId}&size=32`}
-                    alt="User avatar"
-                    className="comment-avatar"
-                />
-                <div className="comment-info">
-                    <span className="comment-author">User {comment.userId}</span>
-                    <span className="comment-time">{formatTimestamp(comment.createdAt)}</span>
-                </div>
-                {currentUserId === comment.userId && (
-                    <div className="comment-actions">
-                        <button onClick={() => setIsEditing(!isEditing)} className="comment-action-btn">
-                            <i className="fas fa-edit"></i>
-                        </button>
-                        <button onClick={() => onDelete(comment.id)} className="comment-action-btn">
-                            <i className="fas fa-trash-alt"></i>
-                        </button>
-                    </div>
-                )}
-            </div>
-            <div className="comment-content">
+            <img
+                src={comment.authorPicture || `https://ui-avatars.com/api/?name=${comment.userId}&size=32`}
+                alt="User avatar"
+                className="comment-avatar"
+            />
+            <div className="comment-content-wrapper">
                 {isEditing ? (
-                    <div className="comment-edit">
+                    <form className="comment-edit-form" onSubmit={(e) => {
+                        e.preventDefault();
+                        handleEdit();
+                    }}>
                         <input
                             type="text"
                             value={editedContent}
@@ -62,18 +51,53 @@ const Comment = ({ comment, currentUserId, onDelete }) => {
                             className="comment-edit-input"
                         />
                         <div className="comment-edit-actions">
-                            <button onClick={handleEdit} className="comment-save-btn">
+                            <button type="submit" className="comment-edit-btn comment-save-btn">
                                 Save
                             </button>
-                            <button onClick={() => setIsEditing(false)} className="comment-cancel-btn">
+                            <button 
+                                type="button" 
+                                className="comment-edit-btn comment-cancel-btn"
+                                onClick={() => setIsEditing(false)}
+                            >
                                 Cancel
                             </button>
                         </div>
-                    </div>
+                    </form>
                 ) : (
-                    <p>{comment.content}</p>
+                    <>
+                        <div className="comment-header">
+                            <span className="comment-author">User {comment.userId}</span>
+                            <span className="comment-time">{formatTimeAgo(comment.createdAt)}</span>
+                        </div>
+                        <p className="comment-text">{comment.content}</p>
+                        <div className="comment-actions">
+                            <button className="comment-action-link">Like</button>
+                            <button className="comment-action-link">Reply</button>
+                        </div>
+                    </>
                 )}
             </div>
+            
+            {currentUserId === comment.userId && (
+                <div className="comment-menu">
+                    <button 
+                        className="comment-menu-btn"
+                        onClick={() => setShowMenu(!showMenu)}
+                    >
+                        <i className="fas fa-ellipsis-h"></i>
+                    </button>
+                    {showMenu && (
+                        <div className="comment-menu-dropdown">
+                            <button onClick={() => setIsEditing(true)}>
+                                <i className="fas fa-edit"></i> Edit
+                            </button>
+                            <button onClick={() => onDelete(comment.id)}>
+                                <i className="fas fa-trash-alt"></i> Delete
+                            </button>
+                        </div>
+                    )}
+                </div>
+            )}
         </div>
     );
 };

@@ -9,21 +9,145 @@
 }
 
 .comment {
-    padding: 12px;
-    margin-bottom: 12px;
-    border-radius: 8px;
-    background-color: #f8f9fa;
+    display: flex;
+    gap: 12px;
+    padding: 12px 16px;
+    margin-bottom: 8px;
+    border-radius: 18px;
+    background-color: #f0f2f5;
+    position: relative;
+}
+
+.comment-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.comment-content-wrapper {
+    flex: 1;
 }
 
 .comment-header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: 8px;
+    gap: 8px;
+    margin-bottom: 4px;
 }
 
-.comment-content {
-    color: #333;
+.comment-author {
+    font-weight: 600;
+    font-size: 13px;
+    color: #050505;
+}
+
+.comment-time {
+    font-size: 12px;
+    color: #65676b;
+}
+
+.comment-text {
+    font-size: 15px;
+    line-height: 1.3333;
+    color: #050505;
+}
+
+.comment-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 4px;
+}
+
+.comment-action-link {
+    font-size: 12px;
+    font-weight: 600;
+    color: #65676b;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    background: transparent;
+    border: none;
+}
+
+.comment-action-link:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.comment-edit-form {
+    width: 100%;
+    margin-top: 4px;
+}
+
+.comment-edit-input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ccd0d5;
+    border-radius: 20px;
+    font-size: 15px;
+    background: white;
+}
+
+.comment-edit-input:focus {
+    outline: none;
+    border-color: #1877f2;
+}
+
+.comment-edit-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+    justify-content: flex-end;
+}
+
+.comment-edit-btn {
+    padding: 6px 12px;
+    border-radius: 6px;
     font-size: 14px;
-    line-height: 1.5;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+}
+
+.comment-save-btn {
+    background-color: #1877f2;
+    color: white;
+}
+
+.comment-save-btn:hover {
+    background-color: #166fe5;
+}
+
+.comment-cancel-btn {
+    background-color: #e4e6eb;
+    color: #050505;
+}
+
+.comment-cancel-btn:hover {
+    background-color: #dadde1;
+}
+
+.comment-menu {
+    position: absolute;
+    right: 12px;
+    top: 8px;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.comment:hover .comment-menu {
+    opacity: 1;
+}
+
+.comment-menu-btn {
+    padding: 4px 8px;
+    background: transparent;
+    border: none;
+    border-radius: 4px;
+    color: #65676b;
+    cursor: pointer;
+}
+
+.comment-menu-btn:hover {
+    background-color: rgba(0, 0, 0, 0.05);
 }
