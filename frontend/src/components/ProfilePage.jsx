@@ -1,8 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import './ProfilePage.css';
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import "./ProfilePage.css";
+import SearchBox from "./SearchBox"; // Assuming you have a SearchBox component
+import FollowButton from "./FollowButton"; // Assuming you have a FollowButton component
+import Navbar from "./Navbar";
 
 const ProfilePage = () => {
   const { userId } = useParams();
@@ -20,13 +23,13 @@ const ProfilePage = () => {
   const fetchUserProfile = async () => {
     try {
       const response = await fetch(`http://localhost:9090/api/profile`, {
-        credentials: 'include'
+        credentials: "include",
       });
-      
+
       if (!response.ok) {
-        throw new Error('Failed to fetch user profile');
+        throw new Error("Failed to fetch user profile");
       }
-      
+
       const data = await response.json();
       setUserProfile(data);
       setEditedProfile(data);
@@ -48,17 +51,17 @@ const ProfilePage = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setEditedProfile(prev => ({
+    setEditedProfile((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const handleSkillsChange = (e) => {
-    const skills = e.target.value.split(',').map(skill => skill.trim());
-    setEditedProfile(prev => ({
+    const skills = e.target.value.split(",").map((skill) => skill.trim());
+    setEditedProfile((prev) => ({
       ...prev,
-      skills
+      skills,
     }));
   };
 
@@ -75,13 +78,13 @@ const ProfilePage = () => {
         skills: editedProfile.skills,
       };
 
-      const response = await fetch('http://localhost:9090/api/profile', {
-        method: 'PUT',
+      const response = await fetch("http://localhost:9090/api/profile", {
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        credentials: 'include',
-        body: JSON.stringify(updatedProfileData)
+        credentials: "include",
+        body: JSON.stringify(updatedProfileData),
       });
 
       if (!response.ok) {
@@ -91,63 +94,68 @@ const ProfilePage = () => {
       const updatedProfile = await response.json();
       setUserProfile(updatedProfile);
       setIsEditing(false);
-      toast.success('Profile updated successfully!', {
+      toast.success("Profile updated successfully!", {
         position: "top-right",
         autoClose: 3000,
         hideProgressBar: false,
         closeOnClick: true,
         pauseOnHover: true,
-        draggable: true
+        draggable: true,
       });
     } catch (err) {
-      console.error('Update error:', err);
-      toast.error('Failed to update profile: ' + err.message, {
+      console.error("Update error:", err);
+      toast.error("Failed to update profile: " + err.message, {
         position: "top-right",
         autoClose: 5000,
         hideProgressBar: false,
         closeOnClick: true,
         pauseOnHover: true,
-        draggable: true
+        draggable: true,
       });
     }
   };
 
   const handleDelete = async () => {
-    if (window.confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+    if (
+      window.confirm(
+        "Are you sure you want to delete your account? This action cannot be undone."
+      )
+    ) {
       try {
-        const response = await fetch('http://localhost:9090/api/profile', {
-          method: 'DELETE',
+        const response = await fetch("http://localhost:9090/api/profile", {
+          method: "DELETE",
           headers: {
-            'Accept': 'application/json',
-            'Access-Control-Allow-Credentials': 'true'
+            Accept: "application/json",
+            "Access-Control-Allow-Credentials": "true",
           },
-          credentials: 'include',
-          mode: 'cors'
+          credentials: "include",
+          mode: "cors",
         });
 
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.message || 'Failed to delete account');
+          throw new Error(errorData.message || "Failed to delete account");
         }
 
-        toast.success('Account deleted successfully', {
+        toast.success("Account deleted successfully", {
           position: "top-center",
           autoClose: 3000,
           hideProgressBar: false,
           closeOnClick: true,
           pauseOnHover: true,
           draggable: true,
-          onClose: () => window.location.href = 'http://localhost:9090/logout'
+          onClose: () =>
+            (window.location.href = "http://localhost:9090/logout"),
         });
       } catch (err) {
-        console.error('Delete error:', err);
+        console.error("Delete error:", err);
         toast.error(err.message, {
           position: "top-center",
           autoClose: 5000,
           hideProgressBar: false,
           closeOnClick: true,
           pauseOnHover: true,
-          draggable: true
+          draggable: true,
         });
       }
     }
@@ -159,54 +167,15 @@ const ProfilePage = () => {
 
   return (
     <div className="home">
-      {/* Navbar - Matching Home page theme */}
-      <nav className="navbar">
-        <div className="nav-left">
-          <a href="/home" className="nav-brand">Skill Share</a>
-          <div className="search-box">
-            <i className="fas fa-search search-icon"></i>
-            <input type="text" placeholder="Search" />
-          </div>
-        </div>
-        <div className="nav-menu">
-          <a href="/home" className="nav-item">
-            <i className="fas fa-home"></i>
-            <span>Home</span>
-          </a>
-          <a href="#network" className="nav-item">
-            <i className="fas fa-user-friends"></i>
-            <span>Network</span>
-          </a>
-          <a href="#jobs" className="nav-item">
-            <i className="fas fa-briefcase"></i>
-            <span>Jobs</span>
-          </a>
-          <a href="#messaging" className="nav-item">
-            <i className="fas fa-comment-dots"></i>
-            <span>Messaging</span>
-          </a>
-          <a href="#notifications" className="nav-item">
-            <i className="fas fa-bell"></i>
-            <span>Notifications</span>
-          </a>
-          <div className="nav-item active">
-            <img 
-              src={userProfile?.picture || `https://ui-avatars.com/api/?name=${userProfile?.firstName}+${userProfile?.lastName}`}
-              alt="Profile"
-              className="nav-profile-photo"
-            />
-            <span>Me</span>
-          </div>
-        </div>
-      </nav>
-
+      <Navbar userProfile={userProfile} />
+      
       <div className="profile-main-content">
         <div className="profile-container">
           <div className="profile-header-wrapper">
             <div className="cover-photo-container">
-              <img 
-                src="https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=1200" 
-                alt="cover" 
+              <img
+                src="https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=1200"
+                alt="cover"
                 className="cover-image"
               />
               {isEditing && (
@@ -215,12 +184,15 @@ const ProfilePage = () => {
                 </button>
               )}
             </div>
-            
+
             <div className="profile-header-content">
               <div className="profile-photo-container">
-                <img 
-                  src={userProfile?.picture || `https://ui-avatars.com/api/?name=${userProfile?.firstName}+${userProfile?.lastName}&size=200`}
-                  alt="profile" 
+                <img
+                  src={
+                    userProfile?.picture ||
+                    `https://ui-avatars.com/api/?name=${userProfile?.firstName}+${userProfile?.lastName}&size=200`
+                  }
+                  alt="profile"
                   className="profile-photo"
                 />
                 {isEditing && (
@@ -271,9 +243,12 @@ const ProfilePage = () => {
                 ) : (
                   <>
                     <h1 className="profile-name">{`${userProfile?.firstName} ${userProfile?.lastName}`}</h1>
-                    <p className="profile-headline">{userProfile?.profession || 'Add your profession'}</p>
+                    <p className="profile-headline">
+                      {userProfile?.profession || "Add your profession"}
+                    </p>
                     <p className="profile-location">
-                      <i className="fas fa-map-marker-alt"></i> {userProfile?.location || 'Add location'}
+                      <i className="fas fa-map-marker-alt"></i>{" "}
+                      {userProfile?.location || "Add location"}
                     </p>
                   </>
                 )}
@@ -305,7 +280,9 @@ const ProfilePage = () => {
 
           <div className="profile-grid">
             <div className="profile-card about-card">
-              <h3><i className="fas fa-user"></i> About</h3>
+              <h3>
+                <i className="fas fa-user"></i> About
+              </h3>
               {isEditing ? (
                 <textarea
                   name="bio"
@@ -315,12 +292,14 @@ const ProfilePage = () => {
                   className="bio-input"
                 />
               ) : (
-                <p>{userProfile?.bio || 'Add a bio to tell your story'}</p>
+                <p>{userProfile?.bio || "Add a bio to tell your story"}</p>
               )}
             </div>
 
             <div className="profile-card experience-card">
-              <h3><i className="fas fa-briefcase"></i> Experience</h3>
+              <h3>
+                <i className="fas fa-briefcase"></i> Experience
+              </h3>
               {isEditing ? (
                 <input
                   type="text"
@@ -332,13 +311,16 @@ const ProfilePage = () => {
                 />
               ) : (
                 <div className="experience-list">
-                  {userProfile?.experience || 'Add your professional experience'}
+                  {userProfile?.experience ||
+                    "Add your professional experience"}
                 </div>
               )}
             </div>
 
             <div className="profile-card education-card">
-              <h3><i className="fas fa-graduation-cap"></i> Education</h3>
+              <h3>
+                <i className="fas fa-graduation-cap"></i> Education
+              </h3>
               {isEditing ? (
                 <input
                   type="text"
@@ -350,17 +332,19 @@ const ProfilePage = () => {
                 />
               ) : (
                 <div className="education-list">
-                  {userProfile?.education || 'Add your education'}
+                  {userProfile?.education || "Add your education"}
                 </div>
               )}
             </div>
 
             <div className="profile-card skills-card">
-              <h3><i className="fas fa-code"></i> Skills</h3>
+              <h3>
+                <i className="fas fa-code"></i> Skills
+              </h3>
               {isEditing ? (
                 <input
                   type="text"
-                  value={editedProfile.skills?.join(', ')}
+                  value={editedProfile.skills?.join(", ")}
                   onChange={handleSkillsChange}
                   placeholder="Add skills (comma-separated)"
                   className="skills-input"
@@ -368,8 +352,10 @@ const ProfilePage = () => {
               ) : (
                 <div className="skills-container">
                   {userProfile?.skills?.map((skill, index) => (
-                    <span key={index} className="skill-badge">{skill}</span>
-                  )) || 'Add your skills'}
+                    <span key={index} className="skill-badge">
+                      {skill}
+                    </span>
+                  )) || "Add your skills"}
                 </div>
               )}
             </div>

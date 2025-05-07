@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.paf_45.bankendapplication.model.Post;
@@ -77,5 +78,21 @@ public class PostController {
         
         postService.deletePost(id);
         return ResponseEntity.noContent().build();
+    }
+
+    // Like a post
+    @PostMapping("/{id}/like")
+    public ResponseEntity<Post> likePost(@PathVariable String id, @RequestParam String userId) {
+        Optional<Post> result = postService.toggleLike(id, userId);
+        return result.map(ResponseEntity::ok)
+                    .orElse(ResponseEntity.notFound().build());
+    }
+
+    // Get likes of a post
+    @GetMapping("/{id}/likes")
+    public ResponseEntity<List<String>> getPostLikes(@PathVariable String id) {
+        Optional<Post> post = postService.getPostById(id);
+        return post.map(p -> ResponseEntity.ok(p.getLikes()))
+                  .orElse(ResponseEntity.notFound().build());
     }
 }

@@ -1,56 +1,73 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import Post from './Post';
+import './PostList.css';
 
 const PostList = () => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [currentUserProfile, setCurrentUserProfile] = useState(null);
 
   useEffect(() => {
-    setLoading(true);
-    axios.get('http://localhost:9090/api/posts', {
-      withCredentials: true  // This is equivalent to 'credentials: include' in fetch
-    })
-      .then(response => {
-        console.log('Fetched posts:', response.data);
-        // Check if response.data is an array before setting it
-        if (Array.isArray(response.data)) {
-          setPosts(response.data);
-        } else {
-          // If not an array, set error
-          console.error('Response is not an array:', response.data);
-          setError('Unexpected response format from server');
-          setPosts([]); // Set empty array to avoid mapping errors
-        }
-      })
-      .catch(error => {
-        console.error('Error fetching posts:', error);
+    const fetchUserProfile = async () => {
+      try {
+        const response = await axios.get('http://localhost:9090/api/profile', {
+          withCredentials: true
+        });
+        setCurrentUserProfile(response.data);
+      } catch (error) {
+        console.error('Error fetching user profile:', error);
+      }
+    };
+
+    const fetchPosts = async () => {
+      try {
+        const response = await axios.get('http://localhost:9090/api/posts', {
+          withCredentials: true
+        });
+        setPosts(response.data);
+      } catch (error) {
         setError('Failed to load posts');
-        setPosts([]); // Set empty array to avoid mapping errors
-      })
-      .finally(() => setLoading(false));
+        setPosts([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserProfile();
+    fetchPosts();
   }, []);
 
-  if (loading) {
-    return <div className="p-4 text-center">Loading posts...</div>;
-  }
+  const handlePostUpdate = (updatedPost) => {
+    setPosts(posts.map(post => 
+      post.id === updatedPost.id ? updatedPost : post
+    ));
+  };
 
-  if (error) {
-    return <div className="p-4 text-center text-red-600">{error}</div>;
-  }
+  if (loading) return (
+    <div className="loading-spinner">
+      <div className="spinner"></div>
+      <p>Loading posts...</p>
+    </div>
+  );
 
-  // Check if posts is empty
-  if (posts.length === 0) {
-    return <div className="p-4 text-center">No posts available</div>;
-  }
+  if (error) return (
+    <div className="error-message">
+      <i className="fas fa-exclamation-circle"></i>
+      <p>{error}</p>
+    </div>
+  );
 
   return (
-    <div className="space-y-4">
-      {posts.map((post, index) => (
-        <div key={index} className="p-4 border rounded shadow bg-white">
-          <h3 className="text-lg font-bold">{post.title}</h3>
-          <p>{post.content}</p>
-        </div>
+    <div className="posts-container">
+      {posts.map((post) => (
+        <Post
+          key={post.id}
+          post={post}
+          currentUserProfile={currentUserProfile}
+          onPostUpdate={handlePostUpdate}
+        />
       ))}
     </div>
   );

@@ -5,6 +5,13 @@
     background-color: #f5f5f5;
 }
 
+/* Update margin-top to account for fixed navbar */
+.profile-main-content {
+    margin-top: 70px;
+    background: #f5f5f5;
+    min-height: calc(100vh - 70px);
+}
+
 .user-header {
     background: white;
     border-radius: 8px;
