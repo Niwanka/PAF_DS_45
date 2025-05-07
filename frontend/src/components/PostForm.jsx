@@ -19,16 +19,12 @@ const PostForm = ({ onPostCreated, onPostUpdated, userId, post, isEditing, onSuc
   // Set initial form data when post prop changes
   useEffect(() => {
     if (isEditing && post) {
-      console.log('Editing post:', post);
       setFormData({
         title: post.title || '',
         content: post.content || '',
-        tags: Array.isArray(post.tags) ? post.tags.join(', ') : (post.tags || ''),
-        mediaUrl: Array.isArray(post.mediaUrls) ? post.mediaUrls[0] : (post.mediaUrls || '')
+        tags: post.tags ? post.tags.join(', ') : '',
+        mediaUrl: post.mediaUrls && post.mediaUrls[0] ? post.mediaUrls[0] : ''
       });
-      if (post.mediaUrls && post.mediaUrls[0]) {
-        setPreview(post.mediaUrls[0]);
-      }
     }
   }, [isEditing, post]);
 
@@ -65,69 +61,39 @@ const PostForm = ({ onPostCreated, onPostUpdated, userId, post, isEditing, onSuc
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (loading || isFetching) return;
-
     setLoading(true);
     setError(null);
-    setSuccess(false);
-
+  
     try {
       const postData = {
-        ...formData,
-        userId,
-        tags: formData.tags ? formData.tags.split(',').map(tag => tag.trim()).filter(Boolean) : [],
-        mediaUrls: formData.mediaUrl ? [formData.mediaUrl] : []
+        title: formData.title,
+        content: formData.content,
+        tags: formData.tags.split(',').map(tag => tag.trim()).filter(Boolean),
+        mediaUrls: formData.mediaUrl ? [formData.mediaUrl] : [],
+        userId: userId
       };
-
+  
       let response;
-      
-      // Check if we're in edit mode and have a post ID
-      if (isEditing && post && post._id) {
-        console.log(`Updating post with ID: ${post._id}`);
-        
-        // Update existing post
+      if (isEditing && post?.id) {
         response = await axios.put(
-          `http://localhost:9090/api/posts/${post._id}`,
+          `http://localhost:9090/api/posts/${post.id}`,
           postData,
-          { 
-            withCredentials: true,
-            headers: { 'Content-Type': 'application/json' }
-          }
+          { withCredentials: true }
         );
-        
-        if (response.data) {
-          setSuccess(true);
-          if (onPostUpdated) onPostUpdated(response.data);
-          if (onSuccess) onSuccess('updated');
-        }
+        if (onSuccess) onSuccess('updated', response.data);
       } else {
-        // Create new post
         response = await axios.post(
           'http://localhost:9090/api/posts',
           postData,
-          { 
-            withCredentials: true,
-            headers: { 'Content-Type': 'application/json' }
-          }
+          { withCredentials: true }
         );
-
-        if (response.data) {
-          setSuccess(true);
-          setFormData({
-            title: '',
-            content: '',
-            tags: '',
-            mediaUrl: ''
-          });
-          setPreview(null);
-          setSelectedFile(null);
-          if (onPostCreated) onPostCreated(response.data);
-          if (onSuccess) onSuccess('created');
-        }
+        if (onSuccess) onSuccess('created', response.data);
       }
+  
+      setSuccess(true);
     } catch (err) {
       console.error('Error submitting post:', err);
-      setError(err.response?.data?.message || `Failed to ${isEditing ? 'update' : 'create'} post`);
+      setError(err.response?.data?.message || 'Failed to submit post');
     } finally {
       setLoading(false);
     }

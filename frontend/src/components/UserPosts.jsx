@@ -32,35 +32,45 @@ const UserPosts = ({ userId }) => {
   const handlePostUpdated = (updatedPost) => {
     setPosts(prevPosts => 
       prevPosts.map(post => 
-        post._id === updatedPost._id ? updatedPost : post
+        post.id === updatedPost.id ? updatedPost : post
       )
     );
     setEditingPost(null);
   };
 
-  const handleDeletePost = async (postId) => {
-    // Verify postId exists
+// ...existing code...
+
+const handleDeletePost = async (postId) => {
+  try {
+    // Add strict validation for postId
     if (!postId) {
-      console.error('Cannot delete post: post ID is undefined');
+      console.error('Invalid post ID:', postId);
       setError('Cannot delete post: Invalid post ID');
       return;
     }
+
+    console.log('Attempting to delete post with ID:', postId);
 
     if (!window.confirm('Are you sure you want to delete this post?')) {
       return;
     }
 
-    try {
-      console.log(`Deleting post with ID: ${postId}`);
-      await axios.delete(`http://localhost:9090/api/posts/${postId}`, {
-        withCredentials: true
-      });
-      setPosts(prevPosts => prevPosts.filter(post => post._id !== postId));
-    } catch (err) {
-      console.error('Error deleting post:', err);
-      setError('Failed to delete post');
+    const response = await axios.delete(`http://localhost:9090/api/posts/${postId}`, {
+      withCredentials: true
+    });
+
+    if (response.status === 204 || response.status === 200) {
+      // Update local state after successful deletion
+      setPosts(prevPosts => prevPosts.filter(post => post.id !== postId));
+      console.log('Post deleted successfully');
     }
-  };
+  } catch (err) {
+    console.error('Error deleting post:', err);
+    setError(err.response?.data?.message || 'Failed to delete post');
+  }
+};
+
+// ...existing code...
 
   // Handle post deleted from modal
   const handlePostDeleted = (postId) => {
@@ -100,20 +110,27 @@ const UserPosts = ({ userId }) => {
               </div>
             </div>
             <div className="post-actions">
+            <button 
+              onClick={() => setEditingPost(post)}
+              className="edit-button"
+              title="Edit post"
+            >
+              <i className="fas fa-edit"></i>
+            </button>
               <button 
-                onClick={() => setEditingPost(post)}
-                className="edit-button"
-                title="Edit post"
-              >
-                <i className="fas fa-edit"></i>
-              </button>
-              <button 
-                onClick={() => handleDeletePost(post._id)}
-                className="delete-button"
-                title="Delete post"
-              >
-                <i className="fas fa-trash"></i>
-              </button>
+                      onClick={() => {
+                        if (post && post.id) {
+                          handleDeletePost(post.id);
+                        } else {
+                          console.error('Invalid post data:', post);
+                          setError('Cannot delete post: Missing post data');
+                        }
+                      }}
+                      className="delete-button"
+                      title="Delete post"
+                    >
+                      <i className="fas fa-trash"></i>
+                    </button>
             </div>
           </div>
           

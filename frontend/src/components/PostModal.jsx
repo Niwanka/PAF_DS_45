@@ -14,9 +14,13 @@ const PostModal = ({
 }) => {
   if (!isOpen) return null;
 
-  const handleSuccess = (action) => {
+  const handleSuccess = (action, updatedPost) => {
     if (action === 'deleted' && onPostDeleted) {
       onPostDeleted(post._id);
+    } else if (action === 'updated' && onPostUpdated) {
+      onPostUpdated(updatedPost);
+    } else if (action === 'created' && onPostCreated) {
+      onPostCreated(updatedPost);
     }
     onClose();
   };
