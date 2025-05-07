@@ -52,8 +52,12 @@ const NotificationList = ({ userId }) => {
                         className={`notification ${!notification.isRead ? 'unread' : ''}`}
                         onClick={() => markAsRead(notification.id)}
                     >
-                        <p>{notification.message}</p>
-                        <small>{new Date(notification.createdAt).toLocaleString()}</small>
+                        <div className="notification-content">
+                            <p className="notification-message">{notification.message}</p>
+                            <small className="notification-time">
+                                {new Date(notification.createdAt).toLocaleString()}
+                            </small>
+                        </div>
                     </div>
                 ))
             )}

@@ -31,3 +31,24 @@
 .notification small {
     color: #666;
 }
+
+.notification-content {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.notification-message {
+    margin: 0;
+    font-size: 14px;
+    color: #333;
+}
+
+.notification-time {
+    color: #666;
+    font-size: 12px;
+}
+
+.notification.unread .notification-message {
+    font-weight: 500;
+}
