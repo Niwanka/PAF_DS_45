@@ -35,6 +35,49 @@ const Comment = ({ comment, currentUserId, onDelete, userProfile }) => {
     };
 
     const handleDelete = async () => {
+        // Show confirmation toast
+        toast.warn(
+            <div>
+                Are you sure you want to delete this comment?
+                <div style={{ marginTop: '10px', textAlign: 'right' }}>
+                    <button
+                        onClick={() => confirmDelete()}
+                        style={{
+                            marginRight: '10px',
+                            padding: '5px 10px',
+                            background: '#dc3545',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px'
+                        }}
+                    >
+                        Delete
+                    </button>
+                    <button
+                        onClick={() => toast.dismiss()}
+                        style={{
+                            padding: '5px 10px',
+                            background: '#6c757d',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px'
+                        }}
+                    >
+                        Cancel
+                    </button>
+                </div>
+            </div>,
+            {
+                position: "top-center",
+                autoClose: false,
+                closeOnClick: false,
+                draggable: false,
+                closeButton: false
+            }
+        );
+    };
+
+    const confirmDelete = async () => {
         try {
             await onDelete(comment.id);
             toast.success('Comment deleted successfully!', {

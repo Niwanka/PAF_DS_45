@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { toast } from 'react-toastify';
 import '../styles/NotificationList.css';
 
 const NotificationList = ({ userId, onNotificationRead }) => {
@@ -48,18 +49,111 @@ const NotificationList = ({ userId, onNotificationRead }) => {
 
     const deleteNotification = async (notificationId, event) => {
         event.stopPropagation();
+        
+        toast.warn(
+            <div>
+                Are you sure you want to delete this notification?
+                <div style={{ marginTop: '10px', textAlign: 'right' }}>
+                    <button
+                        onClick={() => confirmDelete(notificationId)}
+                        style={{
+                            marginRight: '10px',
+                            padding: '5px 10px',
+                            background: '#dc3545',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px'
+                        }}
+                    >
+                        Delete
+                    </button>
+                    <button
+                        onClick={() => toast.dismiss()}
+                        style={{
+                            padding: '5px 10px',
+                            background: '#6c757d',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px'
+                        }}
+                    >
+                        Cancel
+                    </button>
+                </div>
+            </div>,
+            {
+                position: "top-center",
+                autoClose: false,
+                closeOnClick: false,
+                draggable: false,
+                closeButton: false
+            }
+        );
+    };
+
+    const confirmDelete = async (notificationId) => {
         try {
             await axios.delete(
                 `http://localhost:9090/api/notifications/${notificationId}`,
                 { withCredentials: true }
             );
             setNotifications(notifications.filter(notif => notif.id !== notificationId));
+            toast.success('Notification deleted successfully!', {
+                position: "top-right",
+                autoClose: 3000
+            });
         } catch (error) {
             console.error('Failed to delete notification:', error);
+            toast.error('Failed to delete notification', {
+                position: "top-right",
+                autoClose: 3000
+            });
         }
     };
 
     const deleteAllNotifications = async () => {
+        toast.warn(
+            <div>
+                Are you sure you want to delete all notifications?
+                <div style={{ marginTop: '10px', textAlign: 'right' }}>
+                    <button
+                        onClick={() => confirmDeleteAll()}
+                        style={{
+                            marginRight: '10px',
+                            padding: '5px 10px',
+                            background: '#dc3545',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px'
+                        }}
+                    >
+                        Delete All
+                    </button>
+                    <button
+                        onClick={() => toast.dismiss()}
+                        style={{
+                            padding: '5px 10px',
+                            background: '#6c757d',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px'
+                        }}
+                    >
+                        Cancel
+                    </button>
+                </div>
+            </div>,
+            {
+                position: "top-center",
+                autoClose: false,
+                closeOnClick: false,
+                draggable: false,
+                closeButton: false
+            }
+        );
+    };
+
+    const confirmDeleteAll = async () => {
         try {
             await axios.delete(
                 `http://localhost:9090/api/notifications/user/${userId}`,
@@ -67,8 +161,16 @@ const NotificationList = ({ userId, onNotificationRead }) => {
             );
             setNotifications([]);
             onNotificationRead();
+            toast.success('All notifications deleted successfully!', {
+                position: "top-right",
+                autoClose: 3000
+            });
         } catch (error) {
             console.error('Failed to delete all notifications:', error);
+            toast.error('Failed to delete notifications', {
+                position: "top-right",
+                autoClose: 3000
+            });
         }
     };
 
