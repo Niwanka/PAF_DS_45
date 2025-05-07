@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import './PostForm.css';
 
-const PostForm = ({ onPostCreated , userId}) => {
+const PostForm = ({ onPostCreated, userId, onSuccess }) => {
   const [formData, setFormData] = useState({
     title: '',
     content: '',
@@ -11,6 +12,8 @@ const PostForm = ({ onPostCreated , userId}) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [preview, setPreview] = useState(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -18,42 +21,38 @@ const PostForm = ({ onPostCreated , userId}) => {
       ...prev,
       [name]: value
     }));
-    // Clear messages when user starts typing
     setError(null);
     setSuccess(false);
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setSelectedFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    setSuccess(false);
-
-    // Validate form data
-    if (!formData.title.trim() || !formData.content.trim()) {
-      setError('Title and content are required');
-      setLoading(false);
-      return;
-    }
 
     try {
       const postData = {
         ...formData,
-        userId: userId,
+        userId,
         tags: formData.tags ? formData.tags.split(',').map(tag => tag.trim()) : [],
         mediaUrls: formData.mediaUrl ? [formData.mediaUrl] : []
       };
 
-      console.log('Sending post data:', postData); // Debug log
-
       const response = await axios.post('http://localhost:9090/api/posts', postData, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        withCredentials: true // Enable if using cookies
+        withCredentials: true
       });
-
-      console.log('Server response:', response.data); // Debug log
 
       if (response.data) {
         setSuccess(true);
@@ -63,104 +62,141 @@ const PostForm = ({ onPostCreated , userId}) => {
           tags: '',
           mediaUrl: ''
         });
-        
-        // Call the callback with the new post data
-        if (onPostCreated) {
-          onPostCreated(response.data);
-        }
-      } else {
-        throw new Error('No data received from server');
+        setPreview(null);
+        setSelectedFile(null);
+        if (onPostCreated) onPostCreated(response.data);
+        if (onSuccess) onSuccess();
       }
     } catch (err) {
-      console.error('Error creating post:', err); // Debug log
-      setError(
-        err.response?.data?.message || 
-        'Failed to create post. Please try again.'
-      );
+      setError(err.response?.data?.message || 'Failed to create post');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="p-4 border rounded shadow w-full max-w-md mx-auto">
-      <h2 className="text-xl font-semibold mb-4">Create New Post</h2>
-      
+    <form onSubmit={handleSubmit} className="post-create-form">
       {error && (
-        <div className="mb-4 p-2 bg-red-100 text-red-700 rounded">
+        <div className="form-alert error">
+          <i className="fas fa-exclamation-circle"></i>
           {error}
         </div>
       )}
       
       {success && (
-        <div className="mb-4 p-2 bg-green-100 text-green-700 rounded">
+        <div className="form-alert success">
+          <i className="fas fa-check-circle"></i>
           Post created successfully!
         </div>
       )}
 
-      <div className="mb-4">
-        <label className="block mb-1">Title *</label>
+      <div className="form-group">
+        <label>
+          <i className="fas fa-heading"></i>
+          Title
+        </label>
         <input
           type="text"
           name="title"
           value={formData.title}
           onChange={handleChange}
-          className="w-full border px-3 py-2 rounded focus:outline-none focus:border-blue-500"
+          placeholder="What's your post about?"
           required
-          minLength={3}
-          maxLength={100}
-          placeholder="Enter post title"
+          className="form-input"
         />
       </div>
 
-      <div className="mb-4">
-        <label className="block mb-1">Content *</label>
+      <div className="form-group">
+        <label>
+          <i className="fas fa-pen"></i>
+          Content
+        </label>
         <textarea
           name="content"
           value={formData.content}
           onChange={handleChange}
-          className="w-full border px-3 py-2 rounded focus:outline-none focus:border-blue-500"
-          rows={4}
+          placeholder="Share your thoughts..."
           required
-          minLength={10}
-          placeholder="Write your post content here"
+          className="form-textarea"
+          rows={6}
         />
       </div>
 
-      <div className="mb-4">
-        <label className="block mb-1">Tags (comma-separated)</label>
+      <div className="form-group">
+        <label>
+          <i className="fas fa-tags"></i>
+          Tags
+        </label>
         <input
           type="text"
           name="tags"
           value={formData.tags}
           onChange={handleChange}
-          className="w-full border px-3 py-2 rounded focus:outline-none focus:border-blue-500"
-          placeholder="e.g. technology, programming, react"
+          placeholder="Add tags (comma separated)"
+          className="form-input"
         />
       </div>
 
-      <div className="mb-4">
-        <label className="block mb-1">Media URL</label>
-        <input
-          type="url"
-          name="mediaUrl"
-          value={formData.mediaUrl}
-          onChange={handleChange}
-          className="w-full border px-3 py-2 rounded focus:outline-none focus:border-blue-500"
-          placeholder="https://example.com/image.jpg"
-        />
+      <div className="form-group">
+        <label>
+          <i className="fas fa-image"></i>
+          Media
+        </label>
+        <div className="media-input-container">
+          <input
+            type="url"
+            name="mediaUrl"
+            value={formData.mediaUrl}
+            onChange={handleChange}
+            placeholder="Add image URL"
+            className="form-input"
+          />
+          <div className="file-upload">
+            <label className="file-upload-label">
+              <i className="fas fa-upload"></i>
+              Upload Image
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="hidden"
+              />
+            </label>
+          </div>
+        </div>
+        {preview && (
+          <div className="image-preview">
+            <img src={preview} alt="Preview" />
+            <button
+              type="button"
+              onClick={() => {
+                setPreview(null);
+                setSelectedFile(null);
+              }}
+              className="remove-preview"
+            >
+              <i className="fas fa-times"></i>
+            </button>
+          </div>
+        )}
       </div>
 
       <button 
         type="submit" 
-        className={`w-full px-4 py-2 rounded text-white ${
-          loading 
-            ? 'bg-blue-300 cursor-not-allowed' 
-            : 'bg-blue-500 hover:bg-blue-600'
-        }`}
+        className={`submit-button ${loading ? 'loading' : ''}`}
         disabled={loading}
       >
-        {loading ? 'Creating...' : 'Create Post'}
+        {loading ? (
+          <>
+            <i className="fas fa-spinner fa-spin"></i>
+            Creating Post...
+          </>
+        ) : (
+          <>
+            <i className="fas fa-paper-plane"></i>
+            Create Post
+          </>
+        )}
       </button>
     </form>
   );
