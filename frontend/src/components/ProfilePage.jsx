@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import "./ProfilePage.css";
+import "../styles/ProfilePage.css";
 import SearchBox from "./SearchBox"; // Assuming you have a SearchBox component
 import FollowButton from "./FollowButton"; // Assuming you have a FollowButton component
 import Navbar from "./Navbar";

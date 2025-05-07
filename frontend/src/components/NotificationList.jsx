@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import './NotificationList.css';
+import '../styles/NotificationList.css';
 
 const NotificationList = ({ userId }) => {
     const [notifications, setNotifications] = useState([]);

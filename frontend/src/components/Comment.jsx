@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import './comment.css';
+import '../styles/comment.css';
 
 const Comment = ({ comment, currentUserId, onDelete, userProfile }) => {
     const [isEditing, setIsEditing] = useState(false);

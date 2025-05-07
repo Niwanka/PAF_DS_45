@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import "./UserPage.css";
+import "../styles/UserPage.css";
 import Navbar from "./Navbar"; // Import Navbar component
 import { ToastContainer, toast } from "react-toastify";
 
