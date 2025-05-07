@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 
 import com.paf_45.bankendapplication.model.Post;
@@ -31,8 +33,17 @@ public class PostService {
 
     // Fetch all posts by a specific user
     public List<Post> getPostsByUser(String userId) {
-        return postRepository.findByUserId(userId);
+        try {
+            // Sort posts by creation date in descending order (newest first)
+            Sort sortByCreatedAtDesc = Sort.by(Direction.DESC, "createdAt");
+            return postRepository.findByUserId(userId, sortByCreatedAtDesc);
+        } catch (Exception e) {
+            // Log the error
+            System.err.println("Error fetching posts for user " + userId + ": " + e.getMessage());
+            return new ArrayList<>(); // Return empty list instead of null
+        }
     }
+
 
     // Create a new post
     public Post createPost(Post post) {

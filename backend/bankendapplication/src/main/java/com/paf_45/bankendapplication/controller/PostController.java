@@ -95,4 +95,10 @@ public class PostController {
         return post.map(p -> ResponseEntity.ok(p.getLikes()))
                   .orElse(ResponseEntity.notFound().build());
     }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<Post>> getPostsByUserId(@PathVariable String userId) {
+        List<Post> userPosts = postService.getPostsByUser(userId);
+        return ResponseEntity.ok(userPosts);
+    }
 }

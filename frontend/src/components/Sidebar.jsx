@@ -35,6 +35,14 @@ const Sidebar = ({ userProfile }) => {
           <i className="fas fa-chart-line"></i>
           Learning Progress
         </a>
+        <div 
+          className="learning-nav-link"
+          onClick={() => navigate(`/user-posts/${userProfile?.sub}`)}
+          style={{ cursor: 'pointer' }}
+        >
+          <i className="fas fa-pencil-alt"></i>
+          My Posts
+        </div>
       </div>
     </aside>
   );
