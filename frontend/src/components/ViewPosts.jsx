@@ -5,7 +5,7 @@ import ChatBot from './ChatBot';
 import UserPosts from './UserPosts';
 import PostModal from './PostModal';
 import Sidebar from './Sidebar';
-import './ViewPosts.css';
+//import './ViewPosts.css';
 
 const ViewPosts = () => {
   const { userId } = useParams();

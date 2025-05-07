@@ -8,6 +8,7 @@ const UserPosts = ({ userId }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [editingPost, setEditingPost] = useState(null);
+  const [userProfiles, setUserProfiles] = useState({});
 
   const fetchPosts = async () => {
     try {
@@ -25,8 +26,38 @@ const UserPosts = ({ userId }) => {
     }
   };
 
+  const fetchUserProfiles = async () => {
+    try {
+      const response = await axios.get(
+        'http://localhost:9090/api/profile/all',
+        { 
+          withCredentials: true,
+          headers: {
+            'Accept': 'application/json'
+          }
+        }
+      );
+      
+      // Create a map of userId to profile picture
+      const profileMap = {};
+      response.data.forEach(user => {
+        if (user.sub && user.picture) {
+          profileMap[user.sub] = user.picture;
+        }
+      });
+      
+      setUserProfiles(profileMap);
+    } catch (error) {
+      console.error('Error fetching user profiles:', error);
+    }
+  };
+
   useEffect(() => {
-    fetchPosts();
+    const fetchData = async () => {
+      await fetchPosts();
+      await fetchUserProfiles();
+    };
+    fetchData();
   }, [userId]);
 
   const handlePostUpdated = (updatedPost) => {
@@ -97,10 +128,14 @@ const handleDeletePost = async (postId) => {
         <div key={post._id} className="post-card">
           <div className="post-header">
             <div className="post-user-info">
-              <img
-                src={post.userPicture || `https://ui-avatars.com/api/?name=${post.userName || "User"}`}
+            <img
+                src={userProfiles[post.userId] || `https://ui-avatars.com/api/?name=${post.userName || "User"}&background=random`}
                 alt={post.userName}
                 className="user-avatar"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = `https://ui-avatars.com/api/?name=${post.userName || "User"}&background=random`;
+                }}
               />
               <div>
                 <h3 className="user-name">{post.userName}</h3>
