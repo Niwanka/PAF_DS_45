@@ -1,40 +1,54 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import "./ProfilePage.css";
-import SearchBox from "./SearchBox";
+import "./UserPage.css";
+import Navbar from "./Navbar"; // Import Navbar component
 import { ToastContainer, toast } from "react-toastify";
 
 const UserPage = () => {
   const { userId } = useParams();
   const navigate = useNavigate();
   const [userProfile, setUserProfile] = useState(null);
+  const [currentUserProfile, setCurrentUserProfile] = useState(null); // Add state for current user
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchUserProfile = async () => {
+    const fetchProfiles = async () => {
       try {
-        const response = await fetch(
+        // Fetch viewed user's profile
+        const userResponse = await fetch(
           `http://localhost:9090/api/profile/${userId}`,
           {
             credentials: "include",
           }
         );
 
-        if (!response.ok) {
-          throw new Error("Failed to fetch user profile");
+        // Fetch current user's profile for navbar
+        const currentUserResponse = await fetch(
+          "http://localhost:9090/api/profile",
+          {
+            credentials: "include",
+          }
+        );
+
+        if (!userResponse.ok || !currentUserResponse.ok) {
+          throw new Error("Failed to fetch profiles");
         }
 
-        const data = await response.json();
-        setUserProfile(data);
+        const userData = await userResponse.json();
+        const currentUserData = await currentUserResponse.json();
+        
+        setUserProfile(userData);
+        setCurrentUserProfile(currentUserData);
       } catch (err) {
         setError(err.message);
+        toast.error(err.message);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchUserProfile();
+    fetchProfiles();
   }, [userId]);
 
   if (loading) return <div className="loading">Loading...</div>;
@@ -43,33 +57,7 @@ const UserPage = () => {
 
   return (
     <div className="home">
-      {/* Navbar */}
-      <nav className="navbar">
-        <div className="nav-left">
-          <a href="/home" className="nav-brand">
-            Skill Share
-          </a>
-          <SearchBox />
-        </div>
-        <div className="nav-menu">
-          <a href="/home" className="nav-item">
-            <i className="fas fa-home"></i>
-            <span>Home</span>
-          </a>
-          <a href="#network" className="nav-item">
-            <i className="fas fa-user-friends"></i>
-            <span>Network</span>
-          </a>
-          <a href="#jobs" className="nav-item">
-            <i className="fas fa-briefcase"></i>
-            <span>Jobs</span>
-          </a>
-          <a href="#messaging" className="nav-item">
-            <i className="fas fa-comment-dots"></i>
-            <span>Messaging</span>
-          </a>
-        </div>
-      </nav>
+      <Navbar userProfile={currentUserProfile} />
 
       <div className="profile-main-content">
         <div className="profile-container">
@@ -95,7 +83,9 @@ const UserPage = () => {
               </div>
 
               <div className="profile-info-container">
-                <h1 className="profile-name">{`${userProfile.firstName} ${userProfile.lastName}`}</h1>
+                <h1 className="profile-name">
+                  {`${userProfile.firstName} ${userProfile.lastName}`}
+                </h1>
                 <p className="profile-headline">
                   {userProfile.profession || "No profession listed"}
                 </p>
@@ -179,6 +169,7 @@ const UserPage = () => {
           </div>
         </div>
       </div>
+      <ToastContainer />
     </div>
   );
 };
