@@ -8,10 +8,34 @@ const CommentList = ({ postId, currentUserProfile }) => {
     const [newComment, setNewComment] = useState('');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [userProfiles, setUserProfiles] = useState({});
 
     useEffect(() => {
         fetchComments();
     }, [postId]);
+
+    useEffect(() => {
+        const fetchUserProfiles = async () => {
+            try {
+                const response = await axios.get('http://localhost:9090/api/profile/all', {
+                    withCredentials: true
+                });
+                
+                // Create a map of userId to profile
+                const profileMap = {};
+                response.data.forEach(profile => {
+                    if (profile.sub) {
+                        profileMap[profile.sub] = profile;
+                    }
+                });
+                setUserProfiles(profileMap);
+            } catch (err) {
+                console.error('Error fetching user profiles:', err);
+            }
+        };
+
+        fetchUserProfiles();
+    }, [comments]);
 
     const fetchComments = async () => {
         try {
@@ -81,6 +105,7 @@ const CommentList = ({ postId, currentUserProfile }) => {
                         comment={comment}
                         currentUserId={currentUserProfile.sub}
                         onDelete={handleDeleteComment}
+                        userProfile={userProfiles[comment.userId]}
                     />
                 ))}
             </div>

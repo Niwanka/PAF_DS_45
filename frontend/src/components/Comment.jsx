@@ -61,12 +61,27 @@ const Comment = ({ comment, currentUserId, onDelete, userProfile }) => {
         return commentDate.toLocaleDateString();
     };
 
+    const getDefaultAvatar = (name = 'User') => {
+        return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random`;
+    };
+
+    const getUserFullName = () => {
+        if (userProfile?.firstName && userProfile?.lastName) {
+            return `${userProfile.firstName} ${userProfile.lastName}`;
+        }
+        return 'Anonymous User';
+    };
+
     return (
         <div className="comment" onMouseEnter={() => setShowOptions(true)} onMouseLeave={() => setShowOptions(false)}>
             <img
-                src={userProfile?.picture || `https://ui-avatars.com/api/?name=${userProfile?.firstName}+${userProfile?.lastName}&background=random`}
-                alt="User avatar"
+                src={userProfile?.picture || getDefaultAvatar(getUserFullName())}
+                alt={`${getUserFullName()}'s avatar`}
                 className="comment-avatar"
+                onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = getDefaultAvatar(getUserFullName());
+                }}
             />
             <div className="comment-content-wrapper">
                 {isEditing ? (
@@ -101,7 +116,7 @@ const Comment = ({ comment, currentUserId, onDelete, userProfile }) => {
                         <div className="comment-header">
                             <div className="comment-author-info">
                                 <span className="comment-author">
-                                    {userProfile?.firstName} {userProfile?.lastName}
+                                    {getUserFullName()}
                                 </span>
                                 <span className="comment-time">{formatTimeAgo(comment.createdAt)}</span>
                             </div>
@@ -125,10 +140,6 @@ const Comment = ({ comment, currentUserId, onDelete, userProfile }) => {
                             )}
                         </div>
                         <p className="comment-text">{comment.content}</p>
-                        {/* <div className="comment-footer">
-                            <button className="comment-reaction">Like</button>
-                            <button className="comment-reaction">Reply</button>
-                        </div> */}
                     </>
                 )}
             </div>
