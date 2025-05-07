@@ -5,6 +5,7 @@ import "react-toastify/dist/ReactToastify.css";
 import "./ProfilePage.css";
 import SearchBox from "./SearchBox"; // Assuming you have a SearchBox component
 import FollowButton from "./FollowButton"; // Assuming you have a FollowButton component
+import Navbar from "./Navbar";
 
 const ProfilePage = () => {
   const { userId } = useParams();
@@ -166,49 +167,8 @@ const ProfilePage = () => {
 
   return (
     <div className="home">
-      {/* Navbar - Matching Home page theme */}
-      <nav className="navbar">
-        <div className="nav-left">
-          <a href="/home" className="nav-brand">
-            Skill Share
-          </a>
-          <SearchBox />
-        </div>
-        <div className="nav-menu">
-          <a href="/home" className="nav-item">
-            <i className="fas fa-home"></i>
-            <span>Home</span>
-          </a>
-          <a href="#network" className="nav-item">
-            <i className="fas fa-user-friends"></i>
-            <span>Network</span>
-          </a>
-          <a href="#jobs" className="nav-item">
-            <i className="fas fa-briefcase"></i>
-            <span>Jobs</span>
-          </a>
-          <a href="#messaging" className="nav-item">
-            <i className="fas fa-comment-dots"></i>
-            <span>Messaging</span>
-          </a>
-          <a href="#notifications" className="nav-item">
-            <i className="fas fa-bell"></i>
-            <span>Notifications</span>
-          </a>
-          <div className="nav-item active">
-            <img
-              src={
-                userProfile?.picture ||
-                `https://ui-avatars.com/api/?name=${userProfile?.firstName}+${userProfile?.lastName}`
-              }
-              alt="Profile"
-              className="nav-profile-photo"
-            />
-            <span>Me</span>
-          </div>
-        </div>
-      </nav>
-
+      <Navbar userProfile={userProfile} />
+      
       <div className="profile-main-content">
         <div className="profile-container">
           <div className="profile-header-wrapper">

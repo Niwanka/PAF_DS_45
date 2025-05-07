@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Home.css";
+import Navbar from './components/Navbar';
 import SearchBox from './components/SearchBox';
 import ChatBot from './components/ChatBot';
 import PostList from './components/PostList';
 import PostModal from './components/PostModal';
 import NotificationList from './components/NotificationList';
-
 
 
 const Home = () => {
@@ -56,51 +56,8 @@ const Home = () => {
 
   return (
     <div className="home">
-      <nav className="navbar">
-        <div className="nav-left">
-          <a href="/home" className="nav-brand">
-            Skill Share
-          </a>
-          <SearchBox />
-        </div>
-        <div className="nav-menu">
-          <a href="/home" className="nav-item active">
-            <i className="fas fa-home"></i>
-            <span>Home</span>
-          </a>
-          <a href="#network" className="nav-item">
-            <i className="fas fa-user-friends"></i>
-            <span>Network</span>
-          </a>
-          <a href="#jobs" className="nav-item">
-            <i className="fas fa-briefcase"></i>
-            <span>Jobs</span>
-          </a>
-          <a href="#messaging" className="nav-item">
-            <i className="fas fa-comment-dots"></i>
-            <span>Messaging</span>
-          </a>
-          <a href="#notifications" className="nav-item">
-            <i className="fas fa-bell"></i>
-            <NotificationList userId={userProfile?.sub} />
-          </a>
-          <div 
-            className="nav-item"
-            onClick={() => navigate(`/profile/${userProfile?.sub}`)}
-          >
-            <img
-              src={
-                userProfile?.picture ||
-                `https://ui-avatars.com/api/?name=${userProfile?.firstName}+${userProfile?.lastName || "User"}`
-              }
-              alt="Profile"
-              className="nav-profile-photo"
-            />
-            <span>Me</span>
-          </div>
-        </div>
-      </nav>
-
+      <Navbar userProfile={userProfile} />
+      
       <main className="main-content">
         {/* Left Sidebar - Profile Section */}
         <aside className="profile-section">
