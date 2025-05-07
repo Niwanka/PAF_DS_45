@@ -1,6 +1,7 @@
 package com.paf_45.bankendapplication.service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,6 +15,9 @@ import com.paf_45.bankendapplication.repository.PostRepository;
 public class PostService {
     @Autowired
     private PostRepository postRepository;
+    
+    @Autowired
+    private NotificationService notificationService;
 
     // Fetch all posts
     public List<Post> getAllPosts() {
@@ -51,5 +55,28 @@ public class PostService {
     // Delete a post
     public void deletePost(String id) {
         postRepository.deleteById(id);
+    }
+
+    // Toggle like on a post
+    public Optional<Post> toggleLike(String postId, String userId) {
+        return postRepository.findById(postId).map(post -> {
+            List<String> likes = post.getLikes() != null ? post.getLikes() : new ArrayList<>();
+            
+            if (!likes.contains(userId)) {
+                likes.add(userId);
+                // Create notification for post owner
+                notificationService.createNotification(
+                    post.getUserId(),  // recipient (post owner)
+                    userId,           // sender (user who liked)
+                    postId,          // post ID
+                    "LIKE"           // notification type
+                );
+            } else {
+                likes.remove(userId);
+            }
+            
+            post.setLikes(likes);
+            return postRepository.save(post);
+        });
     }
 }
