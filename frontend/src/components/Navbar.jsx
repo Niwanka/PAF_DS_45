@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import SearchBox from './SearchBox';
 import NotificationList from './NotificationList';
-import './Navbar.css';
+import '../styles/Navbar.css';
 
 const Navbar = ({ userProfile }) => {
   const navigate = useNavigate();

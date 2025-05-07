@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import PostModal from './PostModal';
-import './UserPosts.css';
+import '../styles/UserPosts.css';
 
 const UserPosts = ({ userId }) => {
   const [posts, setPosts] = useState([]);

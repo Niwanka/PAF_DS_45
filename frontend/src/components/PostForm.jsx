@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import './PostForm.css';
+import '../styles/PostForm.css';
 
 const PostForm = ({ onPostCreated, onPostUpdated, userId, post, isEditing, onSuccess }) => {
   const [formData, setFormData] = useState({

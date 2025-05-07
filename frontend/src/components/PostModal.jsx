@@ -1,6 +1,6 @@
 import React from 'react';
 import PostForm from './PostForm';
-import './PostModal.css';
+import '../styles/PostModal.css';
 
 const PostModal = ({
   isOpen,

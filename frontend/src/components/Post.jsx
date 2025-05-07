@@ -3,7 +3,7 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import CommentList from './CommentList';
 import { sharePost } from '../utils/shareUtils';
-import './Post.css';
+import '../styles/Post.css';
 
 
 const Post = ({ post, currentUserProfile, onPostUpdate }) => {
