@@ -53,4 +53,13 @@ public class NotificationService {
             notificationRepository.save(notification);
         });
     }
+
+    public void deleteNotification(String notificationId) {
+        notificationRepository.deleteById(notificationId);
+    }
+
+    public void deleteAllUserNotifications(String userId) {
+        List<Notification> userNotifications = notificationRepository.findByRecipientIdOrderByCreatedAtDesc(userId);
+        notificationRepository.deleteAll(userNotifications);
+    }
 }

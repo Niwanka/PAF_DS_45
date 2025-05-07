@@ -37,7 +37,6 @@ const NotificationList = ({ userId, onNotificationRead }) => {
             );
             setNotifications(updatedNotifications);
             
-            // Check if all notifications are now read
             const hasUnread = updatedNotifications.some(notif => !notif.isRead);
             if (!hasUnread) {
                 onNotificationRead();
@@ -47,10 +46,46 @@ const NotificationList = ({ userId, onNotificationRead }) => {
         }
     };
 
+    const deleteNotification = async (notificationId, event) => {
+        event.stopPropagation();
+        try {
+            await axios.delete(
+                `http://localhost:9090/api/notifications/${notificationId}`,
+                { withCredentials: true }
+            );
+            setNotifications(notifications.filter(notif => notif.id !== notificationId));
+        } catch (error) {
+            console.error('Failed to delete notification:', error);
+        }
+    };
+
+    const deleteAllNotifications = async () => {
+        try {
+            await axios.delete(
+                `http://localhost:9090/api/notifications/user/${userId}`,
+                { withCredentials: true }
+            );
+            setNotifications([]);
+            onNotificationRead();
+        } catch (error) {
+            console.error('Failed to delete all notifications:', error);
+        }
+    };
+
     if (loading) return <div>Loading notifications...</div>;
 
     return (
         <div className="notifications-container">
+            {notifications.length > 0 && (
+                <div className="notifications-header">
+                    <button 
+                        className="clear-all-btn"
+                        onClick={deleteAllNotifications}
+                    >
+                        Clear All
+                    </button>
+                </div>
+            )}
             {notifications.length === 0 ? (
                 <p>No notifications</p>
             ) : (
@@ -66,6 +101,12 @@ const NotificationList = ({ userId, onNotificationRead }) => {
                                 {new Date(notification.createdAt).toLocaleString()}
                             </small>
                         </div>
+                        <button 
+                            className="delete-notification-btn"
+                            onClick={(e) => deleteNotification(notification.id, e)}
+                        >
+                            <i className="fas fa-times"></i>
+                        </button>
                     </div>
                 ))
             )}
