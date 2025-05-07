@@ -13,6 +13,7 @@ public class LearningProgressUpdateResponse extends RepresentationModel<Learning
     private String description;
     private TemplateType templateType;
     private String mediaUrl;
+    private String skillLevel;
     private LocalDateTime dateCreated;
     private LocalDateTime lastUpdated;
 
@@ -27,6 +28,7 @@ public class LearningProgressUpdateResponse extends RepresentationModel<Learning
         this.description = update.getDescription();
         this.templateType = update.getTemplateType();
         this.mediaUrl = update.getMediaUrl();
+        this.skillLevel = update.getSkillLevel();
         this.dateCreated = update.getDateCreated();
         this.lastUpdated = update.getLastUpdated();
     }
@@ -78,6 +80,14 @@ public class LearningProgressUpdateResponse extends RepresentationModel<Learning
 
     public void setMediaUrl(String mediaUrl) {
         this.mediaUrl = mediaUrl;
+    }
+
+    public String getSkillLevel() {
+        return skillLevel;
+    }
+
+    public void setSkillLevel(String skillLevel) {
+        this.skillLevel = skillLevel;
     }
 
     public LocalDateTime getDateCreated() {

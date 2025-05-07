@@ -21,6 +21,7 @@ public class LearningProgressUpdate {
     private String description;
     private TemplateType templateType;
     private String mediaUrl;
+    private String skillLevel;
     private LocalDateTime dateCreated;
     private LocalDateTime lastUpdated;
 
@@ -30,7 +31,7 @@ public class LearningProgressUpdate {
 
     // All-args constructor
     public LearningProgressUpdate(String id, String userId, String title, String description, 
-                                  TemplateType templateType, String mediaUrl, 
+                                  TemplateType templateType, String mediaUrl, String skillLevel,
                                   LocalDateTime dateCreated, LocalDateTime lastUpdated) {
         this.id = id;
         this.userId = userId;
@@ -38,6 +39,7 @@ public class LearningProgressUpdate {
         this.description = description;
         this.templateType = templateType;
         this.mediaUrl = mediaUrl;
+        this.skillLevel = skillLevel;
         this.dateCreated = dateCreated;
         this.lastUpdated = lastUpdated;
     }
@@ -90,7 +92,13 @@ public class LearningProgressUpdate {
     public void setMediaUrl(String mediaUrl) {
         this.mediaUrl = mediaUrl;
     }
-    
+    public String getSkillLevel() {
+        return skillLevel;
+    }
+
+    public void setSkillLevel(String skillLevel) {
+        this.skillLevel = skillLevel;
+    }
     public LocalDateTime getDateCreated() {
         return dateCreated;
     }
@@ -106,6 +114,8 @@ public class LearningProgressUpdate {
     public void setLastUpdated(LocalDateTime lastUpdated) {
         this.lastUpdated = lastUpdated;
     }
+
+    
     
     
 
