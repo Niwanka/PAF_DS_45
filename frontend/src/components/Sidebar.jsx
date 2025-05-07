@@ -1,56 +1,52 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import './Sidebar.css';
+import { useNavigate } from 'react-router-dom';
 
 const Sidebar = ({ userProfile }) => {
   const navigate = useNavigate();
 
   return (
-    <div className="sidebar">
-      <div className="sidebar-profile-card">
-        <div className="profile-background"></div>
-        <div className="profile-info">
-          <img 
-            src={userProfile?.picture || `https://ui-avatars.com/api/?name=${userProfile?.firstName}+${userProfile?.lastName}`}
-            alt="Profile"
-            className="sidebar-profile-photo"
-            onClick={() => navigate(`/profile/${userProfile?.sub}`)}
-          />
-          <h3 className="sidebar-name">{`${userProfile?.firstName} ${userProfile?.lastName}`}</h3>
-          <p className="sidebar-headline">{userProfile?.headline || 'No headline added'}</p>
-        </div>
+    <aside className="profile-section">
+      <div className="profile-background"></div>
+      <div className="profile-content">
+        <img
+          src={
+            userProfile?.picture ||
+            `https://ui-avatars.com/api/?name=${userProfile?.firstName}+${userProfile?.lastName || "User"}`
+          }
+          alt="Profile"
+          className="profile-photo"
+          onClick={() => navigate(`/profile/${userProfile?.sub}`)}
+        />
+        <h2 className="profile-name">
+          {userProfile ? `${userProfile.firstName} ${userProfile.lastName}` : 'Loading...'}
+        </h2>
+        <p className="profile-headline">{userProfile?.profession || 'Add a headline'}</p>
       </div>
-
-      <div className="sidebar-stats">
+      
+      <div className="profile-stats">
         <div className="stat-item">
-          <span className="stat-label">Profile views</span>
-          <span className="stat-value">128</span>
+          <span>Who's viewed your profile</span>
+          <strong>47</strong>
         </div>
         <div className="stat-item">
-          <span className="stat-label">Post impressions</span>
-          <span className="stat-value">845</span>
+          <span>Post impressions</span>
+          <strong>251</strong>
         </div>
       </div>
 
-      <div className="sidebar-premium">
-        <h4>Access exclusive tools & insights</h4>
-        <a href="#premium" className="premium-link">
-          <i className="fas fa-square"></i> Try Premium
+      <div className="learning-nav">
+        <div className="learning-nav-title">Learning Navigation</div>
+        <a href="/learning-planning" className="learning-nav-link">
+          <i className="fas fa-tasks"></i>
+          Learning Planning
+        </a>
+        <a href="/learning-progress" className="learning-nav-link">
+          <i className="fas fa-chart-line"></i>
+          Learning Progress
         </a>
       </div>
-
-      <div className="sidebar-items">
-        <a href="#groups" className="sidebar-item">
-          <i className="fas fa-users"></i> Groups
-        </a>
-        <a href="#events" className="sidebar-item">
-          <i className="fas fa-calendar"></i> Events
-        </a>
-        <a href="#topics" className="sidebar-item">
-          <i className="fas fa-hashtag"></i> Followed Topics
-        </a>
-      </div>
-    </div>
+    </aside>
   );
 };
 
