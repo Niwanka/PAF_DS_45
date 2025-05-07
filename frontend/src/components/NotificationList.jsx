@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import '../styles/NotificationList.css';
 
-const NotificationList = ({ userId }) => {
+const NotificationList = ({ userId, onNotificationRead }) => {
     const [notifications, setNotifications] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -31,9 +31,17 @@ const NotificationList = ({ userId }) => {
                 {},
                 { withCredentials: true }
             );
-            setNotifications(notifications.map(notif => 
+            
+            const updatedNotifications = notifications.map(notif => 
                 notif.id === notificationId ? {...notif, isRead: true} : notif
-            ));
+            );
+            setNotifications(updatedNotifications);
+            
+            // Check if all notifications are now read
+            const hasUnread = updatedNotifications.some(notif => !notif.isRead);
+            if (!hasUnread) {
+                onNotificationRead();
+            }
         } catch (error) {
             console.error('Failed to mark notification as read:', error);
         }
