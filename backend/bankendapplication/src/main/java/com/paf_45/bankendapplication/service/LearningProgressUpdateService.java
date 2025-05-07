@@ -47,6 +47,7 @@ public class LearningProgressUpdateService {
             existing.setDescription(updatedData.getDescription());
             existing.setTemplateType(updatedData.getTemplateType());
             existing.setMediaUrl(updatedData.getMediaUrl());
+            existing.setSkillLevel(updatedData.getSkillLevel());
             existing.setLastUpdated(LocalDateTime.now());
             return Optional.of(repository.save(existing));
         }
