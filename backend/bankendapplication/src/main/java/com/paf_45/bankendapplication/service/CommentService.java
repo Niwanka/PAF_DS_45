@@ -15,6 +15,12 @@ public class CommentService {
     @Autowired
     private CommentRepository commentRepository;
 
+    @Autowired
+    private NotificationService notificationService;
+
+    @Autowired
+    private PostService postService; // Add this to get post information
+
     public List<Comment> getCommentsByPostId(String postId) {
         return commentRepository.findByPostId(postId);
     }
@@ -22,7 +28,22 @@ public class CommentService {
     public Comment addComment(Comment comment) {
         comment.setCreatedAt(LocalDateTime.now());
         comment.setUpdatedAt(LocalDateTime.now());
-        return commentRepository.save(comment);
+        Comment savedComment = commentRepository.save(comment);
+
+        // Get post author ID and create notification
+        postService.getPostById(comment.getPostId()).ifPresent(post -> {
+            // Only create notification if commenter is not the post author
+            if (!post.getUserId().equals(comment.getUserId())) {
+                notificationService.createNotification(
+                    post.getUserId(),    // recipient (post owner)
+                    comment.getUserId(), // sender (commenter)
+                    comment.getPostId(), // post ID
+                    "COMMENT"           // notification type
+                );
+            }
+        });
+
+        return savedComment;
     }
 
     public Optional<Comment> getCommentById(String id) {
