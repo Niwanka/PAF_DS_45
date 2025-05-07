@@ -24,16 +24,6 @@ const Sidebar = ({ userProfile }) => {
         <p className="profile-headline">{userProfile?.profession || 'Add a headline'}</p>
       </div>
       
-      <div className="profile-stats">
-        <div className="stat-item">
-          <span>Who's viewed your profile</span>
-          <strong>47</strong>
-        </div>
-        <div className="stat-item">
-          <span>Post impressions</span>
-          <strong>251</strong>
-        </div>
-      </div>
 
       <div className="learning-nav">
         <div className="learning-nav-title">Learning Navigation</div>
