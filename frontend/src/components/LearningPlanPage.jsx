@@ -6,6 +6,7 @@ const LearningPlanPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [currentPlan, setCurrentPlan] = useState(null); // Track the plan being viewed/edited
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -65,38 +66,96 @@ const LearningPlanPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("/api/learning-plans", {
-        title: formData.title,
-        description: formData.description,
-        topics: formData.topics,
-        completionDate: formData.completionDate,
-        resources: formData.resources,
-        status: formData.status,
-      });
-      setPlans((prev) => [...prev, response.data]);
-      setIsModalOpen(false);
-      setFormData({
-        title: "",
-        description: "",
-        topics: "",
-        completionDate: "",
-        resources: [],
-        newResource: "",
-        status: "draft",
-      });
+      if (currentPlan) {
+        // Update existing plan
+        const response = await axios.put(
+          `/api/learning-plans/${currentPlan.id}`,
+          {
+            title: formData.title,
+            description: formData.description,
+            topics: formData.topics,
+            completionDate: formData.completionDate,
+            resources: formData.resources,
+            status: formData.status,
+          }
+        );
+        setPlans((prev) =>
+          prev.map((plan) =>
+            plan.id === currentPlan.id ? response.data : plan
+          )
+        );
+      } else {
+        // Create new plan
+        const response = await axios.post("/api/learning-plans", {
+          title: formData.title,
+          description: formData.description,
+          topics: formData.topics,
+          completionDate: formData.completionDate,
+          resources: formData.resources,
+          status: formData.status,
+        });
+        setPlans((prev) => [...prev, response.data]);
+      }
+      closeModal();
     } catch (error) {
-      console.error("Failed to create learning plan", error);
+      console.error("Failed to save learning plan", error);
     }
+  };
+
+  const handleDelete = async (id) => {
+    if (window.confirm("Are you sure you want to delete this learning plan?")) {
+      try {
+        await axios.delete(`/api/learning-plans/${id}`);
+        setPlans((prev) => prev.filter((plan) => plan.id !== id));
+      } catch (error) {
+        console.error("Failed to delete learning plan", error);
+      }
+    }
+  };
+
+  const openEditModal = (plan) => {
+    setCurrentPlan(plan);
+    setFormData({
+      title: plan.title,
+      description: plan.description,
+      topics: plan.topics,
+      completionDate: plan.completionDate || "",
+      resources: plan.resources || [],
+      newResource: "",
+      status: plan.status || "draft",
+    });
+    setIsModalOpen(true);
+  };
+
+  const openViewModal = (plan) => {
+    setCurrentPlan(plan);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setCurrentPlan(null);
+    setFormData({
+      title: "",
+      description: "",
+      topics: "",
+      completionDate: "",
+      resources: [],
+      newResource: "",
+      status: "draft",
+    });
+  };
+
+  const openCreateModal = () => {
+    setCurrentPlan(null);
+    setIsModalOpen(true);
   };
 
   return (
     <div style={styles.page}>
       <div style={styles.header}>
         <h1>My Learning Plans</h1>
-        <button
-          style={styles.createButton}
-          onClick={() => setIsModalOpen(true)}
-        >
+        <button style={styles.createButton} onClick={openCreateModal}>
           Create New Plan
         </button>
       </div>
@@ -145,6 +204,26 @@ const LearningPlanPage = () => {
                   </ul>
                 </div>
               )}
+              <div style={styles.cardActions}>
+                <button
+                  style={styles.viewButton}
+                  onClick={() => openViewModal(plan)}
+                >
+                  View
+                </button>
+                <button
+                  style={styles.editButton}
+                  onClick={() => openEditModal(plan)}
+                >
+                  Edit
+                </button>
+                <button
+                  style={styles.deleteButton}
+                  onClick={() => handleDelete(plan.id)}
+                >
+                  Delete
+                </button>
+              </div>
             </div>
           ))}
         </div>
@@ -159,137 +238,204 @@ const LearningPlanPage = () => {
         <div style={styles.modalOverlay}>
           <div style={styles.modal}>
             <div style={styles.modalHeader}>
-              <h2 style={styles.modalTitle}>Create New Learning Plan</h2>
-              <button
-                style={styles.closeButton}
-                onClick={() => setIsModalOpen(false)}
-              >
+              <h2 style={styles.modalTitle}>
+                {currentPlan ? (formData.title ? "Edit" : "View") : "Create"}{" "}
+                Learning Plan
+              </h2>
+              <button style={styles.closeButton} onClick={closeModal}>
                 &times;
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} style={styles.form}>
-              <div style={styles.formGroup}>
-                <label style={styles.label}>Title*</label>
-                <input
-                  type="text"
-                  name="title"
-                  value={formData.title}
-                  onChange={handleInputChange}
-                  required
-                  style={styles.input}
-                  placeholder="Enter plan title"
-                />
-              </div>
+            {currentPlan && !formData.title ? (
+              // View mode
+              <div style={styles.viewContent}>
+                <div style={styles.viewGroup}>
+                  <h3 style={styles.viewTitle}>{currentPlan.title}</h3>
+                  <p style={styles.viewDescription}>
+                    {currentPlan.description}
+                  </p>
+                </div>
 
-              <div style={styles.formGroup}>
-                <label style={styles.label}>Description*</label>
-                <textarea
-                  name="description"
-                  value={formData.description}
-                  onChange={handleInputChange}
-                  required
-                  style={styles.textarea}
-                  placeholder="Describe your learning plan"
-                  rows={4}
-                />
-              </div>
+                <div style={styles.viewGroup}>
+                  <h4 style={styles.viewSubtitle}>Details</h4>
+                  <p>
+                    <strong>Topics:</strong> {currentPlan.topics}
+                  </p>
+                  <p>
+                    <strong>Status:</strong>{" "}
+                    <span style={getStatusStyle(currentPlan.status)}>
+                      {currentPlan.status}
+                    </span>
+                  </p>
+                  {currentPlan.completionDate && (
+                    <p>
+                      <strong>Target Completion:</strong>{" "}
+                      {new Date(
+                        currentPlan.completionDate
+                      ).toLocaleDateString()}
+                    </p>
+                  )}
+                </div>
 
-              <div style={styles.formGroup}>
-                <label style={styles.label}>Topics</label>
-                <input
-                  type="text"
-                  name="topics"
-                  value={formData.topics}
-                  onChange={handleInputChange}
-                  style={styles.input}
-                  placeholder="Comma-separated list of topics"
-                />
+                {currentPlan.resources?.length > 0 && (
+                  <div style={styles.viewGroup}>
+                    <h4 style={styles.viewSubtitle}>Resources</h4>
+                    <ul style={styles.viewResourcesList}>
+                      {currentPlan.resources.map((resource, index) => (
+                        <li key={index} style={styles.viewResourceItem}>
+                          <a
+                            href={resource}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={styles.resourceLink}
+                          >
+                            {resource.length > 50
+                              ? `${resource.substring(0, 50)}...`
+                              : resource}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
-
-              <div style={styles.formRow}>
-                <div style={{ ...styles.formGroup, flex: 1 }}>
-                  <label style={styles.label}>Completion Date</label>
+            ) : (
+              // Edit/Create mode
+              <form onSubmit={handleSubmit} style={styles.form}>
+                <div style={styles.formGroup}>
+                  <label style={styles.label}>Title*</label>
                   <input
-                    type="date"
-                    name="completionDate"
-                    value={formData.completionDate}
+                    type="text"
+                    name="title"
+                    value={formData.title}
                     onChange={handleInputChange}
+                    required
                     style={styles.input}
+                    placeholder="Enter plan title"
+                    disabled={currentPlan && !formData.title}
                   />
                 </div>
 
-                <div style={{ ...styles.formGroup, flex: 1 }}>
-                  <label style={styles.label}>Status</label>
-                  <select
-                    name="status"
-                    value={formData.status}
+                <div style={styles.formGroup}>
+                  <label style={styles.label}>Description*</label>
+                  <textarea
+                    name="description"
+                    value={formData.description}
+                    onChange={handleInputChange}
+                    required
+                    style={styles.textarea}
+                    placeholder="Describe your learning plan"
+                    rows={4}
+                    disabled={currentPlan && !formData.title}
+                  />
+                </div>
+
+                <div style={styles.formGroup}>
+                  <label style={styles.label}>Topics</label>
+                  <input
+                    type="text"
+                    name="topics"
+                    value={formData.topics}
                     onChange={handleInputChange}
                     style={styles.input}
-                  >
-                    <option value="draft">Draft</option>
-                    <option value="in-progress">In Progress</option>
-                    <option value="completed">Completed</option>
-                  </select>
-                </div>
-              </div>
-
-              <div style={styles.formGroup}>
-                <label style={styles.label}>Resources</label>
-                <div style={styles.resourceInputContainer}>
-                  <input
-                    type="url"
-                    value={formData.newResource}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        newResource: e.target.value,
-                      }))
-                    }
-                    placeholder="Add a resource URL"
-                    style={styles.resourceInput}
+                    placeholder="Comma-separated list of topics"
+                    disabled={currentPlan && !formData.title}
                   />
-                  <button
-                    type="button"
-                    style={styles.addResourceButton}
-                    onClick={addResource}
-                  >
-                    Add
-                  </button>
                 </div>
-                <div style={styles.resourceTags}>
-                  {formData.resources.map((resource) => (
-                    <div key={resource} style={styles.resourceTag}>
-                      <span style={styles.resourceTagText}>
-                        {resource.length > 30
-                          ? `${resource.substring(0, 30)}...`
-                          : resource}
-                      </span>
-                      <button
-                        type="button"
-                        style={styles.removeResourceButton}
-                        onClick={() => removeResource(resource)}
-                      >
-                        &times;
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
 
-              <div style={styles.formActions}>
-                <button
-                  type="button"
-                  style={styles.cancelButton}
-                  onClick={() => setIsModalOpen(false)}
-                >
-                  Cancel
-                </button>
-                <button type="submit" style={styles.submitButton}>
-                  Create Plan
-                </button>
-              </div>
-            </form>
+                <div style={styles.formRow}>
+                  <div style={{ ...styles.formGroup, flex: 1 }}>
+                    <label style={styles.label}>Completion Date</label>
+                    <input
+                      type="date"
+                      name="completionDate"
+                      value={formData.completionDate}
+                      onChange={handleInputChange}
+                      style={styles.input}
+                      disabled={currentPlan && !formData.title}
+                    />
+                  </div>
+
+                  <div style={{ ...styles.formGroup, flex: 1 }}>
+                    <label style={styles.label}>Status</label>
+                    <select
+                      name="status"
+                      value={formData.status}
+                      onChange={handleInputChange}
+                      style={styles.input}
+                      disabled={currentPlan && !formData.title}
+                    >
+                      <option value="draft">Draft</option>
+                      <option value="in-progress">In Progress</option>
+                      <option value="completed">Completed</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div style={styles.formGroup}>
+                  <label style={styles.label}>Resources</label>
+                  {!(currentPlan && !formData.title) && (
+                    <>
+                      <div style={styles.resourceInputContainer}>
+                        <input
+                          type="url"
+                          value={formData.newResource}
+                          onChange={(e) =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              newResource: e.target.value,
+                            }))
+                          }
+                          placeholder="Add a resource URL"
+                          style={styles.resourceInput}
+                        />
+                        <button
+                          type="button"
+                          style={styles.addResourceButton}
+                          onClick={addResource}
+                        >
+                          Add
+                        </button>
+                      </div>
+                      <div style={styles.resourceTags}>
+                        {formData.resources.map((resource) => (
+                          <div key={resource} style={styles.resourceTag}>
+                            <span style={styles.resourceTagText}>
+                              {resource.length > 30
+                                ? `${resource.substring(0, 30)}...`
+                                : resource}
+                            </span>
+                            <button
+                              type="button"
+                              style={styles.removeResourceButton}
+                              onClick={() => removeResource(resource)}
+                            >
+                              &times;
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </div>
+
+                {!(currentPlan && !formData.title) && (
+                  <div style={styles.formActions}>
+                    <button
+                      type="button"
+                      style={styles.cancelButton}
+                      onClick={closeModal}
+                    >
+                      Cancel
+                    </button>
+                    <button type="submit" style={styles.submitButton}>
+                      {currentPlan ? "Update" : "Create"} Plan
+                    </button>
+                  </div>
+                )}
+              </form>
+            )}
           </div>
         </div>
       )}
@@ -344,6 +490,8 @@ const styles = {
       transform: "translateY(-2px)",
       boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
     },
+    display: "flex",
+    flexDirection: "column",
   },
   planTitle: {
     marginTop: "0",
@@ -356,6 +504,7 @@ const styles = {
     marginBottom: "16px",
     color: "#64748b",
     fontSize: "14px",
+    flexGrow: 1,
   },
   planMeta: {
     color: "#64748b",
@@ -400,6 +549,51 @@ const styles = {
     backgroundColor: "#fee2e2",
     borderRadius: "8px",
     color: "#b91c1c",
+  },
+  cardActions: {
+    display: "flex",
+    justifyContent: "flex-end",
+    gap: "8px",
+    marginTop: "16px",
+  },
+  viewButton: {
+    backgroundColor: "#e0f2fe",
+    color: "#0369a1",
+    border: "none",
+    padding: "6px 12px",
+    borderRadius: "4px",
+    cursor: "pointer",
+    fontSize: "14px",
+    transition: "all 0.2s ease",
+    ":hover": {
+      backgroundColor: "#bae6fd",
+    },
+  },
+  editButton: {
+    backgroundColor: "#fef3c7",
+    color: "#92400e",
+    border: "none",
+    padding: "6px 12px",
+    borderRadius: "4px",
+    cursor: "pointer",
+    fontSize: "14px",
+    transition: "all 0.2s ease",
+    ":hover": {
+      backgroundColor: "#fde68a",
+    },
+  },
+  deleteButton: {
+    backgroundColor: "#fee2e2",
+    color: "#b91c1c",
+    border: "none",
+    padding: "6px 12px",
+    borderRadius: "4px",
+    cursor: "pointer",
+    fontSize: "14px",
+    transition: "all 0.2s ease",
+    ":hover": {
+      backgroundColor: "#fecaca",
+    },
   },
   // Modal styles
   modalOverlay: {
@@ -450,6 +644,36 @@ const styles = {
       color: "#1e293b",
     },
   },
+  // View mode styles
+  viewContent: {
+    padding: "24px",
+  },
+  viewGroup: {
+    marginBottom: "24px",
+  },
+  viewTitle: {
+    marginTop: 0,
+    marginBottom: "12px",
+    color: "#1e293b",
+  },
+  viewDescription: {
+    color: "#64748b",
+    lineHeight: "1.6",
+  },
+  viewSubtitle: {
+    marginTop: 0,
+    marginBottom: "12px",
+    color: "#334155",
+  },
+  viewResourcesList: {
+    margin: "8px 0 0 0",
+    paddingLeft: "20px",
+  },
+  viewResourceItem: {
+    marginBottom: "8px",
+    wordBreak: "break-all",
+  },
+  // Form styles
   form: {
     padding: "24px",
   },
