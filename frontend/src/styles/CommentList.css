@@ -25,6 +25,11 @@
     box-shadow: 0 0 0 2px rgba(26, 35, 126, 0.1);
 }
 
+.comment-input:disabled {
+    background-color: #f5f5f5;
+    cursor: not-allowed;
+}
+
 .comment-submit {
     background: #1a237e;
     color: white;
@@ -44,6 +49,11 @@
     transform: scale(1.05);
 }
 
+.comment-submit:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
 .comments-loading,
 .comments-error {
     text-align: center;
@@ -53,4 +63,13 @@
 
 .comments-error {
     color: #dc2626;
+}
+
+.fa-spinner {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
