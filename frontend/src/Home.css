@@ -122,7 +122,23 @@
   overflow: hidden;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   border: 1px solid rgba(26, 35, 126, 0.1);
-  margin-left: -8px; /* Add negative margin to move left */
+  margin-left: -8px;
+  position: sticky;
+  top: 80px; /* Account for navbar height */
+  max-height: calc(100vh - 100px); /* Fixed height with some padding */
+}
+
+.profile-section::-webkit-scrollbar {
+  width: 6px;
+}
+
+.profile-section::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.profile-section::-webkit-scrollbar-thumb {
+  background-color: rgba(26, 35, 126, 0.2);
+  border-radius: 3px;
 }
 
 .profile-background {
@@ -261,41 +277,40 @@
 
 /* Enhance chatbot styling */
 .chatbot-wrapper {
-  height: 100%;
-  margin: 0;
-  background: transparent;
-  box-shadow: none;
+  height: calc(100vh - 100px); /* Fixed height */
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(26, 35, 126, 0.1);
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 80px; /* Same as profile section */
+  margin-right: -8px;
 }
 
 .chatbot-container {
   height: 100%;
   display: flex;
   flex-direction: column;
+  overflow: hidden; /* Prevent content from overflowing */
 }
 
 .chat-messages {
-  max-height: calc(100% - 60px); /* Leave space for input */
+  flex: 1;
   overflow-y: auto;
   padding: 16px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(26, 35, 126, 0.2) transparent;
+  max-height: calc(100vh - 200px); /* Leave space for input */
 }
 
-/* Add these new styles for better chat appearance */
 .chat-input-container {
   padding: 16px;
   border-top: 1px solid rgba(26, 35, 126, 0.1);
   background: white;
-}
-
-.chat-input {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid rgba(26, 35, 126, 0.2);
-  border-radius: 8px;
-  outline: none;
-}
-
-.chat-input:focus {
-  border-color: #1a237e;
+  position: sticky;
+  bottom: 0;
 }
 
 /* Add new styles for learning navigation */
@@ -375,5 +390,26 @@
   }
   .nav-menu {
     gap: 8px;
+  }
+}
+
+.main-container {
+  display: flex;
+  gap: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  padding-top: 70px;
+}
+
+.main-content {
+  flex: 1;
+  min-width: 0;
+}
+
+@media (max-width: 768px) {
+  .main-container {
+      padding: 10px;
+      padding-top: 70px;
   }
 }

@@ -1,10 +1,13 @@
 package com.paf_45.bankendapplication.service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 
 import com.paf_45.bankendapplication.model.Post;
@@ -14,6 +17,9 @@ import com.paf_45.bankendapplication.repository.PostRepository;
 public class PostService {
     @Autowired
     private PostRepository postRepository;
+    
+    @Autowired
+    private NotificationService notificationService;
 
     // Fetch all posts
     public List<Post> getAllPosts() {
@@ -27,8 +33,17 @@ public class PostService {
 
     // Fetch all posts by a specific user
     public List<Post> getPostsByUser(String userId) {
-        return postRepository.findByUserId(userId);
+        try {
+            // Sort posts by creation date in descending order (newest first)
+            Sort sortByCreatedAtDesc = Sort.by(Direction.DESC, "createdAt");
+            return postRepository.findByUserId(userId, sortByCreatedAtDesc);
+        } catch (Exception e) {
+            // Log the error
+            System.err.println("Error fetching posts for user " + userId + ": " + e.getMessage());
+            return new ArrayList<>(); // Return empty list instead of null
+        }
     }
+
 
     // Create a new post
     public Post createPost(Post post) {
@@ -51,5 +66,28 @@ public class PostService {
     // Delete a post
     public void deletePost(String id) {
         postRepository.deleteById(id);
+    }
+
+    // Toggle like on a post
+    public Optional<Post> toggleLike(String postId, String userId) {
+        return postRepository.findById(postId).map(post -> {
+            List<String> likes = post.getLikes() != null ? post.getLikes() : new ArrayList<>();
+            
+            if (!likes.contains(userId)) {
+                likes.add(userId);
+                // Create notification for post owner
+                notificationService.createNotification(
+                    post.getUserId(),  // recipient (post owner)
+                    userId,           // sender (user who liked)
+                    postId,          // post ID
+                    "LIKE"           // notification type
+                );
+            } else {
+                likes.remove(userId);
+            }
+            
+            post.setLikes(likes);
+            return postRepository.save(post);
+        });
     }
 }

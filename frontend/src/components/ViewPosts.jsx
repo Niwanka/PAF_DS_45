@@ -1,36 +1,16 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import "./Home.css";
-import Navbar from './components/Navbar';
-import ChatBot from './components/ChatBot';
-import PostList from './components/PostList';
-import PostModal from './components/PostModal';
-import Sidebar from './components/Sidebar';
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+import Navbar from './Navbar';
+import ChatBot from './ChatBot';
+import UserPosts from './UserPosts';
+import PostModal from './PostModal';
+import Sidebar from './Sidebar';
+//import '../styles/ViewPosts.css';
 
-
-const Home = () => {
-  const [user, setUser] = useState(null);
+const ViewPosts = () => {
+  const { userId } = useParams();
   const [userProfile, setUserProfile] = useState(null);
-  const navigate = useNavigate();
   const [isPostModalOpen, setIsPostModalOpen] = useState(false);
-
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const response = await fetch("http://localhost:9090/user", {
-          credentials: "include",
-        });
-        if (!response.ok) throw new Error("Not authenticated");
-        const userData = await response.json();
-        setUser(userData);
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-        navigate("/");
-      }
-    };
-
-    fetchUserData();
-  }, [navigate]);
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -58,20 +38,15 @@ const Home = () => {
       <Navbar userProfile={userProfile} />
       
       <main className="main-content">
-        {/* Left Sidebar - Profile Section */}
-        <aside >
+        <aside>
           <Sidebar userProfile={userProfile} />
         </aside>
 
-        {/* Main Feed */}
         <section className="feed">
           <div className="post-box">
             <div className="post-input">
               <img
-                src={
-                  user?.picture ||
-                  `https://ui-avatars.com/api/?name=${user?.name || "User"}`
-                }
+                src={userProfile?.picture || `https://ui-avatars.com/api/?name=${userProfile?.name || "User"}`}
                 alt="Profile"
               />
               <button 
@@ -91,38 +66,33 @@ const Home = () => {
                 <span>Video</span>
               </div>
               <div className="post-action">
-                <i className="fas fa-calendar" style={{ color: "#e7a33e" }}></i>
-                <span>Event</span>
-              </div>
-              <div className="post-action">
-                <i
-                  className="fas fa-newspaper"
-                  style={{ color: "#fc9295" }}
-                ></i>
-                <span>Write article</span>
+                <i className="fas fa-edit" style={{ color: "#e7a33e" }}></i>
+                <span>Write</span>
               </div>
             </div>
           </div>
-          {/* Add posts here */}
-          <div>
-          <PostList/>
-          </div>
+
+          <UserPosts userId={userId} />
         </section>
 
-        {/* Right Sidebar - News Section */}
-        <aside >
+        <aside>
           <div className="chatbot-wrapper">
             <ChatBot />
           </div>
         </aside>
       </main>
+
       <PostModal 
         isOpen={isPostModalOpen}
         onClose={() => setIsPostModalOpen(false)}
-        userId={userProfile?.sub} 
+        userId={userProfile?.sub}
+        onPostCreated={() => {
+          setIsPostModalOpen(false);
+          window.location.reload();
+        }}
       />
     </div>
   );
 };
 
-export default Home;
+export default ViewPosts;
