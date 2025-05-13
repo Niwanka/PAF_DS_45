@@ -134,3 +134,30 @@
 .post-actions-menu .action-button {
     padding: 8px;
 }
+
+.post-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 12px 0;
+}
+
+.tag {
+    background-color: #f0f2f5;
+    padding: 4px 12px;
+    border-radius: 16px;
+    font-size: 0.9em;
+    color: #65676b;
+}
+
+.post-media {
+    margin: 12px 0;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.post-media img {
+    width: 100%;
+    max-height: 500px;
+    object-fit: cover;
+}

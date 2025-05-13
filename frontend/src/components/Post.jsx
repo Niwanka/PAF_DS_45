@@ -143,9 +143,21 @@ const Post = ({ post, currentUserProfile, onPostUpdate }) => {
             <div className="post-content">
                 <h3 className="post-title">{post.title}</h3>
                 <p className="post-text">{post.content}</p>
-                {post.image && (
+                {/* Add tags section */}
+                {post.tags?.length > 0 && (
+                    <div className="post-tags">
+                        {post.tags.map((tag, index) => (
+                            <span key={`${post.id}-tag-${index}`} className="tag">
+                                {tag}
+                            </span>
+                        ))}
+                    </div>
+                )}
+
+                {/* Replace existing image check with mediaUrls check */}
+                {post.mediaUrls?.[0] && (
                     <div className="post-media">
-                        <img src={post.image} alt="Post content" />
+                        <img src={post.mediaUrls[0]} alt={`Media for ${post.title}`} />
                     </div>
                 )}
             </div>
