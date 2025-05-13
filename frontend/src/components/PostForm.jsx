@@ -213,7 +213,7 @@ const PostForm = ({ onPostCreated, onPostUpdated, userId, post, isEditing, onSuc
           <div className="file-upload">
             <label className="file-upload-label">
               <i className="fas fa-upload"></i>
-              Upload Image
+              Upload media
               <input
                 type="file"
                 accept="image/*"
