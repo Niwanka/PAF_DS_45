@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import '../styles/PostForm.css';
+import { uploadFileToFirebase } from '../utils/firebaseStorage';
+
 
 const PostForm = ({ onPostCreated, onPostUpdated, userId, post, isEditing, onSuccess }) => {
   const [formData, setFormData] = useState({
@@ -15,6 +17,7 @@ const PostForm = ({ onPostCreated, onPostUpdated, userId, post, isEditing, onSuc
   const [selectedFile, setSelectedFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [isFetching, setIsFetching] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
   // Set initial form data when post prop changes
   useEffect(() => {
@@ -38,24 +41,65 @@ const PostForm = ({ onPostCreated, onPostUpdated, userId, post, isEditing, onSuc
     setSuccess(false);
   };
 
-  const handleFileChange = (e) => {
+  const handleFileChange = async (e) => {
     const file = e.target.files[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        setError('File size should be less than 5MB');
+      if (file.size > 10 * 1024 * 1024) {
+        setError('File size should be less than 10MB');
         return;
       }
 
+      const isImage = file.type.startsWith('image/');
+      const isVideo = file.type.startsWith('video/');
+
+      if (!isImage && !isVideo) {
+        setError('Only image or video files are allowed');
+        return;
+      }
+
+      if (isVideo) {
+        const video = document.createElement('video');
+        video.preload = 'metadata';
+  
+        await new Promise((resolve) => {
+          video.onloadedmetadata = () => {
+            window.URL.revokeObjectURL(video.src);
+            if (video.duration > 30) {
+              setError('Video duration should be less than 30 seconds');
+              resolve(false);
+            }
+            resolve(true);
+          };
+          video.src = URL.createObjectURL(file);
+        });
+  
+        if (error) return;
+      }
+
       setSelectedFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreview(reader.result);
-        setFormData(prev => ({
-          ...prev,
-          mediaUrl: reader.result
-        }));
-      };
-      reader.readAsDataURL(file);
+    
+    // Show preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setPreview(reader.result);
+    };
+    reader.readAsDataURL(file);
+
+
+    try {
+      setIsUploading(true);
+      setError(null);
+      const downloadURL = await uploadFileToFirebase(file, userId);
+      setFormData(prev => ({
+        ...prev,
+        mediaUrl: downloadURL
+      }));
+    } catch (err) {
+      setError('Failed to upload file: ' + err.message);
+    } finally {
+      setIsUploading(false);
+    }
+
     }
   };
 
@@ -211,21 +255,30 @@ const PostForm = ({ onPostCreated, onPostUpdated, userId, post, isEditing, onSuc
             className="form-input"
           />
           <div className="file-upload">
-            <label className="file-upload-label">
-              <i className="fas fa-upload"></i>
-              Upload media
+            <label className={`file-upload-label ${isUploading ? 'uploading' : ''}`}>
+              <i className={`fas ${isUploading ? 'fa-spinner fa-spin' : 'fa-upload'}`}></i>
+              {isUploading ? 'Uploading...' : 'Upload media'}
               <input
                 type="file"
-                accept="image/*"
+                accept="image/*,video/*"
                 onChange={handleFileChange}
                 className="hidden"
+                disabled={isUploading}
               />
             </label>
           </div>
         </div>
         {preview && (
-          <div className="image-preview">
-            <img src={preview} alt="Preview" />
+          <div className="media-preview">
+            {selectedFile?.type.startsWith('video/') ? (
+              <video 
+                src={preview} 
+                controls 
+                className="video-preview"
+              />
+            ) : (
+              <img src={preview} alt="Preview" className="image-preview" />
+            )}
             <button
               type="button"
               onClick={() => {
@@ -234,6 +287,7 @@ const PostForm = ({ onPostCreated, onPostUpdated, userId, post, isEditing, onSuc
                 setFormData(prev => ({ ...prev, mediaUrl: '' }));
               }}
               className="remove-preview"
+              disabled={isUploading}
             >
               <i className="fas fa-times"></i>
             </button>
