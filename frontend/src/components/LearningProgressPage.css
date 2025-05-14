@@ -615,3 +615,76 @@
 .link-button:hover {
   color: #4338ca;
 }
+
+.link-button:hover {
+  color: #4338ca;
+}
+
+/* Progress Bar Styling */
+.card-progress {
+  margin-bottom: 1rem;
+}
+
+.progress-bar-container {
+  width: 100%;
+}
+
+.progress-bar-wrapper {
+  height: 8px;
+  background-color: #e5e7eb;
+  border-radius: 9999px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 0.5s ease;
+}
+
+.progress-bar-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.675rem;
+  color: #6b7280;
+}
+
+.progress-label {
+  position: relative;
+}
+
+.progress-label:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: -16px;
+  right: 0;
+  height: 8px;
+  width: 1px;
+  background-color: white;
+}
+
+/* Progress Bar Colors based on template types */
+.progress-bar-blue {
+  background-color: #3b82f6; /* Same as card-tutorial border color */
+}
+
+.progress-bar-green {
+  background-color: #10b981; /* Same as card-skill border color */
+}
+
+.progress-bar-orange {
+  background-color: #f97316; /* Same as card-milestone border color */
+}
+
+.progress-bar-purple {
+  background-color: #8b5cf6; /* Same as card-project border color */
+}
+
+.progress-bar-pink {
+  background-color: #ec5cb9; /* Same as card-workshop border color */
+}
+
+.progress-bar-gray {
+  background-color: #6b7280; /* Same as card-default border color */
+}
