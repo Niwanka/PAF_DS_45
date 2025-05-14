@@ -1,15 +1,41 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Book, Brain, Trophy, Code, Users, Search, Plus, X, Trash2, Edit } from 'lucide-react';
+import { Search, Plus, X } from 'lucide-react';
+import ProgressCard from './ProgressCard';
+import ProgressForm from './ProgressForm';
 import './LearningProgressPage.css';
 import axios from 'axios';
 
 const API_BASE_URL = 'http://localhost:9090/api/progress-updates';
+
+// Map frontend types to backend TemplateType enum
+const templateTypeMap = {
+  'tutorial': 'TUTORIAL',
+  'skill': 'SKILL',
+  'milestone': 'MILESTONE',
+  'project': 'PROJECT',
+  'workshop': 'WORKSHOP'
+};
+
+// Map backend TemplateType enum to frontend types
+const reverseTemplateTypeMap = {
+  'TUTORIAL': 'tutorial',
+  'SKILL': 'skill',
+  'MILESTONE': 'milestone',
+  'PROJECT': 'project',
+  'WORKSHOP': 'workshop'
+};
 
 const LearningProgress = () => {
   const [progressUpdates, setProgressUpdates] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [editMode, setEditMode] = useState(false);
+  const [activeTemplate, setActiveTemplate] = useState('tutorial');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [deleteItemId, setDeleteItemId] = useState(null);
+  const [notification, setNotification] = useState(null);
   const [newUpdate, setNewUpdate] = useState({
     title: '',
     type: 'tutorial',
@@ -19,30 +45,6 @@ const LearningProgress = () => {
     skillLevel: 'beginner',
     userId: 'current-user-id',
   });
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [activeTemplate, setActiveTemplate] = useState('tutorial');
-  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
-  const [deleteItemId, setDeleteItemId] = useState(null);
-  const [notification, setNotification] = useState(null);
-
-  // Map frontend types to backend TemplateType enum
-  const templateTypeMap = {
-    'tutorial': 'TUTORIAL',
-    'skill': 'SKILL',
-    'milestone': 'MILESTONE',
-    'project': 'PROJECT',
-    'workshop': 'WORKSHOP'
-  };
-
-  // Map backend TemplateType enum to frontend types
-  const reverseTemplateTypeMap = {
-    'TUTORIAL': 'tutorial',
-    'SKILL': 'skill',
-    'MILESTONE': 'milestone',
-    'PROJECT': 'project',
-    'WORKSHOP': 'workshop'
-  };
 
   const templates = {
     tutorial: {
@@ -146,19 +148,12 @@ const LearningProgress = () => {
     }, 3000); // Notification disappears after 3 seconds
   };
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setNewUpdate((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
+  const handleSubmit = async (formData) => {
     try {
-      const backendModel = convertToBackendModel(newUpdate);
+      const backendModel = convertToBackendModel(formData);
       
-      if (editMode && newUpdate.id) {
-        await axios.put(`${API_BASE_URL}/${newUpdate.id}`, backendModel);
+      if (editMode && formData.id) {
+        await axios.put(`${API_BASE_URL}/${formData.id}`, backendModel);
         showNotification('Progress update edited successfully!');
       } else {
         await axios.post(API_BASE_URL, backendModel);
@@ -173,16 +168,6 @@ const LearningProgress = () => {
       console.error('Error saving progress update:', err);
       setError('Failed to save progress update. Please try again later.');
     }
-  };
-
-  const handleTemplateChange = (e) => {
-    const selectedTemplate = e.target.value;
-    setActiveTemplate(selectedTemplate);
-    setNewUpdate(prev => ({
-      ...templates[selectedTemplate],
-      id: editMode ? prev.id : undefined,
-      userId: prev.userId
-    }));
   };
 
   const handleEdit = (update) => {
@@ -206,54 +191,20 @@ const LearningProgress = () => {
       setProgressUpdates((prev) => prev.filter((update) => update.id !== deleteItemId));
       setShowConfirmDialog(false);
       setDeleteItemId(null);
+      showNotification('Progress update deleted successfully!');
     } catch (err) {
       console.error('Error deleting progress update:', err);
       setError('Failed to delete progress update. Please try again later.');
     }
   };
 
-  const formatDate = (date) => new Date(date).toLocaleDateString();
-
-  const getTypeIcon = (type) => {
-    switch (type) {
-      case 'tutorial':
-        return <Book className="icon icon-blue" />;
-      case 'skill':
-        return <Brain className="icon icon-green" />;
-      case 'milestone':
-        return <Trophy className="icon icon-orange" />;
-      case 'project':
-        return <Code className="icon icon-purple" />;
-      case 'workshop':
-        return <Users className="icon icon-indigo" />;
-      default:
-        return <Book className="icon icon-gray" />;
-    }
-  };
-
-  const getTypeClass = (type) => {
-    switch (type) {
-      case 'tutorial':
-        return 'card-tutorial';
-      case 'skill':
-        return 'card-skill';
-      case 'milestone':
-        return 'card-milestone';
-      case 'project':
-        return 'card-project';
-      case 'workshop':
-        return 'card-workshop';
-      default:
-        return 'card-default';
-    }
-  };
-
-  const getSkillLevelBadge = (level, type) => {
-    return (
-      <span className={`skill-badge skill-badge-${type}`}>
-        {level}
-      </span>
-    );
+  const handleTemplateChange = (templateType) => {
+    setActiveTemplate(templateType);
+    setNewUpdate(prev => ({
+      ...templates[templateType],
+      id: editMode ? prev.id : undefined,
+      userId: prev.userId
+    }));
   };
 
   const filteredUpdates = progressUpdates.filter(
@@ -322,98 +273,13 @@ const LearningProgress = () => {
               <X className="icon-close" />
             </button>
             <h2 className="modal-title">{editMode ? 'Edit' : 'Add'} Learning Progress</h2>
-            <form onSubmit={handleSubmit} className="form-container">
-              <div className="form-group">
-                <label className="form-label">Title</label>
-                <input
-                  type="text"
-                  name="title"
-                  placeholder="What did you learn?"
-                  value={newUpdate.title}
-                  onChange={handleInputChange}
-                  className="form-input"
-                  required
-                />
-              </div>
-              
-              <div className="form-group">
-                <label className="form-label">Description</label>
-                <textarea
-                  name="description"
-                  placeholder="Describe what you learned..."
-                  value={newUpdate.description}
-                  onChange={handleInputChange}
-                  rows="3"
-                  className="form-textarea"
-                />
-              </div>
-              
-              <div className="form-group">
-                <label className="form-label">Choose Template</label>
-                <select 
-                  value={activeTemplate} 
-                  onChange={handleTemplateChange}
-                  className="form-select"
-                >
-                  <option value="tutorial">Tutorial Completed</option>
-                  <option value="skill">New Skill Learned</option>
-                  <option value="milestone">Learning Milestone</option>
-                  <option value="project">Project Completed</option>
-                  <option value="workshop">Joined Workshop</option>
-                </select>
-              </div>
-              
-              {(activeTemplate === 'tutorial' || activeTemplate === 'skill') && (
-                <div className="form-group">
-                  <label className="form-label">Resource Link</label>
-                  <input
-                    type="url"
-                    name="resourceLink"
-                    placeholder="Link to the resource"
-                    value={newUpdate.resourceLink || ''}
-                    onChange={handleInputChange}
-                    className="form-input"
-                  />
-                </div>
-              )}
-              
-              {(activeTemplate === 'project' || activeTemplate === 'workshop') && (
-                <div className="form-group">
-                  <label className="form-label">Project Link</label>
-                  <input
-                    type="url"
-                    name="projectLink"
-                    placeholder="Link to the project"
-                    value={newUpdate.projectLink || ''}
-                    onChange={handleInputChange}
-                    className="form-input"
-                  />
-                </div>
-              )}
-              
-              <div className="form-group">
-                <label className="form-label">Skill Level</label>
-                <select 
-                  name="skillLevel"
-                  value={newUpdate.skillLevel}
-                  onChange={handleInputChange}
-                  className="form-select"
-                >
-                  <option value="beginner">Beginner</option>
-                  <option value="intermediate">Intermediate</option>
-                  <option value="advanced">Advanced</option>
-                </select>
-              </div>
-              
-              <div className="form-submit">
-                <button 
-                  type="submit" 
-                  className="submit-button"
-                >
-                  {editMode ? 'Update' : 'Add'} Progress
-                </button>
-              </div>
-            </form>
+            <ProgressForm 
+              formData={newUpdate}
+              activeTemplate={activeTemplate}
+              onSubmit={handleSubmit}
+              onTemplateChange={handleTemplateChange}
+              editMode={editMode}
+            />
           </div>
         </div>
       )}
@@ -435,7 +301,6 @@ const LearningProgress = () => {
                 onClick={handleDelete}
                 className="delete-button"
               >
-                <Trash2 className="icon-small" />
                 Delete
               </button>
             </div>
@@ -456,7 +321,7 @@ const LearningProgress = () => {
         ) : filteredUpdates.length === 0 ? (
           <div className="empty-state">
             <div className="empty-icon">
-              <Calendar className="icon-large" />
+              <div className="icon-large"></div>
             </div>
             <p className="empty-title">No progress updates found</p>
             <p className="empty-message">Start tracking your learning journey by adding a progress update!</p>
@@ -464,71 +329,12 @@ const LearningProgress = () => {
         ) : (
           <div className="cards-grid">
             {filteredUpdates.map((update) => (
-              <div 
-                key={update.id} 
-                className={`card ${getTypeClass(update.type)}`}
-              >
-                <div className="card-actions">
-                  <button 
-                    onClick={() => handleEdit(update)}
-                    className="action-button edit-button"
-                    title="Edit"
-                  >
-                    <Edit className="icon-small" />
-                  </button>
-                  <button 
-                    onClick={() => handleDeleteConfirm(update.id)}
-                    className="action-button delete-button"
-                    title="Delete"
-                  >
-                    <Trash2 className="icon-small" />
-                  </button>
-                </div>
-                
-                <div className="card-header">
-                  <div className="type-icon">
-                    {getTypeIcon(update.type)}
-                  </div>
-                  <div className="type-info">
-                    <span className="type-label">{update.type}</span>
-                    <div className="date-info">
-                      <Calendar className="icon-tiny" />
-                      {formatDate(update.completionDate)}
-                    </div>
-                  </div>
-                </div>
-                
-                <h3 className="card-title">{update.title}</h3>
-                <p className="card-description">{update.description}</p>
-                
-                <div className="card-footer">
-                  <div>
-                    {getSkillLevelBadge(update.skillLevel, update.type)}
-                  </div>
-                  <div>
-                    {update.resourceLink && (
-                      <a 
-                        href={update.resourceLink} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="link-button"
-                      >
-                        View Resource
-                      </a>
-                    )}
-                    {update.projectLink && (
-                      <a 
-                        href={update.projectLink} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="link-button"
-                      >
-                        View Project
-                      </a>
-                    )}
-                  </div>
-                </div>
-              </div>
+              <ProgressCard 
+                key={update.id}
+                update={update}
+                onEdit={handleEdit}
+                onDeleteConfirm={handleDeleteConfirm}
+              />
             ))}
           </div>
         )}
