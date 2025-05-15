@@ -161,3 +161,23 @@
     max-height: 500px;
     object-fit: cover;
 }
+
+.post-media {
+    margin: 1rem 0;
+    border-radius: 8px;
+    overflow: hidden;
+    max-width: 100%;
+}
+
+.post-image {
+    width: 100%;
+    height: auto;
+    max-height: 500px;
+    object-fit: contain;
+}
+
+.post-video {
+    width: 100%;
+    max-height: 500px;
+    background: #000;
+}

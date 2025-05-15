@@ -182,11 +182,27 @@ const handleDeletePost = async (postId) => {
             </div>
           )}
           
-          {post.mediaUrls?.[0] && (
-            <div className="post-media">
-              <img src={post.mediaUrls[0]} alt={`Media for ${post.title}`} />
-            </div>
-          )}
+          
+            {post.mediaUrls?.[0] && (
+              <div className="post-media">
+                {post.mediaUrls[0].match(/\.(mp4|webm|mov)$/i) || post.mediaUrls[0].includes('video') ? (
+                  <video 
+                    controls
+                    className="post-video"
+                    preload="metadata"
+                  >
+                    <source src={post.mediaUrls[0]} type="video/mp4" />
+                    Your browser does not support the video tag.
+                  </video>
+                ) : (
+                  <img 
+                    src={post.mediaUrls[0]} 
+                    alt={`Media for ${post.title}`} 
+                    className="post-image"
+                  />
+                )}
+              </div>
+            )}
         </div>
       ))}
 

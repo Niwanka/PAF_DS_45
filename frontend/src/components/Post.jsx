@@ -157,7 +157,35 @@ const Post = ({ post, currentUserProfile, onPostUpdate }) => {
                 {/* Replace existing image check with mediaUrls check */}
                 {post.mediaUrls?.[0] && (
                     <div className="post-media">
-                        <img src={post.mediaUrls[0]} alt={`Media for ${post.title}`} />
+                        {(post.mediaUrls[0].match(/\.(mp4|webm|mov|avi)$/i) || 
+                        post.mediaUrls[0].includes('video') ||
+                        post.mediaUrls[0].includes('firebase') && post.mediaUrls[0].includes('.mp4')) ? (
+                            <div className="video-container">
+                                <video 
+                                    controls
+                                    className="post-video"
+                                    preload="metadata"
+                                    playsInline
+                                >
+                                    <source 
+                                        src={post.mediaUrls[0]} 
+                                        type={
+                                            post.mediaUrls[0].match(/\.webm$/i) ? 'video/webm' :
+                                            post.mediaUrls[0].match(/\.mov$/i) ? 'video/quicktime' :
+                                            'video/mp4'
+                                        } 
+                                    />
+                                    Your browser does not support the video tag.
+                                </video>
+                            </div>
+                        ) : (
+                            <img 
+                                src={post.mediaUrls[0]} 
+                                alt={`Media for ${post.title}`} 
+                                className="post-image"
+                                loading="lazy"
+                            />
+                        )}
                     </div>
                 )}
             </div>

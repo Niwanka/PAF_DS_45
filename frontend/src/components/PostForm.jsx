@@ -3,7 +3,6 @@ import axios from 'axios';
 import '../styles/PostForm.css';
 import { uploadFileToFirebase } from '../utils/firebaseStorage';
 
-
 const PostForm = ({ onPostCreated, onPostUpdated, userId, post, isEditing, onSuccess }) => {
   const [formData, setFormData] = useState({
     title: '',
@@ -22,12 +21,32 @@ const PostForm = ({ onPostCreated, onPostUpdated, userId, post, isEditing, onSuc
   // Set initial form data when post prop changes
   useEffect(() => {
     if (isEditing && post) {
+      console.log('Loading post for editing:', post);
+      
+      // Check if mediaUrls exists in different possible formats
+      let mediaUrl = '';
+      if (Array.isArray(post.mediaUrls) && post.mediaUrls.length > 0) {
+        mediaUrl = post.mediaUrls[0];
+      } else if (post.mediaUrl) {
+        mediaUrl = post.mediaUrl;
+      }
+      
+      console.log('Setting initial media URL for editing:', mediaUrl);
+      
       setFormData({
         title: post.title || '',
         content: post.content || '',
         tags: post.tags ? post.tags.join(', ') : '',
-        mediaUrl: post.mediaUrls && post.mediaUrls[0] ? post.mediaUrls[0] : ''
+        mediaUrl: mediaUrl
       });
+      
+      // If there's a media URL, set the preview
+      if (mediaUrl) {
+        setPreview(mediaUrl);
+        // Determine if it's a video based on URL
+        const isVideo = mediaUrl.match(/\.(mp4|webm|mov)$/i) || mediaUrl.includes('video');
+        setSelectedFile({ type: isVideo ? 'video/mp4' : 'image/jpeg' });
+      }
     }
   }, [isEditing, post]);
 
@@ -64,7 +83,7 @@ const PostForm = ({ onPostCreated, onPostUpdated, userId, post, isEditing, onSuc
         await new Promise((resolve) => {
           video.onloadedmetadata = () => {
             window.URL.revokeObjectURL(video.src);
-            if (video.duration > 30) {
+            if (video.duration > 31) {
               setError('Video duration should be less than 30 seconds');
               resolve(false);
             }
@@ -78,28 +97,28 @@ const PostForm = ({ onPostCreated, onPostUpdated, userId, post, isEditing, onSuc
 
       setSelectedFile(file);
     
-    // Show preview
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setPreview(reader.result);
-    };
-    reader.readAsDataURL(file);
+      // Show preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
 
-
-    try {
-      setIsUploading(true);
-      setError(null);
-      const downloadURL = await uploadFileToFirebase(file, userId);
-      setFormData(prev => ({
-        ...prev,
-        mediaUrl: downloadURL
-      }));
-    } catch (err) {
-      setError('Failed to upload file: ' + err.message);
-    } finally {
-      setIsUploading(false);
-    }
-
+      try {
+        setIsUploading(true);
+        setError(null);
+        const downloadURL = await uploadFileToFirebase(file, userId);
+        console.log('File uploaded successfully to Firebase, URL:', downloadURL);
+        setFormData(prev => ({
+          ...prev,
+          mediaUrl: downloadURL
+        }));
+      } catch (err) {
+        console.error('Error uploading to Firebase:', err);
+        setError('Failed to upload file: ' + err.message);
+      } finally {
+        setIsUploading(false);
+      }
     }
   };
 
@@ -109,21 +128,39 @@ const PostForm = ({ onPostCreated, onPostUpdated, userId, post, isEditing, onSuc
     setError(null);
   
     try {
+      // Make sure we have the latest mediaUrl from state
+      const mediaUrls = formData.mediaUrl ? [formData.mediaUrl] : [];
+      console.log('Submitting post with mediaUrls:', mediaUrls);
+      
       const postData = {
         title: formData.title,
         content: formData.content,
         tags: formData.tags.split(',').map(tag => tag.trim()).filter(Boolean),
-        mediaUrls: formData.mediaUrl ? [formData.mediaUrl] : [],
+        mediaUrls: mediaUrls, // Use mediaUrls as an array
         userId: userId
       };
+      
+      // For debugging: log the complete post data
+      console.log('Complete post data being sent:', {
+        ...postData,
+        isEditing,
+        postId: isEditing ? post.id : 'new post'
+      });
   
+      console.log('Sending post data to server:', postData);
+      
       let response;
       if (isEditing && post?.id) {
         response = await axios.put(
           `http://localhost:9090/api/posts/${post.id}`,
-          postData,
+          {
+            ...postData,
+            mediaUrls: mediaUrls // Ensure mediaUrls is included in update
+          },
           { withCredentials: true }
         );
+        console.log('Post updated successfully:', response.data);
+        if (onPostUpdated) onPostUpdated(response.data);
         if (onSuccess) onSuccess('updated', response.data);
       } else {
         response = await axios.post(
@@ -131,10 +168,24 @@ const PostForm = ({ onPostCreated, onPostUpdated, userId, post, isEditing, onSuc
           postData,
           { withCredentials: true }
         );
+        console.log('Post created successfully:', response.data);
+        if (onPostCreated) onPostCreated(response.data);
         if (onSuccess) onSuccess('created', response.data);
       }
   
       setSuccess(true);
+      
+      // Reset form if creating a new post
+      if (!isEditing) {
+        setFormData({
+          title: '',
+          content: '',
+          tags: '',
+          mediaUrl: ''
+        });
+        setPreview(null);
+        setSelectedFile(null);
+      }
     } catch (err) {
       console.error('Error submitting post:', err);
       setError(err.response?.data?.message || 'Failed to submit post');
@@ -144,7 +195,7 @@ const PostForm = ({ onPostCreated, onPostUpdated, userId, post, isEditing, onSuc
   };
 
   const handleDelete = async () => {
-    if (!post || !post._id) {
+    if (!post || !post.id) {
       setError('Cannot delete: post ID is missing');
       return;
     }
@@ -155,8 +206,8 @@ const PostForm = ({ onPostCreated, onPostUpdated, userId, post, isEditing, onSuc
 
     setLoading(true);
     try {
-      console.log(`Deleting post with ID: ${post._id}`);
-      await axios.delete(`http://localhost:9090/api/posts/${post._id}`, {
+      console.log(`Deleting post with ID: ${post.id}`);
+      await axios.delete(`http://localhost:9090/api/posts/${post.id}`, {
         withCredentials: true
       });
       setSuccess(true);
@@ -259,18 +310,23 @@ const PostForm = ({ onPostCreated, onPostUpdated, userId, post, isEditing, onSuc
               <i className={`fas ${isUploading ? 'fa-spinner fa-spin' : 'fa-upload'}`}></i>
               {isUploading ? 'Uploading...' : 'Upload media'}
               <input
-                type="file"
-                accept="image/*,video/*"
-                onChange={handleFileChange}
-                className="hidden"
-                disabled={isUploading}
-              />
+            type="file"
+            accept="image/*,video/*"
+            onChange={handleFileChange}
+            className="hidden"
+            disabled={isUploading}
+          />
             </label>
           </div>
         </div>
         {preview && (
           <div className="media-preview">
-            {selectedFile?.type.startsWith('video/') ? (
+            {selectedFile?.type?.startsWith('video/') || 
+             (typeof preview === 'string' && 
+              (preview.includes('video') || 
+               preview.includes('.mp4') || 
+               preview.includes('.webm') || 
+               preview.includes('.mov'))) ? (
               <video 
                 src={preview} 
                 controls 
@@ -299,7 +355,7 @@ const PostForm = ({ onPostCreated, onPostUpdated, userId, post, isEditing, onSuc
         <button 
           type="submit" 
           className={`submit-button ${loading ? 'loading' : ''}`}
-          disabled={loading || isFetching}
+          disabled={loading || isFetching || isUploading}
         >
           {loading ? (
             <>
