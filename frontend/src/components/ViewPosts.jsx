@@ -75,10 +75,8 @@ const ViewPosts = () => {
           <UserPosts userId={userId} />
         </section>
 
-        <aside>
-          <div className="chatbot-wrapper">
+        <aside> 
             <ChatBot />
-          </div>
         </aside>
       </main>
 

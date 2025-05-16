@@ -6,6 +6,7 @@ import '../styles/NotificationList.css';
 const NotificationList = ({ userId, onNotificationRead }) => {
     const [notifications, setNotifications] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [isDeletingNotification, setIsDeletingNotification] = useState(false);
 
     useEffect(() => {
         fetchNotifications();
@@ -34,7 +35,7 @@ const NotificationList = ({ userId, onNotificationRead }) => {
             );
             
             const updatedNotifications = notifications.map(notif => 
-                notif.id === notificationId ? {...notif, isRead: true} : notif
+                notif._id === notificationId ? {...notif, isRead: true} : notif
             );
             setNotifications(updatedNotifications);
             
@@ -49,65 +50,77 @@ const NotificationList = ({ userId, onNotificationRead }) => {
 
     const deleteNotification = async (notificationId, event) => {
         event.stopPropagation();
-        
-        toast.warn(
-            <div>
-                Are you sure you want to delete this notification?
-                <div style={{ marginTop: '10px', textAlign: 'right' }}>
-                    <button
-                        onClick={() => confirmDelete(notificationId)}
-                        style={{
-                            marginRight: '10px',
-                            padding: '5px 10px',
-                            background: '#dc3545',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '4px'
-                        }}
-                    >
-                        Delete
-                    </button>
-                    <button
-                        onClick={() => toast.dismiss()}
-                        style={{
-                            padding: '5px 10px',
-                            background: '#6c757d',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '4px'
-                        }}
-                    >
-                        Cancel
-                    </button>
-                </div>
-            </div>,
-            {
-                position: "top-center",
-                autoClose: false,
-                closeOnClick: false,
-                draggable: false,
-                closeButton: false
-            }
-        );
+        try {
+            // Show confirmation toast
+            toast.warn(
+                <div>
+                    Are you sure you want to delete this notification?
+                    <div style={{ marginTop: '10px', textAlign: 'right' }}>
+                        <button
+                            onClick={() => {
+                                toast.dismiss();
+                                confirmDelete(notificationId);
+                            }}
+                            style={{
+                                marginRight: '10px',
+                                padding: '5px 10px',
+                                background: '#dc3545',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '4px'
+                            }}
+                        >
+                            Delete
+                        </button>
+                        <button
+                            onClick={() => toast.dismiss()}
+                            style={{
+                                padding: '5px 10px',
+                                background: '#6c757d',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '4px'
+                            }}
+                        >
+                            Cancel
+                        </button>
+                    </div>
+                </div>,
+                {
+                    position: "top-center",
+                    autoClose: false,
+                    closeOnClick: false,
+                    draggable: false,
+                    closeButton: false
+                }
+            );
+        } catch (error) {
+            console.error('Error in deleteNotification:', error);
+            toast.error('Failed to initiate deletion');
+        }
     };
 
     const confirmDelete = async (notificationId) => {
+        if (isDeletingNotification) return;
+        
+        setIsDeletingNotification(true);
         try {
-            await axios.delete(
+            const response = await axios.delete(
                 `http://localhost:9090/api/notifications/${notificationId}`,
                 { withCredentials: true }
             );
-            setNotifications(notifications.filter(notif => notif.id !== notificationId));
-            toast.success('Notification deleted successfully!', {
-                position: "top-right",
-                autoClose: 3000
-            });
+
+            if (response.status === 200) {
+                setNotifications(prevNotifications => 
+                    prevNotifications.filter(notif => notif._id !== notificationId)
+                );
+                toast.success('Notification deleted successfully!');
+            }
         } catch (error) {
             console.error('Failed to delete notification:', error);
-            toast.error('Failed to delete notification', {
-                position: "top-right",
-                autoClose: 3000
-            });
+            toast.error('Failed to delete notification');
+        } finally {
+            setIsDeletingNotification(false);
         }
     };
 
@@ -193,9 +206,9 @@ const NotificationList = ({ userId, onNotificationRead }) => {
             ) : (
                 notifications.map(notification => (
                     <div 
-                        key={notification.id} 
+                        key={notification._id}
                         className={`notification ${!notification.isRead ? 'unread' : ''}`}
-                        onClick={() => markAsRead(notification.id)}
+                        onClick={() => markAsRead(notification._id)}
                     >
                         <div className="notification-content">
                             <p className="notification-message">{notification.message}</p>
@@ -205,7 +218,7 @@ const NotificationList = ({ userId, onNotificationRead }) => {
                         </div>
                         <button 
                             className="delete-notification-btn"
-                            onClick={(e) => deleteNotification(notification.id, e)}
+                            onClick={(e) => deleteNotification(notification._id, e)}
                         >
                             <i className="fas fa-times"></i>
                         </button>

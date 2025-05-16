@@ -113,6 +113,39 @@
   margin-left: 8px;
 }
 
+/* Add these styles for notification dropdown */
+.notifications-container {
+  max-height: 400px;
+  overflow-y: auto;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.notification-button {
+  position: relative;
+  cursor: pointer;
+}
+
+/* Remove the group hover styles since we're using click event now */
+.group:hover .group-hover\:block {
+  display: none;
+}
+
+.group {
+    position: relative;
+}
+
+/* Add padding to create hover space between button and dropdown */
+.group::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    height: 20px;
+}
+
 @media (max-width: 768px) {
   .navbar {
     padding: 0 16px;
