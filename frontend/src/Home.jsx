@@ -109,9 +109,9 @@ const Home = () => {
           </div>
         </section>
 
-        {/* Right Sidebar - News Section */}
-        <aside >
-          <div className="chatbot-wrapper">
+        {/* Right Sidebar - ChatBot Section */}
+        <aside className="sticky top-20 h-[calc(100vh-5rem)]">
+          <div className="h-full">
             <ChatBot />
           </div>
         </aside>

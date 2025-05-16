@@ -38,18 +38,6 @@ const Navbar = ({ userProfile }) => {
       </div>
       
       <div className="nav-menu">
-        <a href="/home" className="nav-item">
-          <i className="fas fa-home"></i>
-          <span>Home</span>
-        </a>
-        <a href="#network" className="nav-item">
-          <i className="fas fa-user-friends"></i>
-          <span>Network</span>
-        </a>
-        <a href="#jobs" className="nav-item">
-          <i className="fas fa-briefcase"></i>
-          <span>Jobs</span>
-        </a>
         <a href="#messaging" className="nav-item">
           <i className="fas fa-comment-dots"></i>
           <span>Messaging</span>

@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect } from 'react';
-import '../styles/ChatBot.css';
 
 const ChatBot = () => {
   const [messages, setMessages] = useState([
@@ -7,6 +6,7 @@ const ChatBot = () => {
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isMinimized, setIsMinimized] = useState(false);
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -98,68 +98,105 @@ const ChatBot = () => {
   };
 
   return (
-    <div className="chatbot-modern">
-      <div className="chatbot-header">
-        <div className="header-content">
-          <div className="bot-status">
-            <span className="status-dot"></span>
-            <span className="status-text">AI Assistant Online</span>
+    <div className={`fixed bottom-4 right-4 ${
+      isMinimized 
+        ? 'w-[250px] h-[60px]' 
+        : 'w-[380px] h-[600px]'
+    } transition-all duration-300 ease-in-out bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-gray-200`}>
+      {/* Header - Updated for better alignment when minimized */}
+      <div className="bg-indigo-600 px-4 py-3 flex items-center justify-between h-[60px]">
+        <div className="flex items-center space-x-3">
+          <div className="relative">
+            <div className="w-2 h-2 bg-green-400 rounded-full absolute -right-1 -top-1"></div>
+            <div className="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center">
+              <i className="fas fa-robot text-white"></i>
+            </div>
           </div>
-          <button className="minimize-btn">
-            <i className="fas fa-minus"></i>
-          </button>
+          <div className="text-white">
+            <h3 className="font-medium text-sm">AI Assistant</h3>
+            <p className={`text-xs text-indigo-200 ${isMinimized ? 'hidden' : 'block'}`}>Online</p>
+          </div>
         </div>
-      </div>
-
-      <div className="messages-container">
-        {messages.map((message, index) => (
-          <div key={index} className={`chat-bubble ${message.isUser ? 'user-bubble' : 'bot-bubble'}`}>
-            {!message.isUser && (
-              <div className="bot-avatar">
-                <i className="fas fa-robot"></i>
-              </div>
-            )}
-            <div className="bubble-content">
-              <div className="message-text">{message.text}</div>
-              <div className="message-time">
-                {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-              </div>
-            </div>
-          </div>
-        ))}
-        {isLoading && (
-          <div className="chat-bubble bot-bubble">
-            <div className="bot-avatar">
-              <i className="fas fa-robot"></i>
-            </div>
-            <div className="bubble-content">
-              <div className="typing-bubble">
-                <div className="dot"></div>
-                <div className="dot"></div>
-                <div className="dot"></div>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-
-      <div className="input-area">
-        <input
-          type="text"
-          placeholder="Ask me anything..."
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-          className="modern-input"
-        />
         <button 
-          className="send-button-modern" 
-          onClick={handleSend}
-          disabled={!input.trim()}
+          onClick={() => setIsMinimized(!isMinimized)}
+          className="text-white/80 hover:text-white transition-colors w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10"
         >
-          <i className="fas fa-arrow-up"></i>
+          <i className={`fas ${isMinimized ? 'fa-expand' : 'fa-minus'} text-sm`}></i>
         </button>
       </div>
+
+      {/* Messages Container */}
+      {!isMinimized && (
+        <div className="flex-1 p-4 overflow-y-auto space-y-4 bg-gray-50">
+          {messages.map((message, index) => (
+            <div key={index} className={`flex ${message.isUser ? 'justify-end' : 'justify-start'}`}>
+              <div className={`flex items-start space-x-2 max-w-[80%] ${message.isUser ? 'flex-row-reverse' : 'flex-row'}`}>
+                {!message.isUser && (
+                  <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0">
+                    <i className="fas fa-robot text-indigo-600 text-sm"></i>
+                  </div>
+                )}
+                <div className={`rounded-2xl px-4 py-2 ${
+                  message.isUser 
+                    ? 'bg-indigo-600 text-white' 
+                    : 'bg-white border border-gray-200'
+                }`}>
+                  <p className="text-sm">{message.text}</p>
+                  <span className={`text-xs mt-1 block ${
+                    message.isUser ? 'text-indigo-200' : 'text-gray-400'
+                  }`}>
+                    {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </span>
+                </div>
+              </div>
+            </div>
+          ))}
+          {isLoading && (
+            <div className="flex justify-start">
+              <div className="flex items-center space-x-2">
+                <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center">
+                  <i className="fas fa-robot text-indigo-600 text-sm"></i>
+                </div>
+                <div className="bg-white border border-gray-200 rounded-2xl px-4 py-2">
+                  <div className="flex space-x-1">
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-100"></div>
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-200"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+          <div ref={messagesEndRef} />
+        </div>
+      )}
+
+      {/* Input Area */}
+      {!isMinimized && (
+        <div className="p-4 bg-white border-t border-gray-200">
+          <div className="flex space-x-2">
+            <input
+              type="text"
+              placeholder="Type your message..."
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+              className="flex-1 px-4 py-2 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+            />
+            <button
+              onClick={handleSend}
+              disabled={!input.trim()}
+              className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${
+                input.trim() 
+                  ? 'bg-indigo-600 text-white hover:bg-indigo-700' 
+                  : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+              }`}
+            >
+              <i className="fas fa-paper-plane"></i>
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
