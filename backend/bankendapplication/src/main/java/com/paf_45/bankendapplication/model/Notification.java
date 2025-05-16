@@ -10,37 +10,11 @@ public class Notification {
     private String id;
     private String recipientId;
     private String senderId;
+    private String senderName; // Add this field
     private String type;
     private String postId;
-
-    public String getPostId() {
-        return postId;
-    }
-
-    public void setPostId(String postId) {
-        this.postId = postId;
-    }
-
     private String message;
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
     private boolean isRead;
-
-    public boolean isRead() {
-        return isRead;
-    }
-
-    public void setRead(boolean isRead) {
-        this.isRead = isRead;
-    }
-
     private LocalDateTime createdAt;
 
     public Notification() {
@@ -65,6 +39,14 @@ public class Notification {
         this.senderId = senderId;
     }
 
+    public String getSenderName() {
+        return senderName;
+    }
+
+    public void setSenderName(String senderName) {
+        this.senderName = senderName;
+    }
+
     public String getType() {
         return type;
     }
@@ -73,9 +55,31 @@ public class Notification {
         this.type = type;
     }
 
+    public String getPostId() {
+        return postId;
+    }
+
+    public void setPostId(String postId) {
+        this.postId = postId;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public boolean isRead() {
+        return isRead;
+    }
+
+    public void setRead(boolean isRead) {
+        this.isRead = isRead;
+    }
+
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
-
-    // ... Add standard getters and setters for all fields
 }

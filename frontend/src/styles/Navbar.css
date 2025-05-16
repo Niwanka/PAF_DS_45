@@ -70,6 +70,21 @@
   position: relative;
 }
 
+.notification-indicator {
+    position: absolute;
+    top: 10px;
+    right: 5px;
+    width: 8px;
+    height: 8px;
+    background-color: #ff4d4f;
+    border-radius: 50%;
+    display: none;
+}
+
+.notification-indicator.active {
+    display: block;
+}
+
 .notification-dropdown {
   position: absolute;
   top: 100%;
