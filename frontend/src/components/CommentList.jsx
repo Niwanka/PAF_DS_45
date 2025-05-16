@@ -4,23 +4,57 @@ import Comment from './Comment';
 import { toast } from 'react-toastify';
 import '../styles/CommentList.css';
 
+// Enhanced bad words list and filtering function
 const filterBadWords = (text) => {
-    // Common bad words list - you can expand this
+    // Expanded bad words list
     const badWords = [
-        'fuck', 'shit', 'ass', 'bitch', 'dick','sucks' 
-        
+        'fuck', 'shit', 'ass', 'bitch', 'dick', 'sucks',
+        'damn', 'hell', 'crap', 'piss', 'whore', 'slut',
+        'bastard', 'cunt', 'pussy', 'cock', 'nigga', 'nigger',
+        'faggot', 'retard', 'hitler', 'nazi', 'penis', 'vagina',
+        // Add more words as needed
     ];
     
-    let filteredText = text;
-    badWords.forEach(word => {
-        // Updated regex to match whole words only
-        const regex = new RegExp(`\\b${word}\\b`, 'gi');
-        filteredText = filteredText.replace(regex, (match) => {
-            return match.charAt(0) + '*'.repeat(match.length - 1);
-        });
-    });
+    const patterns = {
+        // Detect repetitive characters (e.g., "f***k")
+        repetitive: /(.)\1{2,}/g,
+        // Detect common letter substitutions (e.g., "f@ck", "sh1t")
+        substitutions: /[@ $#*!0-9]/g,
+        // Detect spaces between letters (e.g., "f u c k")
+        spaced: /\b\w\s+\w\s+\w\b/g
+    };
+
+    let filteredText = text.toLowerCase();
+
+    // Remove common letter substitutions
+    filteredText = filteredText.replace(patterns.substitutions, '');
     
-    return filteredText;
+    // Check for spaced out words
+    const spacedOutWords = filteredText.match(patterns.spaced);
+    if (spacedOutWords) {
+        spacedOutWords.forEach(word => {
+            const compact = word.replace(/\s+/g, '');
+            if (badWords.includes(compact)) {
+                text = text.replace(word, '*'.repeat(word.length));
+            }
+        });
+    }
+
+    // Filter bad words
+    badWords.forEach(word => {
+        // Match whole words only with case insensitivity
+        const regex = new RegExp(`\\b${word}\\b`, 'gi');
+        text = text.replace(regex, '*'.repeat(word.length));
+        
+        // Also check for partially obscured versions (e.g., "f*ck", "sh*t")
+        const partialRegex = new RegExp(
+            word.split('').join('[^a-zA-Z]*'),
+            'gi'
+        );
+        text = text.replace(partialRegex, '*'.repeat(word.length));
+    });
+
+    return text;
 };
 
 const CommentList = ({ postId, currentUserProfile }) => {
@@ -108,18 +142,26 @@ const CommentList = ({ postId, currentUserProfile }) => {
                     insult: response.data.attributeScores.INSULT.summaryScore.value
                 };
 
-                if (scores.toxicity > 0.7 || 
-                    scores.severeToxicity > 0.5 || 
-                    scores.profanity > 0.8 || 
-                    scores.threat > 0.5 || 
-                    scores.insult > 0.7) {
-                    return {
-                        isInappropriate: true,
-                        reason: 'This comment may contain inappropriate content.'
-                    };
-                }
+                const toxicityThresholds = {
+                    TOXICITY: 0.6,        // Lowered from 0.7
+                    SEVERE_TOXICITY: 0.4, // Lowered from 0.5
+                    PROFANITY: 0.6,       // Lowered from 0.8
+                    THREAT: 0.4,          // Lowered from 0.5
+                    INSULT: 0.5           // Lowered from 0.7
+                };
 
-                return { isInappropriate: false };
+                // Check against all attributes
+                const isInappropriate = Object.entries(scores).some(
+                    ([attribute, score]) => score > toxicityThresholds[attribute]
+                );
+
+                return {
+                    isInappropriate,
+                    reason: isInappropriate 
+                        ? 'This comment contains inappropriate content and cannot be posted.'
+                        : null,
+                    scores // Return scores for potential logging
+                };
 
             } catch (error) {
                 console.error('Perspective API Error:', error);
@@ -148,10 +190,24 @@ const CommentList = ({ postId, currentUserProfile }) => {
         try {
             setIsAnalyzing(true);
 
-            // First filter the bad words
+            // Length check
+            if (newComment.length > 1000) {
+                toast.error('Comment is too long. Maximum length is 1000 characters.');
+                return;
+            }
+
+            // Initial bad word filtering
             const filteredComment = filterBadWords(newComment);
 
-            // Then check toxicity
+            // Check if comment was heavily filtered
+            const filterRatio = (newComment.length - filteredComment.replace(/\*/g, '').length) / newComment.length;
+            if (filterRatio > 0.3) {
+                toast.error('Comment contains too many inappropriate words.');
+                setIsAnalyzing(false);
+                return;
+            }
+
+            // Perspective API check
             const analysis = await analyzeToxicity(filteredComment);
             
             if (analysis.isInappropriate) {
@@ -160,10 +216,11 @@ const CommentList = ({ postId, currentUserProfile }) => {
                 return;
             }
 
+            // Proceed with posting the filtered comment
             const response = await axios.post('http://localhost:9090/api/comments', {
                 postId,
                 userId: currentUserProfile.sub,
-                content: filteredComment  // Use the filtered version
+                content: filteredComment
             }, {
                 withCredentials: true
             });
