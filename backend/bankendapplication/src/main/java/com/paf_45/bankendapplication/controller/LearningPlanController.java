@@ -2,10 +2,11 @@ package com.paf_45.bankendapplication.controller;
 
 import com.paf_45.bankendapplication.model.LearningPlan;
 import com.paf_45.bankendapplication.service.LearningPlanService;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,41 +23,62 @@ public class LearningPlanController {
         this.learningPlanService = learningPlanService;
     }
 
-    // Create a new Learning Plan
+    // ✅ Create a new learning plan (assign to logged-in user)
     @PostMapping
-    public ResponseEntity<LearningPlan> createLearningPlan(@RequestBody LearningPlan learningPlan) {
+    public ResponseEntity<LearningPlan> createLearningPlan(@RequestBody LearningPlan learningPlan,
+                                                           @AuthenticationPrincipal OAuth2User principal) {
+        String userId = principal.getAttribute("sub"); // or "email"
+        learningPlan.setUserId(userId);
         LearningPlan createdPlan = learningPlanService.createLearningPlan(learningPlan);
         return new ResponseEntity<>(createdPlan, HttpStatus.CREATED);
     }
 
-    // Get all Learning Plans
+    // ✅ Get all learning plans for the logged-in user
     @GetMapping
-    public List<LearningPlan> getAllLearningPlans() {
-        return learningPlanService.getAllLearningPlans();
+    public List<LearningPlan> getUserLearningPlans(@AuthenticationPrincipal OAuth2User principal) {
+        String userId = principal.getAttribute("sub");
+        return learningPlanService.getPlansByUserId(userId);
     }
 
-    // Get a Learning Plan by ID
+    // ✅ Get a specific learning plan (must belong to logged-in user)
     @GetMapping("/{id}")
-    public ResponseEntity<LearningPlan> getLearningPlanById(@PathVariable String id) {
+    public ResponseEntity<LearningPlan> getLearningPlanById(@PathVariable String id,
+                                                            @AuthenticationPrincipal OAuth2User principal) {
         Optional<LearningPlan> plan = learningPlanService.getLearningPlanById(id);
-        return plan.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        String userId = principal.getAttribute("sub");
+
+        return plan.isPresent() && userId.equals(plan.get().getUserId())
+                ? ResponseEntity.ok(plan.get())
+                : ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 
-    // Update a Learning Plan
+    // ✅ Update a learning plan (only if owned by user)
     @PutMapping("/{id}")
-    public ResponseEntity<LearningPlan> updateLearningPlan(
-            @PathVariable String id, @RequestBody LearningPlan learningPlan) {
-        LearningPlan updatedPlan = learningPlanService.updateLearningPlan(id, learningPlan);
-        return updatedPlan != null ? new ResponseEntity<>(updatedPlan, HttpStatus.OK) :
-                ResponseEntity.notFound().build();
+    public ResponseEntity<LearningPlan> updateLearningPlan(@PathVariable String id,
+                                                           @RequestBody LearningPlan updatedPlan,
+                                                           @AuthenticationPrincipal OAuth2User principal) {
+        String userId = principal.getAttribute("sub");
+        Optional<LearningPlan> existingPlan = learningPlanService.getLearningPlanById(id);
+
+        if (existingPlan.isPresent() && userId.equals(existingPlan.get().getUserId())) {
+            updatedPlan.setUserId(userId);
+            LearningPlan saved = learningPlanService.updateLearningPlan(id, updatedPlan);
+            return ResponseEntity.ok(saved);
+        }
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 
-    // Delete a Learning Plan
+    // ✅ Delete a learning plan (only if owned by user)
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteLearningPlan(@PathVariable String id) {
-        boolean isDeleted = learningPlanService.deleteLearningPlan(id);
-        return isDeleted ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
+    public ResponseEntity<Void> deleteLearningPlan(@PathVariable String id,
+                                                   @AuthenticationPrincipal OAuth2User principal) {
+        Optional<LearningPlan> plan = learningPlanService.getLearningPlanById(id);
+        String userId = principal.getAttribute("sub");
+
+        if (plan.isPresent() && userId.equals(plan.get().getUserId())) {
+            learningPlanService.deleteLearningPlan(id);
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 }
-
-
