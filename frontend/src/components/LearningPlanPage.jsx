@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import "./LearningPlanPage.css";
 
 const LearningPlanPage = () => {
   const [plans, setPlans] = useState([]);
@@ -35,6 +36,11 @@ const LearningPlanPage = () => {
     };
     fetchPlans();
   }, []);
+
+  // Debug logging for modal state
+  useEffect(() => {
+    console.log("Modal open state:", isModalOpen);
+  }, [isModalOpen]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -148,35 +154,60 @@ const LearningPlanPage = () => {
 
   const openCreateModal = () => {
     setCurrentPlan(null);
+    setFormData({
+      title: "",
+      description: "",
+      topics: "",
+      completionDate: "",
+      resources: [],
+      newResource: "",
+      status: "draft",
+    });
     setIsModalOpen(true);
+    console.log("Create modal triggered");
+  };
+
+  const getStatusStyle = (status) => {
+    switch (status) {
+      case "draft":
+        return "status-draft";
+      case "in-progress":
+        return "status-in-progress";
+      case "completed":
+        return "status-completed";
+      default:
+        return "";
+    }
   };
 
   return (
-    <div style={styles.page}>
-      <div style={styles.header}>
+    <div className="page">
+      <div className="header">
         <h1>My Learning Plans</h1>
-        <button style={styles.createButton} onClick={openCreateModal}>
+        <button className="create-button" onClick={openCreateModal}>
           Create New Plan
         </button>
       </div>
 
       {isLoading ? (
-        <div style={styles.loading}>Loading plans...</div>
+        <div className="loading">Loading plans...</div>
       ) : error ? (
-        <div style={styles.error}>{error}</div>
+        <div className="error">{error}</div>
       ) : plans.length > 0 ? (
-        <div style={styles.plansGrid}>
+        <div className="plans-grid">
           {plans.map((plan) => (
-            <div key={plan.id} style={styles.planCard}>
-              <h3 style={styles.planTitle}>{plan.title}</h3>
-              <p style={styles.planDescription}>{plan.description}</p>
-              <div style={styles.planMeta}>
+            <div key={plan.id} className="plan-card">
+              <h3 className="plan-title">{plan.title}</h3>
+              <p className="plan-description">{plan.description}</p>
+              <div className="plan-meta">
                 <p>
                   <strong>Topics:</strong> {plan.topics}
                 </p>
                 <p>
                   <strong>Status:</strong>{" "}
-                  <span style={getStatusStyle(plan.status)}>{plan.status}</span>
+                  <span className={getStatusStyle(plan.status)}>
+                    {plan.status}
+                  </span>
                 </p>
                 {plan.completionDate && (
                   <p>
@@ -186,16 +217,16 @@ const LearningPlanPage = () => {
                 )}
               </div>
               {plan.resources?.length > 0 && (
-                <div style={styles.resourcesContainer}>
+                <div className="resources-container">
                   <strong>Resources:</strong>
-                  <ul style={styles.resourcesList}>
+                  <ul className="resources-list">
                     {plan.resources.map((resource, index) => (
-                      <li key={index} style={styles.resourceItem}>
+                      <li key={index} className="resource-item">
                         <a
                           href={resource}
                           target="_blank"
                           rel="noopener noreferrer"
-                          style={styles.resourceLink}
+                          className="resource-link"
                         >
                           Resource {index + 1}
                         </a>
@@ -204,21 +235,21 @@ const LearningPlanPage = () => {
                   </ul>
                 </div>
               )}
-              <div style={styles.cardActions}>
+              <div className="card-actions">
                 <button
-                  style={styles.viewButton}
+                  className="view-button"
                   onClick={() => openViewModal(plan)}
                 >
                   View
                 </button>
                 <button
-                  style={styles.editButton}
+                  className="edit-button"
                   onClick={() => openEditModal(plan)}
                 >
                   Edit
                 </button>
                 <button
-                  style={styles.deleteButton}
+                  className="delete-button"
                   onClick={() => handleDelete(plan.id)}
                 >
                   Delete
@@ -228,43 +259,41 @@ const LearningPlanPage = () => {
           ))}
         </div>
       ) : (
-        <div style={styles.emptyState}>
+        <div className="empty-state">
           <p>You don't have any learning plans yet.</p>
         </div>
       )}
 
       {/* Modal Overlay */}
       {isModalOpen && (
-        <div style={styles.modalOverlay}>
-          <div style={styles.modal}>
-            <div style={styles.modalHeader}>
-              <h2 style={styles.modalTitle}>
+        <div className="modal-overlay">
+          <div className="modal">
+            <div className="modal-header">
+              <h2 className="modal-title">
                 {currentPlan ? (formData.title ? "Edit" : "View") : "Create"}{" "}
                 Learning Plan
               </h2>
-              <button style={styles.closeButton} onClick={closeModal}>
+              <button className="close-button" onClick={closeModal}>
                 &times;
               </button>
             </div>
 
             {currentPlan && !formData.title ? (
               // View mode
-              <div style={styles.viewContent}>
-                <div style={styles.viewGroup}>
-                  <h3 style={styles.viewTitle}>{currentPlan.title}</h3>
-                  <p style={styles.viewDescription}>
-                    {currentPlan.description}
-                  </p>
+              <div className="view-content">
+                <div className="view-group">
+                  <h3 className="view-title">{currentPlan.title}</h3>
+                  <p className="view-description">{currentPlan.description}</p>
                 </div>
 
-                <div style={styles.viewGroup}>
-                  <h4 style={styles.viewSubtitle}>Details</h4>
+                <div className="view-group">
+                  <h4 className="view-subtitle">Details</h4>
                   <p>
                     <strong>Topics:</strong> {currentPlan.topics}
                   </p>
                   <p>
                     <strong>Status:</strong>{" "}
-                    <span style={getStatusStyle(currentPlan.status)}>
+                    <span className={getStatusStyle(currentPlan.status)}>
                       {currentPlan.status}
                     </span>
                   </p>
@@ -279,16 +308,16 @@ const LearningPlanPage = () => {
                 </div>
 
                 {currentPlan.resources?.length > 0 && (
-                  <div style={styles.viewGroup}>
-                    <h4 style={styles.viewSubtitle}>Resources</h4>
-                    <ul style={styles.viewResourcesList}>
+                  <div className="view-group">
+                    <h4 className="view-subtitle">Resources</h4>
+                    <ul className="view-resources-list">
                       {currentPlan.resources.map((resource, index) => (
-                        <li key={index} style={styles.viewResourceItem}>
+                        <li key={index} className="view-resource-item">
                           <a
                             href={resource}
                             target="_blank"
                             rel="noopener noreferrer"
-                            style={styles.resourceLink}
+                            className="resource-link"
                           >
                             {resource.length > 50
                               ? `${resource.substring(0, 50)}...`
@@ -302,68 +331,68 @@ const LearningPlanPage = () => {
               </div>
             ) : (
               // Edit/Create mode
-              <form onSubmit={handleSubmit} style={styles.form}>
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>Title*</label>
+              <form onSubmit={handleSubmit} className="form">
+                <div className="form-group">
+                  <label className="label">Title*</label>
                   <input
                     type="text"
                     name="title"
                     value={formData.title}
                     onChange={handleInputChange}
                     required
-                    style={styles.input}
+                    className="input"
                     placeholder="Enter plan title"
                     disabled={currentPlan && !formData.title}
                   />
                 </div>
 
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>Description*</label>
+                <div className="form-group">
+                  <label className="label">Description*</label>
                   <textarea
                     name="description"
                     value={formData.description}
                     onChange={handleInputChange}
                     required
-                    style={styles.textarea}
+                    className="textarea"
                     placeholder="Describe your learning plan"
                     rows={4}
                     disabled={currentPlan && !formData.title}
                   />
                 </div>
 
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>Topics</label>
+                <div className="form-group">
+                  <label className="label">Topics</label>
                   <input
                     type="text"
                     name="topics"
                     value={formData.topics}
                     onChange={handleInputChange}
-                    style={styles.input}
+                    className="input"
                     placeholder="Comma-separated list of topics"
                     disabled={currentPlan && !formData.title}
                   />
                 </div>
 
-                <div style={styles.formRow}>
-                  <div style={{ ...styles.formGroup, flex: 1 }}>
-                    <label style={styles.label}>Completion Date</label>
+                <div className="form-row">
+                  <div className="form-group form-group-flex">
+                    <label className="label">Completion Date</label>
                     <input
                       type="date"
                       name="completionDate"
                       value={formData.completionDate}
                       onChange={handleInputChange}
-                      style={styles.input}
+                      className="input"
                       disabled={currentPlan && !formData.title}
                     />
                   </div>
 
-                  <div style={{ ...styles.formGroup, flex: 1 }}>
-                    <label style={styles.label}>Status</label>
+                  <div className="form-group form-group-flex">
+                    <label className="label">Status</label>
                     <select
                       name="status"
                       value={formData.status}
                       onChange={handleInputChange}
-                      style={styles.input}
+                      className="input"
                       disabled={currentPlan && !formData.title}
                     >
                       <option value="draft">Draft</option>
@@ -373,11 +402,11 @@ const LearningPlanPage = () => {
                   </div>
                 </div>
 
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>Resources</label>
+                <div className="form-group">
+                  <label className="label">Resources</label>
                   {!(currentPlan && !formData.title) && (
                     <>
-                      <div style={styles.resourceInputContainer}>
+                      <div className="resource-input-container">
                         <input
                           type="url"
                           value={formData.newResource}
@@ -388,27 +417,27 @@ const LearningPlanPage = () => {
                             }))
                           }
                           placeholder="Add a resource URL"
-                          style={styles.resourceInput}
+                          className="resource-input"
                         />
                         <button
                           type="button"
-                          style={styles.addResourceButton}
+                          className="add-resource-button"
                           onClick={addResource}
                         >
                           Add
                         </button>
                       </div>
-                      <div style={styles.resourceTags}>
+                      <div className="resource-tags">
                         {formData.resources.map((resource) => (
-                          <div key={resource} style={styles.resourceTag}>
-                            <span style={styles.resourceTagText}>
+                          <div key={resource} className="resource-tag">
+                            <span className="resource-tag-text">
                               {resource.length > 30
                                 ? `${resource.substring(0, 30)}...`
                                 : resource}
                             </span>
                             <button
                               type="button"
-                              style={styles.removeResourceButton}
+                              className="remove-resource-button"
                               onClick={() => removeResource(resource)}
                             >
                               &times;
@@ -421,15 +450,15 @@ const LearningPlanPage = () => {
                 </div>
 
                 {!(currentPlan && !formData.title) && (
-                  <div style={styles.formActions}>
+                  <div className="form-actions">
                     <button
                       type="button"
-                      style={styles.cancelButton}
+                      className="cancel-button"
                       onClick={closeModal}
                     >
                       Cancel
                     </button>
-                    <button type="submit" style={styles.submitButton}>
+                    <button type="submit" className="submit-button">
                       {currentPlan ? "Update" : "Create"} Plan
                     </button>
                   </div>
@@ -441,408 +470,6 @@ const LearningPlanPage = () => {
       )}
     </div>
   );
-};
-
-// Enhanced styles
-const styles = {
-  page: {
-    padding: "24px",
-    maxWidth: "1200px",
-    margin: "0 auto",
-    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
-  },
-  header: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: "32px",
-  },
-  createButton: {
-    backgroundColor: "#4f46e5",
-    color: "white",
-    border: "none",
-    padding: "12px 24px",
-    borderRadius: "6px",
-    cursor: "pointer",
-    fontSize: "16px",
-    fontWeight: "600",
-    boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-    transition: "all 0.2s ease",
-    ":hover": {
-      backgroundColor: "#4338ca",
-      transform: "translateY(-1px)",
-      boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
-    },
-  },
-  plansGrid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
-    gap: "24px",
-  },
-  planCard: {
-    backgroundColor: "white",
-    border: "1px solid #e2e8f0",
-    borderRadius: "8px",
-    padding: "20px",
-    boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-    transition: "all 0.2s ease",
-    ":hover": {
-      transform: "translateY(-2px)",
-      boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
-    },
-    display: "flex",
-    flexDirection: "column",
-  },
-  planTitle: {
-    marginTop: "0",
-    marginBottom: "12px",
-    color: "#1e293b",
-    fontSize: "18px",
-    fontWeight: "600",
-  },
-  planDescription: {
-    marginBottom: "16px",
-    color: "#64748b",
-    fontSize: "14px",
-    flexGrow: 1,
-  },
-  planMeta: {
-    color: "#64748b",
-    fontSize: "14px",
-    marginBottom: "16px",
-    " p": {
-      margin: "4px 0",
-    },
-  },
-  resourcesContainer: {
-    marginTop: "12px",
-  },
-  resourcesList: {
-    margin: "8px 0 0 0",
-    paddingLeft: "20px",
-  },
-  resourceItem: {
-    marginBottom: "4px",
-  },
-  resourceLink: {
-    color: "#4f46e5",
-    textDecoration: "none",
-    ":hover": {
-      textDecoration: "underline",
-    },
-  },
-  emptyState: {
-    textAlign: "center",
-    padding: "40px 20px",
-    backgroundColor: "#f8fafc",
-    borderRadius: "8px",
-    color: "#64748b",
-  },
-  loading: {
-    textAlign: "center",
-    padding: "40px 20px",
-    color: "#64748b",
-  },
-  error: {
-    textAlign: "center",
-    padding: "40px 20px",
-    backgroundColor: "#fee2e2",
-    borderRadius: "8px",
-    color: "#b91c1c",
-  },
-  cardActions: {
-    display: "flex",
-    justifyContent: "flex-end",
-    gap: "8px",
-    marginTop: "16px",
-  },
-  viewButton: {
-    backgroundColor: "#e0f2fe",
-    color: "#0369a1",
-    border: "none",
-    padding: "6px 12px",
-    borderRadius: "4px",
-    cursor: "pointer",
-    fontSize: "14px",
-    transition: "all 0.2s ease",
-    ":hover": {
-      backgroundColor: "#bae6fd",
-    },
-  },
-  editButton: {
-    backgroundColor: "#fef3c7",
-    color: "#92400e",
-    border: "none",
-    padding: "6px 12px",
-    borderRadius: "4px",
-    cursor: "pointer",
-    fontSize: "14px",
-    transition: "all 0.2s ease",
-    ":hover": {
-      backgroundColor: "#fde68a",
-    },
-  },
-  deleteButton: {
-    backgroundColor: "#fee2e2",
-    color: "#b91c1c",
-    border: "none",
-    padding: "6px 12px",
-    borderRadius: "4px",
-    cursor: "pointer",
-    fontSize: "14px",
-    transition: "all 0.2s ease",
-    ":hover": {
-      backgroundColor: "#fecaca",
-    },
-  },
-  // Modal styles
-  modalOverlay: {
-    position: "fixed",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: "rgba(0,0,0,0.5)",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    zIndex: 1000,
-    padding: "20px",
-    boxSizing: "border-box",
-    overflowY: "auto",
-  },
-  modal: {
-    backgroundColor: "white",
-    borderRadius: "12px",
-    width: "100%",
-    maxWidth: "600px",
-    maxHeight: "90vh",
-    overflowY: "auto",
-    boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
-  },
-  modalHeader: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: "20px 24px",
-    borderBottom: "1px solid #e2e8f0",
-  },
-  modalTitle: {
-    margin: 0,
-    fontSize: "20px",
-    fontWeight: "600",
-    color: "#1e293b",
-  },
-  closeButton: {
-    background: "none",
-    border: "none",
-    fontSize: "24px",
-    cursor: "pointer",
-    color: "#64748b",
-    padding: "4px",
-    ":hover": {
-      color: "#1e293b",
-    },
-  },
-  // View mode styles
-  viewContent: {
-    padding: "24px",
-  },
-  viewGroup: {
-    marginBottom: "24px",
-  },
-  viewTitle: {
-    marginTop: 0,
-    marginBottom: "12px",
-    color: "#1e293b",
-  },
-  viewDescription: {
-    color: "#64748b",
-    lineHeight: "1.6",
-  },
-  viewSubtitle: {
-    marginTop: 0,
-    marginBottom: "12px",
-    color: "#334155",
-  },
-  viewResourcesList: {
-    margin: "8px 0 0 0",
-    paddingLeft: "20px",
-  },
-  viewResourceItem: {
-    marginBottom: "8px",
-    wordBreak: "break-all",
-  },
-  // Form styles
-  form: {
-    padding: "24px",
-  },
-  formGroup: {
-    marginBottom: "20px",
-  },
-  formRow: {
-    display: "flex",
-    gap: "16px",
-  },
-  label: {
-    display: "block",
-    marginBottom: "8px",
-    fontWeight: "500",
-    color: "#334155",
-    fontSize: "14px",
-  },
-  input: {
-    width: "100%",
-    padding: "10px 12px",
-    border: "1px solid #e2e8f0",
-    borderRadius: "6px",
-    boxSizing: "border-box",
-    fontSize: "14px",
-    transition: "border-color 0.2s ease",
-    ":focus": {
-      outline: "none",
-      borderColor: "#4f46e5",
-      boxShadow: "0 0 0 3px rgba(79, 70, 229, 0.1)",
-    },
-  },
-  textarea: {
-    width: "100%",
-    padding: "10px 12px",
-    border: "1px solid #e2e8f0",
-    borderRadius: "6px",
-    boxSizing: "border-box",
-    fontSize: "14px",
-    minHeight: "100px",
-    resize: "vertical",
-    transition: "border-color 0.2s ease",
-    ":focus": {
-      outline: "none",
-      borderColor: "#4f46e5",
-      boxShadow: "0 0 0 3px rgba(79, 70, 229, 0.1)",
-    },
-  },
-  resourceInputContainer: {
-    display: "flex",
-    gap: "8px",
-    marginBottom: "8px",
-  },
-  resourceInput: {
-    flex: 1,
-    padding: "10px 12px",
-    border: "1px solid #e2e8f0",
-    borderRadius: "6px",
-    fontSize: "14px",
-    transition: "border-color 0.2s ease",
-    ":focus": {
-      outline: "none",
-      borderColor: "#4f46e5",
-      boxShadow: "0 0 0 3px rgba(79, 70, 229, 0.1)",
-    },
-  },
-  addResourceButton: {
-    backgroundColor: "#e0e7ff",
-    color: "#4f46e5",
-    border: "none",
-    borderRadius: "6px",
-    padding: "0 16px",
-    cursor: "pointer",
-    fontWeight: "500",
-    transition: "all 0.2s ease",
-    ":hover": {
-      backgroundColor: "#c7d2fe",
-    },
-  },
-  resourceTags: {
-    display: "flex",
-    flexWrap: "wrap",
-    gap: "8px",
-  },
-  resourceTag: {
-    backgroundColor: "#e0e7ff",
-    borderRadius: "4px",
-    padding: "4px 8px",
-    display: "flex",
-    alignItems: "center",
-    gap: "4px",
-  },
-  resourceTagText: {
-    color: "#4f46e5",
-    fontSize: "12px",
-    maxWidth: "120px",
-    whiteSpace: "nowrap",
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-  },
-  removeResourceButton: {
-    backgroundColor: "transparent",
-    border: "none",
-    color: "#4f46e5",
-    cursor: "pointer",
-    fontSize: "14px",
-    padding: "0",
-  },
-  formActions: {
-    display: "flex",
-    justifyContent: "flex-end",
-    gap: "12px",
-    marginTop: "24px",
-    paddingTop: "16px",
-    borderTop: "1px solid #e2e8f0",
-  },
-  cancelButton: {
-    backgroundColor: "#f1f5f9",
-    color: "#64748b",
-    border: "none",
-    padding: "10px 20px",
-    borderRadius: "6px",
-    cursor: "pointer",
-    fontWeight: "500",
-    transition: "all 0.2s ease",
-    ":hover": {
-      backgroundColor: "#e2e8f0",
-    },
-  },
-  submitButton: {
-    backgroundColor: "#4f46e5",
-    color: "white",
-    border: "none",
-    padding: "10px 20px",
-    borderRadius: "6px",
-    cursor: "pointer",
-    fontWeight: "500",
-    transition: "all 0.2s ease",
-    ":hover": {
-      backgroundColor: "#4338ca",
-    },
-  },
-};
-
-const getStatusStyle = (status) => {
-  switch (status) {
-    case "draft":
-      return {
-        color: "#64748b",
-        backgroundColor: "#f1f5f9",
-        padding: "2px 8px",
-        borderRadius: "4px",
-      };
-    case "in-progress":
-      return {
-        color: "#9a3412",
-        backgroundColor: "#ffedd5",
-        padding: "2px 8px",
-        borderRadius: "4px",
-      };
-    case "completed":
-      return {
-        color: "#166534",
-        backgroundColor: "#dcfce7",
-        padding: "2px 8px",
-        borderRadius: "4px",
-      };
-    default:
-      return {};
-  }
 };
 
 export default LearningPlanPage;
