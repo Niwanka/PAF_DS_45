@@ -67,7 +67,7 @@ Ensure you have the following installed:
 ```
 
 ## 👥 Contributors
-- Niwanka Pathirathne
+- Niwanka Pathirathna
 - Sriharan Saravanan
 - Chanuthi Savithma
 - Yasasvi Vilochana
