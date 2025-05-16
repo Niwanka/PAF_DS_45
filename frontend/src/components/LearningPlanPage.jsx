@@ -25,7 +25,9 @@ const LearningPlanPage = () => {
     const fetchPlans = async () => {
       try {
         setIsLoading(true);
-        const response = await axios.get("/api/learning-plans");
+        const response = await axios.get("/api/learning-plans", {
+          withCredentials: true, // ✅ for session-based/JWT auth
+        });
         setPlans(Array.isArray(response?.data) ? response.data : []);
         setError(null);
       } catch (err) {
@@ -42,7 +44,9 @@ const LearningPlanPage = () => {
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this learning plan?")) {
       try {
-        await axios.delete(`/api/learning-plans/${id}`);
+        await axios.delete(`/api/learning-plans/${id}`, {
+          withCredentials: true, // ✅ include cookies/token
+        });
         setPlans((prev) => prev.filter((plan) => plan.id !== id));
       } catch (error) {
         console.error("Failed to delete learning plan", error);
@@ -63,6 +67,9 @@ const LearningPlanPage = () => {
             completionDate: formData.completionDate,
             resources: formData.resources,
             status: formData.status,
+          },
+          {
+            withCredentials: true, // ✅ include cookies/token
           }
         );
         setPlans((prev) =>
@@ -72,14 +79,20 @@ const LearningPlanPage = () => {
         );
       } else {
         // Create new plan
-        const response = await axios.post("/api/learning-plans", {
-          title: formData.title,
-          description: formData.description,
-          topics: formData.topics,
-          completionDate: formData.completionDate,
-          resources: formData.resources,
-          status: formData.status,
-        });
+        const response = await axios.post(
+          "/api/learning-plans",
+          {
+            title: formData.title,
+            description: formData.description,
+            topics: formData.topics,
+            completionDate: formData.completionDate,
+            resources: formData.resources,
+            status: formData.status,
+          },
+          {
+            withCredentials: true, // ✅ include cookies/token
+          }
+        );
         setPlans((prev) => [...prev, response.data]);
       }
       closeModal();
