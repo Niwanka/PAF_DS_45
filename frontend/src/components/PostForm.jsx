@@ -106,7 +106,7 @@ const PostForm = ({ onPostCreated, onPostUpdated, userId, post, isEditing, onSuc
                     video.src = URL.createObjectURL(file);
                 });
 
-                if (duration > 40) {
+                if (duration > 31) {
                     setError('Videos must be less than 30 seconds');
                     return;
                 }
