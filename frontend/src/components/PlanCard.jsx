@@ -1,4 +1,5 @@
 import React from "react";
+import { jsPDF } from "jspdf"; // ✅ import jsPDF
 
 const PlanCard = ({ plan, onView, onEdit, onDelete }) => {
   const getStatusStyle = (status) => {
@@ -12,6 +13,37 @@ const PlanCard = ({ plan, onView, onEdit, onDelete }) => {
       default:
         return "";
     }
+  };
+
+  // ✅ Function to generate and download PDF
+  const downloadPlanAsPDF = () => {
+    const doc = new jsPDF();
+
+    doc.setFontSize(18);
+    doc.text(plan.title || "Untitled Plan", 10, 20);
+
+    doc.setFontSize(12);
+    doc.text(`Description: ${plan.description || "N/A"}`, 10, 30);
+    doc.text(`Topics: ${plan.topics || "N/A"}`, 10, 40);
+    doc.text(`Status: ${plan.status || "N/A"}`, 10, 50);
+    doc.text(
+      `Completion Date: ${
+        plan.completionDate
+          ? new Date(plan.completionDate).toLocaleDateString()
+          : "N/A"
+      }`,
+      10,
+      60
+    );
+
+    if (plan.resources && plan.resources.length > 0) {
+      doc.text("Resources:", 10, 70);
+      plan.resources.forEach((res, i) => {
+        doc.text(`${i + 1}. ${res}`, 15, 80 + i * 10);
+      });
+    }
+
+    doc.save(`${plan.title || "learning-plan"}.pdf`);
   };
 
   return (
@@ -33,6 +65,7 @@ const PlanCard = ({ plan, onView, onEdit, onDelete }) => {
           </p>
         )}
       </div>
+
       {plan.resources?.length > 0 && (
         <div className="resources-container">
           <strong>Resources:</strong>
@@ -52,6 +85,7 @@ const PlanCard = ({ plan, onView, onEdit, onDelete }) => {
           </ul>
         </div>
       )}
+
       <div className="card-actions">
         <button className="view-button" onClick={() => onView(plan)}>
           View
@@ -61,6 +95,10 @@ const PlanCard = ({ plan, onView, onEdit, onDelete }) => {
         </button>
         <button className="delete-button" onClick={() => onDelete(plan.id)}>
           Delete
+        </button>
+        {/* ✅ New button for PDF download */}
+        <button className="download-button" onClick={downloadPlanAsPDF}>
+          Download PDF
         </button>
       </div>
     </div>
