@@ -106,81 +106,81 @@ const CommentList = ({ postId, currentUserProfile }) => {
     };
 
     const analyzeToxicity = async (text, retries = 3) => {
-        for (let i = 0; i < retries; i++) {
-            try {
-                const API_KEY = import.meta.env.VITE_PERSPECTIVE_API_KEY;
-                
-                // Use the correct API endpoint
-                const response = await axios({
-                    method: 'post',
-                    url: `https://commentanalyzer.googleapis.com/v1alpha1/comments:analyze`,
-                    params: {
-                        key: API_KEY
-                    },
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    data: {
-                        comment: { text },
-                        languages: ['en'],
-                        requestedAttributes: {
-                            TOXICITY: {},
-                            SEVERE_TOXICITY: {},
-                            PROFANITY: {},
-                            THREAT: {},
-                            INSULT: {}
-                        }
+        const API_KEY = import.meta.env.VITE_PERSPECTIVE_API_KEY;
+
+        try {
+            const response = await axios({
+                method: 'post',
+                url: `https://commentanalyzer.googleapis.com/v1alpha1/comments:analyze?key=${API_KEY}`,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                data: {
+                    comment: { text },
+                    languages: ['en'],
+                    requestedAttributes: {
+                        TOXICITY: {},
+                        SEVERE_TOXICITY: {},
+                        PROFANITY: {},
+                        THREAT: {},
+                        INSULT: {}
                     }
-                });
-
-                // Extract scores from response
-                const scores = {
-                    toxicity: response.data.attributeScores.TOXICITY.summaryScore.value,
-                    severeToxicity: response.data.attributeScores.SEVERE_TOXICITY.summaryScore.value,
-                    profanity: response.data.attributeScores.PROFANITY.summaryScore.value,
-                    threat: response.data.attributeScores.THREAT.summaryScore.value,
-                    insult: response.data.attributeScores.INSULT.summaryScore.value
-                };
-
-                const toxicityThresholds = {
-                    TOXICITY: 0.6,        // Lowered from 0.7
-                    SEVERE_TOXICITY: 0.4, // Lowered from 0.5
-                    PROFANITY: 0.6,       // Lowered from 0.8
-                    THREAT: 0.4,          // Lowered from 0.5
-                    INSULT: 0.5           // Lowered from 0.7
-                };
-
-                // Check against all attributes
-                const isInappropriate = Object.entries(scores).some(
-                    ([attribute, score]) => score > toxicityThresholds[attribute]
-                );
-
-                return {
-                    isInappropriate,
-                    reason: isInappropriate 
-                        ? 'This comment contains inappropriate content and cannot be posted.'
-                        : null,
-                    scores // Return scores for potential logging
-                };
-
-            } catch (error) {
-                console.error('Perspective API Error:', error);
-                
-                // If it's the last retry, check if it's an auth error
-                if (i === retries - 1) {
-                    if (error.response?.status === 403) {
-                        console.error('API Key authentication failed. Please verify your API key.');
-                        return { isInappropriate: false }; // Fail open if API is unavailable
-                    }
-                    throw error;
                 }
-                
-                // Exponential backoff
-                await new Promise(resolve => setTimeout(resolve, Math.min(1000 * Math.pow(2, i), 10000)));
-                continue;
+            });
+
+            console.log('Raw API Response:', response.data);
+
+            // Extract the toxicity score from the actual response structure
+            const scores = {
+                TOXICITY: response.data.attributeScores?.TOXICITY?.summaryScore?.value || 0,
+                SEVERE_TOXICITY: response.data.attributeScores?.SEVERE_TOXICITY?.summaryScore?.value || 0,
+                PROFANITY: response.data.attributeScores?.PROFANITY?.summaryScore?.value || 0,
+                THREAT: response.data.attributeScores?.THREAT?.summaryScore?.value || 0,
+                INSULT: response.data.attributeScores?.INSULT?.summaryScore?.value || 0
+            };
+
+            console.log('Extracted scores:', scores);
+
+            const toxicityThresholds = {
+                TOXICITY: 0.6,
+                SEVERE_TOXICITY: 0.4,
+                PROFANITY: 0.6,
+                THREAT: 0.4,
+                INSULT: 0.5
+            };
+
+            // Check if the toxicity score exceeds our threshold
+            const isInappropriate = scores.TOXICITY > toxicityThresholds.TOXICITY;
+
+            return {
+                isInappropriate,
+                reason: isInappropriate 
+                    ? `This comment contains inappropriate content (Toxicity: ${(scores.TOXICITY * 100).toFixed(1)}%)`
+                    : null,
+                scores
+            };
+
+        } catch (error) {
+            console.error('Perspective API Error:', {
+                message: error.message,
+                response: error.response?.data,
+                status: error.response?.status
+            });
+            
+            if (error.response?.status === 403) {
+                toast.error('API authentication failed. Please check your API key.');
+                return { isInappropriate: false };
             }
+            
+            if (retries > 1) {
+                // Wait before retrying with exponential backoff
+                await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, retries - 1)));
+                return analyzeToxicity(text, retries - 1);
+            }
+            
+            toast.warn('Content moderation service is temporarily unavailable. Using basic filtering only.');
+            return { isInappropriate: false };
         }
-        return { isInappropriate: false }; // Default fallback
     };
 
     const handleAddComment = async (e) => {
