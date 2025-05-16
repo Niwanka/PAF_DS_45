@@ -3,19 +3,26 @@ import axios from 'axios';
 import '../styles/PostForm.css';
 import { uploadFileToFirebase } from '../utils/firebaseStorage';
 
+// More consistent handling of media URLs
+const normalizeMediaUrls = (urls) => {
+  if (!urls) return [];
+  if (typeof urls === 'string') return [urls];
+  if (Array.isArray(urls)) return urls.filter(url => url);
+  return [];
+};
+
 const PostForm = ({ onPostCreated, onPostUpdated, userId, post, isEditing, onSuccess }) => {
   const [formData, setFormData] = useState({
     title: '',
     content: '',
     tags: '',
-    mediaUrl: ''
+    mediaUrls: []
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [preview, setPreview] = useState(null);
-  const [isFetching, setIsFetching] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
 
   // Set initial form data when post prop changes
@@ -23,29 +30,27 @@ const PostForm = ({ onPostCreated, onPostUpdated, userId, post, isEditing, onSuc
     if (isEditing && post) {
       console.log('Loading post for editing:', post);
       
-      // Check if mediaUrls exists in different possible formats
-      let mediaUrl = '';
-      if (Array.isArray(post.mediaUrls) && post.mediaUrls.length > 0) {
-        mediaUrl = post.mediaUrls[0];
-      } else if (post.mediaUrl) {
-        mediaUrl = post.mediaUrl;
-      }
+      // Normalize mediaUrls to always be an array
+      const mediaUrls = normalizeMediaUrls(post.mediaUrls || post.mediaUrl || []);
       
-      console.log('Setting initial media URL for editing:', mediaUrl);
+      console.log('Setting initial media URLs for editing:', mediaUrls);
       
       setFormData({
         title: post.title || '',
         content: post.content || '',
-        tags: post.tags ? post.tags.join(', ') : '',
-        mediaUrl: mediaUrl
+        tags: Array.isArray(post.tags) ? post.tags.join(', ') : (post.tags || ''),
+        mediaUrls: mediaUrls 
       });
       
       // If there's a media URL, set the preview
-      if (mediaUrl) {
-        setPreview(mediaUrl);
+      if (mediaUrls.length > 0) {
+        setPreview(mediaUrls[0]);
         // Determine if it's a video based on URL
-        const isVideo = mediaUrl.match(/\.(mp4|webm|mov)$/i) || mediaUrl.includes('video');
+        const isVideo = mediaUrls[0].match(/\.(mp4|webm|mov)$/i) || mediaUrls[0].includes('video');
         setSelectedFile({ type: isVideo ? 'video/mp4' : 'image/jpeg' });
+      } else {
+        setPreview(null);
+        setSelectedFile(null);
       }
     }
   }, [isEditing, post]);
@@ -61,64 +66,133 @@ const PostForm = ({ onPostCreated, onPostUpdated, userId, post, isEditing, onSuc
   };
 
   const handleFileChange = async (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      if (file.size > 10 * 1024 * 1024) {
-        setError('File size should be less than 10MB');
-        return;
-      }
-
-      const isImage = file.type.startsWith('image/');
-      const isVideo = file.type.startsWith('video/');
-
-      if (!isImage && !isVideo) {
-        setError('Only image or video files are allowed');
-        return;
-      }
-
-      if (isVideo) {
-        const video = document.createElement('video');
-        video.preload = 'metadata';
-  
-        await new Promise((resolve) => {
-          video.onloadedmetadata = () => {
-            window.URL.revokeObjectURL(video.src);
-            if (video.duration > 31) {
-              setError('Video duration should be less than 30 seconds');
-              resolve(false);
-            }
-            resolve(true);
-          };
-          video.src = URL.createObjectURL(file);
-        });
-  
-        if (error) return;
-      }
-
-      setSelectedFile(file);
+    const files = Array.from(e.target.files);
     
-      // Show preview
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreview(reader.result);
-      };
-      reader.readAsDataURL(file);
+    // Check total number of files
+    if (formData.mediaUrls.length + files.length > 3) {
+        setError('Maximum 3 files allowed');
+        return;
+    }
 
-      try {
-        setIsUploading(true);
-        setError(null);
-        const downloadURL = await uploadFileToFirebase(file, userId);
-        console.log('File uploaded successfully to Firebase, URL:', downloadURL);
-        setFormData(prev => ({
-          ...prev,
-          mediaUrl: downloadURL
-        }));
-      } catch (err) {
-        console.error('Error uploading to Firebase:', err);
-        setError('Failed to upload file: ' + err.message);
-      } finally {
+    // Validate each file
+    for (const file of files) {
+        // Check file size (10MB limit)
+        if (file.size > 10 * 1024 * 1024) {
+            setError('Each file must be less than 10MB');
+            return;
+        }
+
+        // Check file type
+        const isVideo = file.type.startsWith('video/');
+        const isImage = file.type.startsWith('image/');
+
+        if (!isVideo && !isImage) {
+            setError('Only image or video files are allowed');
+            return;
+        }
+
+        // Check video duration
+        if (isVideo) {
+            try {
+                const video = document.createElement('video');
+                video.preload = 'metadata';
+
+                const duration = await new Promise((resolve, reject) => {
+                    video.onloadedmetadata = () => {
+                        window.URL.revokeObjectURL(video.src);
+                        resolve(video.duration);
+                    };
+                    video.onerror = () => reject(new Error('Failed to load video'));
+                    video.src = URL.createObjectURL(file);
+                });
+
+                if (duration > 40) {
+                    setError('Videos must be less than 30 seconds');
+                    return;
+                }
+            } catch (err) {
+                setError('Error checking video duration');
+                return;
+            }
+        }
+    }
+
+    // Upload files
+    setIsUploading(true);
+    setError(null);
+    
+    try {
+        // Upload all files to Firebase
+        const uploadPromises = files.map(async file => {
+            const downloadURL = await uploadFileToFirebase(file, userId);
+            return downloadURL;
+        });
+
+        const downloadURLs = await Promise.all(uploadPromises);
+        
+        console.log('Current mediaUrls:', formData.mediaUrls);
+        console.log('New URLs to add:', downloadURLs);
+
+        // FIXED: Make sure we're always working with arrays
+        setFormData(prev => {
+            // Always ensure we're starting with an array
+            const currentUrls = Array.isArray(prev.mediaUrls) ? [...prev.mediaUrls] : [];
+            const updatedUrls = [...currentUrls, ...downloadURLs].slice(0, 3);
+            console.log('Combined URLs after update:', updatedUrls);
+            
+            return {
+                ...prev,
+                mediaUrls: updatedUrls
+            };
+        });
+
+        // Show preview of the last uploaded file
+        const lastFile = files[files.length - 1];
+        setSelectedFile(lastFile);
+
+        // Create preview for the last file
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setPreview(reader.result);
+        };
+        reader.readAsDataURL(lastFile);
+
+        console.log('Files uploaded successfully:', downloadURLs);
+    } catch (err) {
+        console.error('Error uploading files:', err);
+        setError('Failed to upload files: ' + err.message);
+    } finally {
         setIsUploading(false);
-      }
+    }
+};
+
+  const handleRemoveMedia = (index) => {
+    console.log(`Removing media at index ${index}`);
+    
+    if (!Array.isArray(formData.mediaUrls)) {
+      console.error('mediaUrls is not an array:', formData.mediaUrls);
+      setError('Error removing media: invalid media data');
+      return;
+    }
+
+    // Create a new array without the removed item
+    const updatedUrls = formData.mediaUrls.filter((_, idx) => idx !== index);
+    console.log('Media URLs after removal:', updatedUrls);
+    
+    // Update the form state
+    setFormData(prev => ({
+      ...prev,
+      mediaUrls: updatedUrls
+    }));
+    
+    // Update preview if necessary
+    if (updatedUrls.length > 0) {
+      setPreview(updatedUrls[0]);
+      const isVideo = updatedUrls[0].match(/\.(mp4|webm|mov)$/i) || updatedUrls[0].includes('video');
+      setSelectedFile({ type: isVideo ? 'video/mp4' : 'image/jpeg' });
+    } else {
+      setPreview(null);
+      setSelectedFile(null);
     }
   };
 
@@ -126,40 +200,56 @@ const PostForm = ({ onPostCreated, onPostUpdated, userId, post, isEditing, onSuc
     e.preventDefault();
     setLoading(true);
     setError(null);
-  
+
     try {
-      // Make sure we have the latest mediaUrl from state
-      const mediaUrls = formData.mediaUrl ? [formData.mediaUrl] : [];
-      console.log('Submitting post with mediaUrls:', mediaUrls);
-      
+      // FIXED: Always normalize mediaUrls before sending
+      const mediaUrlsArray = normalizeMediaUrls(formData.mediaUrls);
+      console.log('Normalized mediaUrls before submission:', mediaUrlsArray);
+
+      // Prepare post data with normalized media URLs
       const postData = {
-        title: formData.title,
-        content: formData.content,
+        title: formData.title.trim(),
+        content: formData.content.trim(),
         tags: formData.tags.split(',').map(tag => tag.trim()).filter(Boolean),
-        mediaUrls: mediaUrls, // Use mediaUrls as an array
+        mediaUrls: mediaUrlsArray, // Ensure this is always an array
         userId: userId
       };
-      
-      // For debugging: log the complete post data
-      console.log('Complete post data being sent:', {
+
+      console.log('Submitting post data:', {
         ...postData,
-        isEditing,
-        postId: isEditing ? post.id : 'new post'
+        action: isEditing ? 'update' : 'create',
+        postId: isEditing ? post.id : 'new'
       });
-  
-      console.log('Sending post data to server:', postData);
-      
+
       let response;
       if (isEditing && post?.id) {
         response = await axios.put(
           `http://localhost:9090/api/posts/${post.id}`,
+          postData,
           {
-            ...postData,
-            mediaUrls: mediaUrls // Ensure mediaUrls is included in update
-          },
-          { withCredentials: true }
+            withCredentials: true,
+            headers: {
+              'Content-Type': 'application/json',
+              'X-Media-URLs-Count': mediaUrlsArray.length
+            }
+          }
         );
+
         console.log('Post updated successfully:', response.data);
+        
+        // FIXED: Properly update form with normalized media URLs from response
+        const receivedMediaUrls = normalizeMediaUrls(response.data.mediaUrls || response.data.mediaUrl || []);
+        console.log('Received media URLs after update:', receivedMediaUrls);
+        
+        // Update the entire form state with all data from response
+        setFormData({
+          title: response.data.title || '',
+          content: response.data.content || '',
+          tags: Array.isArray(response.data.tags) ? response.data.tags.join(', ') : (response.data.tags || ''),
+          mediaUrls: receivedMediaUrls
+        });
+
+        // Make sure we properly call the parent update callback
         if (onPostUpdated) onPostUpdated(response.data);
         if (onSuccess) onSuccess('updated', response.data);
       } else {
@@ -168,26 +258,42 @@ const PostForm = ({ onPostCreated, onPostUpdated, userId, post, isEditing, onSuc
           postData,
           { withCredentials: true }
         );
+
         console.log('Post created successfully:', response.data);
+
         if (onPostCreated) onPostCreated(response.data);
         if (onSuccess) onSuccess('created', response.data);
-      }
-  
-      setSuccess(true);
-      
-      // Reset form if creating a new post
-      if (!isEditing) {
+
+        // Reset form after successful creation
         setFormData({
           title: '',
           content: '',
           tags: '',
-          mediaUrl: ''
+          mediaUrls: []
         });
         setPreview(null);
         setSelectedFile(null);
       }
+
+      setSuccess(true);
+
+      // FIXED: Always normalize media URLs from response before handling preview
+      const updatedMediaUrls = normalizeMediaUrls(response.data.mediaUrls || response.data.mediaUrl || []);
+      
+      // Handle media preview updates
+      if (updatedMediaUrls.length > 0) {
+        const firstMedia = updatedMediaUrls[0];
+        setPreview(firstMedia);
+        const isVideo = firstMedia.match(/\.(mp4|webm|mov)$/i) || firstMedia.includes('video');
+        setSelectedFile({ type: isVideo ? 'video/mp4' : 'image/jpeg' });
+      } else {
+        setPreview(null);
+        setSelectedFile(null);
+      }
+
     } catch (err) {
       console.error('Error submitting post:', err);
+      console.error('Error details:', err.response?.data);
       setError(err.response?.data?.message || 'Failed to submit post');
     } finally {
       setLoading(false);
@@ -221,10 +327,6 @@ const PostForm = ({ onPostCreated, onPostUpdated, userId, post, isEditing, onSuc
       setLoading(false);
     }
   };
-
-  if (isFetching) {
-    return <div className="loading">Loading post data...</div>;
-  }
 
   return (
     <form onSubmit={handleSubmit} className="post-create-form">
@@ -294,59 +396,69 @@ const PostForm = ({ onPostCreated, onPostUpdated, userId, post, isEditing, onSuc
       <div className="form-group">
         <label>
           <i className="fas fa-image"></i>
-          Media
+          Media {formData.mediaUrls && formData.mediaUrls.length > 0 && `(${formData.mediaUrls.length}/3)`}
         </label>
         <div className="media-input-container">
-          <input
-            type="url"
-            name="mediaUrl"
-            value={formData.mediaUrl}
-            onChange={handleChange}
-            placeholder="Add image URL"
-            className="form-input"
-          />
           <div className="file-upload">
-            <label className={`file-upload-label ${isUploading ? 'uploading' : ''}`}>
-              <i className={`fas ${isUploading ? 'fa-spinner fa-spin' : 'fa-upload'}`}></i>
-              {isUploading ? 'Uploading...' : 'Upload media'}
-              <input
-            type="file"
-            accept="image/*,video/*"
-            onChange={handleFileChange}
-            className="hidden"
-            disabled={isUploading}
-          />
-            </label>
+            <label className={`file-upload-label white-text ${isUploading ? 'uploading' : ''}`}>
+            <i className={`fas ${isUploading ? 'fa-spinner fa-spin' : 'fa-upload'}`}></i>
+            <span className="upload-text">{isUploading ? 'Uploading...' : 'Upload media'}</span>
+            <input
+              type="file"
+              accept="image/*,video/*"
+              onChange={handleFileChange}
+              multiple
+              className="hidden"
+              disabled={isUploading || (formData.mediaUrls?.length || 0) >= 3}
+            />
+          </label>
           </div>
         </div>
-        {preview && (
-          <div className="media-preview">
-            {selectedFile?.type?.startsWith('video/') || 
-             (typeof preview === 'string' && 
-              (preview.includes('video') || 
-               preview.includes('.mp4') || 
-               preview.includes('.webm') || 
-               preview.includes('.mov'))) ? (
-              <video 
-                src={preview} 
-                controls 
-                className="video-preview"
-              />
-            ) : (
-              <img src={preview} alt="Preview" className="image-preview" />
-            )}
-            <button
-              type="button"
-              onClick={() => {
-                setPreview(null);
-                setSelectedFile(null);
-                setFormData(prev => ({ ...prev, mediaUrl: '' }));
-              }}
-              className="remove-preview"
-              disabled={isUploading}
-            >
-              <i className="fas fa-times"></i>
-            </button>
+        {/* FIXED: More robust media preview rendering */}
+        {Array.isArray(formData.mediaUrls) && formData.mediaUrls.length > 0 && (
+          <div className="media-previews">
+            {formData.mediaUrls.map((url, index) => (
+              <div key={`preview-${index}-${url}`} className="media-preview-item">
+                {(url.match(/\.(mp4|webm|mov|avi)$/i) || 
+                  url.includes('video') ||
+                  url.includes('firebase') && url.includes('.mp4')) ? (
+                  <div className="video-container">
+                    <video 
+                      controls
+                      className="preview-video"
+                      preload="metadata"
+                      playsInline
+                    >
+                      <source 
+                        src={url} 
+                        type={
+                          url.match(/\.webm$/i) ? 'video/webm' :
+                          url.match(/\.mov$/i) ? 'video/quicktime' :
+                          'video/mp4'
+                        } 
+                      />
+                      Your browser does not support the video tag.
+                    </video>
+                  </div>
+                ) : (
+                  <img 
+                    src={url} 
+                    alt={`Preview ${index + 1}`} 
+                    className="preview-image"
+                    loading="lazy"
+                  />
+                )}
+                <button
+                  type="button"
+                  onClick={() => handleRemoveMedia(index)}
+                  className="remove-media"
+                  data-media-index={index}
+                >
+                  <i className="fas fa-times"></i>
+                  Remove
+                </button>
+              </div>
+            ))}
           </div>
         )}
       </div>
@@ -355,7 +467,7 @@ const PostForm = ({ onPostCreated, onPostUpdated, userId, post, isEditing, onSuc
         <button 
           type="submit" 
           className={`submit-button ${loading ? 'loading' : ''}`}
-          disabled={loading || isFetching || isUploading}
+          disabled={loading || isUploading}
         >
           {loading ? (
             <>
@@ -375,7 +487,7 @@ const PostForm = ({ onPostCreated, onPostUpdated, userId, post, isEditing, onSuc
             type="button"
             onClick={handleDelete}
             className="delete-button"
-            disabled={loading || isFetching}
+            disabled={loading}
           >
             <i className="fas fa-trash"></i>
             Delete Post
