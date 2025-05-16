@@ -4,7 +4,32 @@
     padding: 20px;
 }
 
+.notifications-header {
+    display: flex;
+    justify-content: flex-end;
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.clear-all-btn {
+    background: none;
+    border: none;
+    color: #ff4d4f;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 5px 10px;
+    border-radius: 4px;
+}
+
+.clear-all-btn:hover {
+    background-color: #fff1f0;
+}
+
 .notification {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     padding: 15px;
     margin-bottom: 10px;
     border-radius: 8px;
@@ -30,4 +55,51 @@
 
 .notification small {
     color: #666;
+}
+
+.notification-content {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.notification-message {
+    margin: 0;
+    font-size: 14px;
+    color: #333;
+}
+
+.notification-time {
+    color: #666;
+    font-size: 12px;
+}
+
+.notification.unread .notification-message {
+    font-weight: 500;
+}
+
+.delete-notification-btn {
+    background: none;
+    border: none;
+    color: #999;
+    cursor: pointer;
+    padding: 5px;
+    margin-left: 10px;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: all 0.2s ease;
+}
+
+.notification:hover .delete-notification-btn {
+    opacity: 1;
+}
+
+.delete-notification-btn:hover {
+    background-color: #fff1f0;
+    color: #ff4d4f;
 }

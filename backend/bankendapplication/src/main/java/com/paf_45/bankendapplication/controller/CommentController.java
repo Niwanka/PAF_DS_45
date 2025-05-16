@@ -21,6 +21,13 @@ public class CommentController {
         return ResponseEntity.ok(commentService.getCommentsByPostId(postId));
     }
 
+    // Get comment count by post ID
+    @GetMapping("/post/{postId}/count")
+    public ResponseEntity<Long> getCommentCount(@PathVariable String postId) {
+        long count = commentService.getCommentCountByPostId(postId);
+        return ResponseEntity.ok(count);
+    }
+
     // Add a new comment
     @PostMapping
     public ResponseEntity<Comment> addComment(@RequestBody Comment comment) {

@@ -12,6 +12,7 @@ const Post = ({ post, currentUserProfile, onPostUpdate }) => {
     const [likeCount, setLikeCount] = useState(post.likes?.length || 0);
     const [isLoading, setIsLoading] = useState(false);
     const [authorPicture, setAuthorPicture] = useState(null);
+    const [commentCount, setCommentCount] = useState(0);
 
     const handleLike = async () => {
         if (!currentUserProfile) {
@@ -55,6 +56,18 @@ const Post = ({ post, currentUserProfile, onPostUpdate }) => {
             toast.success('Link copied to clipboard!');
         } else {
             toast.error('Failed to share post');
+        }
+    };
+
+    const fetchCommentCount = async () => {
+        try {
+            const response = await axios.get(
+                `http://localhost:9090/api/comments/post/${post.id}/count`,
+                { withCredentials: true }
+            );
+            setCommentCount(response.data);
+        } catch (err) {
+            console.error('Error fetching comment count:', err);
         }
     };
 
@@ -107,7 +120,16 @@ const Post = ({ post, currentUserProfile, onPostUpdate }) => {
         if (post.userId) {
             fetchUserProfile();
         }
-    }, [post.userId]);
+        fetchCommentCount();
+    }, [post.userId, post.id]);
+
+    const handleCommentClick = () => {
+        setShowComments(!showComments);
+        if (!showComments) {
+            fetchCommentCount();
+        }
+    };
+
     return (
         <article className="post-card">
             <div className="post-header">
@@ -155,8 +177,8 @@ const Post = ({ post, currentUserProfile, onPostUpdate }) => {
                     <i className={`fas fa-thumbs-up ${isLiked ? 'liked' : ''}`}></i>
                     {likeCount}
                 </span>
-                <span className="comments">
-                    {post.comments?.length || 0} comments
+                <span className="comments" onClick={handleCommentClick}>
+                    {commentCount} comments
                 </span>
             </div>
 
@@ -171,7 +193,7 @@ const Post = ({ post, currentUserProfile, onPostUpdate }) => {
                 </button>
                 <button 
                     className="action-button"
-                    onClick={() => setShowComments(!showComments)}
+                    onClick={handleCommentClick}
                 >
                     <i className="far fa-comment"></i>
                     Comment
