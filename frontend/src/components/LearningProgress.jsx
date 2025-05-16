@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Search, Plus, X } from 'lucide-react';
 import ProgressCard from './ProgressCard';
 import ProgressForm from './ProgressForm';
-import './LearningProgressPage.css';
+import '../styles/LearningProgressPage.css';
 import axios from 'axios';
 
 const API_BASE_URL = 'http://localhost:9090/api/progress-updates';
