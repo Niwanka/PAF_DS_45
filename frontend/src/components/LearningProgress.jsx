@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Search, Plus, X } from 'lucide-react';
 import ProgressCard from './ProgressCard';
 import ProgressForm from './ProgressForm';
+import Navbar from './Navbar'; // Import Navbar
 import '../styles/LearningProgressPage.css';
 import axios from 'axios';
 
@@ -25,7 +26,7 @@ const reverseTemplateTypeMap = {
   'WORKSHOP': 'workshop'
 };
 
-const LearningProgress = () => {
+const LearningProgress = ({ userProfile }) => { // Add userProfile prop
   const [progressUpdates, setProgressUpdates] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [showModal, setShowModal] = useState(false);
@@ -43,7 +44,7 @@ const LearningProgress = () => {
     completionDate: new Date().toISOString().split('T')[0],
     mediaUrl: '',
     skillLevel: 'beginner',
-    userId: 'current-user-id',
+    userId: userProfile?.sub || 'current-user-id', 
   });
 
   const templates = {
@@ -109,7 +110,7 @@ const LearningProgress = () => {
   const convertToBackendModel = (frontendUpdate) => {
     return {
       id: frontendUpdate.id,
-      userId: frontendUpdate.userId || 'current-user-id',
+      userId: frontendUpdate.userId || userProfile?.sub || 'current-user-id',
       title: frontendUpdate.title,
       description: frontendUpdate.description,
       templateType: templateTypeMap[frontendUpdate.type] || 'TUTORIAL',
@@ -145,7 +146,7 @@ const LearningProgress = () => {
     setNotification(message);
     setTimeout(() => {
       setNotification(null);
-    }, 3000); // Notification disappears after 3 seconds
+    }, 3000);
   };
 
   const handleSubmit = async (formData) => {
@@ -214,130 +215,133 @@ const LearningProgress = () => {
   );
 
   return (
-    <div className="progress-container">
-      <div className="header-section">
-        <h1 className="main-title">Learning Progress Updates</h1>
-        <div className="search-actions">
-          <div className="search-container">
-            <div className="search-icon">
-              <Search className="icon-search" />
-            </div>
-            <input
-              type="text"
-              placeholder="Search learning updates..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="search-input"
-            />
-          </div>
-          <button 
-            onClick={() => {
-              setEditMode(false);
-              setNewUpdate({
-                ...templates[activeTemplate],
-                userId: 'current-user-id'
-              });
-              setShowModal(true);
-            }}
-            className="add-button"
-          >
-            <Plus className="icon-small" />
-            Create Progress Update
-          </button>
-        </div>
-      </div>
-
-      {/* Notification */}
-      {notification && (
-        <div className="notification">
-          {notification}
-        </div>
-      )}
-
-      {/* Error message display */}
-      {error && (
-        <div className="error-container">
-          <p className="error-message">{error}</p>
-          <button onClick={() => setError(null)} className="error-dismiss">Dismiss</button>
-        </div>
-      )}
-
-      {/* Modal Form */}
-      {showModal && (
-        <div className="modal-backdrop">
-          <div className="modal-container">
-            <button 
-              className="close-button"
-              onClick={() => setShowModal(false)}
-            >
-              <X className="icon-close" />
-            </button>
-            <h2 className="modal-title">{editMode ? 'Edit' : 'Add'} Learning Progress</h2>
-            <ProgressForm 
-              formData={newUpdate}
-              activeTemplate={activeTemplate}
-              onSubmit={handleSubmit}
-              onTemplateChange={handleTemplateChange}
-              editMode={editMode}
-            />
-          </div>
-        </div>
-      )}
-
-      {/* Confirm Delete Dialog */}
-      {showConfirmDialog && (
-        <div className="modal-backdrop">
-          <div className="confirm-dialog">
-            <h3 className="confirm-title">Delete Confirmation</h3>
-            <p className="confirm-message">Are you sure you want to delete this progress update?</p>
-            <div className="confirm-actions">
-              <button 
-                onClick={() => setShowConfirmDialog(false)}
-                className="cancel-button"
-              >
-                Cancel
-              </button>
-              <button 
-                onClick={handleDelete}
-                className="delete-button"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Progress Updates Cards */}
-      <div className="updates-container">
-        <h2 className="section-title">Your Learning Journey</h2>
-        
-        {loading ? (
-          <div className="loading-container">
-            <div className="loading-spinner"></div>
-          </div>
-        ) : error ? (
-          <div className="error-message">{error}</div>
-        ) : filteredUpdates.length === 0 ? (
-          <div className="empty-state">
-            <div className="empty-icon">
-              <div className="icon-large"></div>
-            </div>
-            <p className="empty-title">No progress updates found</p>
-            <p className="empty-message">Start tracking your learning journey by adding a progress update!</p>
-          </div>
-        ) : (
-          <div className="cards-grid">
-            {filteredUpdates.map((update) => (
-              <ProgressCard 
-                key={update.id}
-                update={update}
-                onEdit={handleEdit}
-                onDeleteConfirm={handleDeleteConfirm}
+    <div className="app-container">
+      <Navbar userProfile={userProfile} />
+      <div className="progress-container">
+        <div className="header-section">
+          <h1 className="main-title">Learning Progress Updates</h1>
+          <div className="search-actions">
+            <div className="search-container">
+              <div className="search-icon">
+                <Search className="icon-search" />
+              </div>
+              <input
+                type="text"
+                placeholder="Search learning updates..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="search-input"
               />
-            ))}
+            </div>
+            <button 
+              onClick={() => {
+                setEditMode(false);
+                setNewUpdate({
+                  ...templates[activeTemplate],
+                  userId: userProfile?.sub || 'current-user-id'
+                });
+                setShowModal(true);
+              }}
+              className="add-button"
+            >
+              <Plus className="icon-small" />
+              Create Progress Update
+            </button>
+          </div>
+        </div>
+
+        {/* Notification */}
+        {notification && (
+          <div className="notification">
+            {notification}
           </div>
         )}
+
+        {/* Error message display */}
+        {error && (
+          <div className="error-container">
+            <p className="error-message">{error}</p>
+            <button onClick={() => setError(null)} className="error-dismiss">Dismiss</button>
+          </div>
+        )}
+
+        {/* Modal Form */}
+        {showModal && (
+          <div className="modal-backdrop">
+            <div className="modal-container">
+              <button 
+                className="close-button"
+                onClick={() => setShowModal(false)}
+              >
+                <X className="icon-close" />
+              </button>
+              <h2 className="modal-title">{editMode ? 'Edit' : 'Add'} Learning Progress</h2>
+              <ProgressForm 
+                formData={newUpdate}
+                activeTemplate={activeTemplate}
+                onSubmit={handleSubmit}
+                onTemplateChange={handleTemplateChange}
+                editMode={editMode}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Confirm Delete Dialog */}
+        {showConfirmDialog && (
+          <div className="modal-backdrop">
+            <div className="confirm-dialog">
+              <h3 className="confirm-title">Delete Confirmation</h3>
+              <p className="confirm-message">Are you sure you want to delete this progress update?</p>
+              <div className="confirm-actions">
+                <button 
+                  onClick={() => setShowConfirmDialog(false)}
+                  className="cancel-button"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={handleDelete}
+                  className="delete-button"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Progress Updates Cards */}
+        <div className="updates-container">
+          <h2 className="section-title">Your Learning Journey</h2>
+          
+          {loading ? (
+            <div className="loading-container">
+              <div className="loading-spinner"></div>
+            </div>
+          ) : error ? (
+            <div className="error-message">{error}</div>
+          ) : filteredUpdates.length === 0 ? (
+            <div className="empty-state">
+              <div className="empty-icon">
+                <div className="icon-large"></div>
+              </div>
+              <p className="empty-title">No progress updates found</p>
+              <p className="empty-message">Start tracking your learning journey by adding a progress update!</p>
+            </div>
+          ) : (
+            <div className="cards-grid">
+              {filteredUpdates.map((update) => (
+                <ProgressCard 
+                  key={update.id}
+                  update={update}
+                  onEdit={handleEdit}
+                  onDeleteConfirm={handleDeleteConfirm}
+                />
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
