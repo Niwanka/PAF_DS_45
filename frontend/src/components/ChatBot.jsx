@@ -100,26 +100,25 @@ const ChatBot = () => {
   return (
     <div className={`fixed bottom-4 right-4 ${
       isMinimized 
-        ? 'w-[250px] h-[60px]' 
-        : 'w-[380px] h-[600px]'
-    } transition-all duration-300 ease-in-out bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-gray-200`}>
-      {/* Header - Updated for better alignment when minimized */}
-      <div className="bg-indigo-600 px-4 py-3 flex items-center justify-between h-[60px]">
-        <div className="flex items-center space-x-3">
+        ? 'w-[300px] h-[60px]' 
+        : 'w-[300px] h-[400px]'
+    } transition-all duration-300 ease-in-out bg-white rounded-[20px] shadow-lg flex flex-col overflow-hidden`}>
+      {/* Header */}
+      <div className="bg-[#4285f4] px-4 py-3 flex items-center justify-between">
+        <div className="flex items-center gap-2">
           <div className="relative">
             <div className="w-2 h-2 bg-green-400 rounded-full absolute -right-1 -top-1"></div>
             <div className="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center">
-              <i className="fas fa-robot text-white"></i>
+              <i className="fas fa-robot text-white text-sm"></i>
             </div>
           </div>
-          <div className="text-white">
-            <h3 className="font-medium text-sm">AI Assistant</h3>
-            <p className={`text-xs text-indigo-200 ${isMinimized ? 'hidden' : 'block'}`}>Online</p>
+          <div>
+            <h3 className="text-white text-sm font-medium">AI Assistant Online</h3>
           </div>
         </div>
         <button 
           onClick={() => setIsMinimized(!isMinimized)}
-          className="text-white/80 hover:text-white transition-colors w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10"
+          className="text-white/90 hover:text-white w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10"
         >
           <i className={`fas ${isMinimized ? 'fa-expand' : 'fa-minus'} text-sm`}></i>
         </button>
@@ -127,42 +126,57 @@ const ChatBot = () => {
 
       {/* Messages Container */}
       {!isMinimized && (
-        <div className="flex-1 p-4 overflow-y-auto space-y-4 bg-gray-50">
-          {messages.map((message, index) => (
-            <div key={index} className={`flex ${message.isUser ? 'justify-end' : 'justify-start'}`}>
-              <div className={`flex items-start space-x-2 max-w-[80%] ${message.isUser ? 'flex-row-reverse' : 'flex-row'}`}>
-                {!message.isUser && (
-                  <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0">
-                    <i className="fas fa-robot text-indigo-600 text-sm"></i>
-                  </div>
-                )}
+        <div className="flex-1 p-4 overflow-y-auto bg-white space-y-4">
+          <div className="flex gap-3">
+            <div className="w-8 h-8 rounded-full bg-[#4285f4]/10 flex items-center justify-center flex-shrink-0">
+              <i className="fas fa-robot text-[#4285f4] text-sm"></i>
+            </div>
+            <div className="flex flex-col max-w-[85%]">
+              <div className="bg-gray-100 rounded-2xl px-4 py-2">
+                <p className="text-gray-800 text-sm">Hi there! I'm your AI assistant. How can I help you today?</p>
+              </div>
+              <span className="text-xs text-gray-400 mt-1 ml-2">
+                {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              </span>
+            </div>
+          </div>
+
+          {/* Message History */}
+          {messages.slice(1).map((message, index) => (
+            <div key={index} className={`flex gap-3 ${message.isUser ? 'justify-end' : ''}`}>
+              {!message.isUser && (
+                <div className="w-8 h-8 rounded-full bg-[#4285f4]/10 flex items-center justify-center flex-shrink-0">
+                  <i className="fas fa-robot text-[#4285f4] text-sm"></i>
+                </div>
+              )}
+              <div className="flex flex-col max-w-[85%]">
                 <div className={`rounded-2xl px-4 py-2 ${
                   message.isUser 
-                    ? 'bg-indigo-600 text-white' 
-                    : 'bg-white border border-gray-200'
+                    ? 'bg-[#4285f4] text-white ml-auto' 
+                    : 'bg-gray-100 text-gray-800'
                 }`}>
                   <p className="text-sm">{message.text}</p>
-                  <span className={`text-xs mt-1 block ${
-                    message.isUser ? 'text-indigo-200' : 'text-gray-400'
-                  }`}>
-                    {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                  </span>
                 </div>
+                <span className={`text-xs text-gray-400 mt-1 ${
+                  message.isUser ? 'text-right' : 'ml-2'
+                }`}>
+                  {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </span>
               </div>
             </div>
           ))}
+
+          {/* Loading indicator */}
           {isLoading && (
-            <div className="flex justify-start">
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center">
-                  <i className="fas fa-robot text-indigo-600 text-sm"></i>
-                </div>
-                <div className="bg-white border border-gray-200 rounded-2xl px-4 py-2">
-                  <div className="flex space-x-1">
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-100"></div>
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-200"></div>
-                  </div>
+            <div className="flex gap-3">
+              <div className="w-8 h-8 rounded-full bg-[#4285f4]/10 flex items-center justify-center">
+                <i className="fas fa-robot text-[#4285f4] text-sm"></i>
+              </div>
+              <div className="bg-gray-100 rounded-2xl px-4 py-3">
+                <div className="flex gap-1">
+                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-100"></div>
+                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-200"></div>
                 </div>
               </div>
             </div>
@@ -173,27 +187,16 @@ const ChatBot = () => {
 
       {/* Input Area */}
       {!isMinimized && (
-        <div className="p-4 bg-white border-t border-gray-200">
-          <div className="flex space-x-2">
+        <div className="p-4 bg-white border-t border-gray-100">
+          <div className="flex gap-2">
             <input
               type="text"
               placeholder="Type your message..."
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-              className="flex-1 px-4 py-2 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              className="flex-1 px-4 py-2 bg-gray-100 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-[#4285f4] focus:bg-white transition-colors"
             />
-            <button
-              onClick={handleSend}
-              disabled={!input.trim()}
-              className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${
-                input.trim() 
-                  ? 'bg-indigo-600 text-white hover:bg-indigo-700' 
-                  : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-              }`}
-            >
-              <i className="fas fa-paper-plane"></i>
-            </button>
           </div>
         </div>
       )}
