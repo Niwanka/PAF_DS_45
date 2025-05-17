@@ -2,9 +2,12 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import PlanCard from "./PlanCard";
 import PlanModal from "./PlanModal";
-import "../styles/LearningPlanPage.css"; // Import your CSS file
+import "../styles/LearningPlanPage.css";
+import Navbar from "./Navbar";
+import Swal from 'sweetalert2';
 
-const LearningPlanPage = () => {
+
+const LearningPlanPage = ({ userProfile }) => {
   const [plans, setPlans] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -19,6 +22,7 @@ const LearningPlanPage = () => {
     newResource: "",
     status: "draft",
   });
+  const [searchTerm, setSearchTerm] = useState("");
 
   // Fetch learning plans from backend
   useEffect(() => {
@@ -26,7 +30,7 @@ const LearningPlanPage = () => {
       try {
         setIsLoading(true);
         const response = await axios.get("/api/learning-plans", {
-          withCredentials: true, // for session-based/JWT auth
+          withCredentials: true,
         });
         setPlans(Array.isArray(response?.data) ? response.data : []);
         setError(null);
@@ -45,7 +49,7 @@ const LearningPlanPage = () => {
     if (window.confirm("Are you sure you want to delete this learning plan?")) {
       try {
         await axios.delete(`/api/learning-plans/${id}`, {
-          withCredentials: true, // include cookies/token
+          withCredentials: true,
         });
         setPlans((prev) => prev.filter((plan) => plan.id !== id));
       } catch (error) {
@@ -57,7 +61,6 @@ const LearningPlanPage = () => {
   const handleSubmit = async (formData, currentPlan) => {
     try {
       if (currentPlan) {
-        // Update existing plan
         const response = await axios.put(
           `/api/learning-plans/${currentPlan.id}`,
           {
@@ -69,7 +72,7 @@ const LearningPlanPage = () => {
             status: formData.status,
           },
           {
-            withCredentials: true, //  include cookies/token
+            withCredentials: true,
           }
         );
         setPlans((prev) =>
@@ -78,7 +81,6 @@ const LearningPlanPage = () => {
           )
         );
       } else {
-        // Create new plan
         const response = await axios.post(
           "/api/learning-plans",
           {
@@ -90,7 +92,7 @@ const LearningPlanPage = () => {
             status: formData.status,
           },
           {
-            withCredentials: true, //include cookies/token
+            withCredentials: true,
           }
         );
         setPlans((prev) => [...prev, response.data]);
@@ -148,47 +150,70 @@ const LearningPlanPage = () => {
     });
   };
 
+  // 🔍 Search logic: filters based on multiple fields
+  const filteredPlans = plans.filter((plan) => {
+    const resourceText = Array.isArray(plan.resources)
+      ? plan.resources.join(" ")
+      : "";
+    const searchableText = `${plan.title} ${plan.topics} ${plan.description} ${plan.status} ${resourceText}`.toLowerCase();
+    return searchableText.includes(searchTerm.toLowerCase());
+  });
+
   return (
-    <div className="page">
-      <div className="header">
-        <h1>My Learning Plans</h1>
-        <button className="create-button" onClick={openCreateModal}>
-          Create New Plan
-        </button>
+    <div>
+      <Navbar userProfile={userProfile} />
+
+      <div className="page">
+        <div className="header">
+          <h1>My Learning Plans</h1>
+          <button className="create-button" onClick={openCreateModal}>
+            Create New Plan
+          </button>
+        </div>
+
+        <div className="search-bar">
+          <input
+            type="text"
+            placeholder="Search title, topic, description..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="search-input"
+          />
+        </div>
+
+        {isLoading ? (
+          <div className="loading">Loading plans...</div>
+        ) : error ? (
+          <div className="error">{error}</div>
+        ) : filteredPlans.length > 0 ? (
+          <div className="plans-grid">
+            {filteredPlans.map((plan) => (
+              <PlanCard
+                key={plan.id}
+                plan={plan}
+                onView={openViewModal}
+                onEdit={openEditModal}
+                onDelete={handleDelete}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="empty-state">
+            <p>No matching learning plans found.</p>
+          </div>
+        )}
+
+        {isModalOpen && (
+          <PlanModal
+            isOpen={isModalOpen}
+            currentPlan={currentPlan}
+            formData={formData}
+            setFormData={setFormData}
+            onClose={closeModal}
+            onSubmit={(data) => handleSubmit(data, currentPlan)}
+          />
+        )}
       </div>
-
-      {isLoading ? (
-        <div className="loading">Loading plans...</div>
-      ) : error ? (
-        <div className="error">{error}</div>
-      ) : plans.length > 0 ? (
-        <div className="plans-grid">
-          {plans.map((plan) => (
-            <PlanCard
-              key={plan.id}
-              plan={plan}
-              onView={openViewModal}
-              onEdit={openEditModal}
-              onDelete={handleDelete}
-            />
-          ))}
-        </div>
-      ) : (
-        <div className="empty-state">
-          <p>You don't have any learning plans yet.</p>
-        </div>
-      )}
-
-      {isModalOpen && (
-        <PlanModal
-          isOpen={isModalOpen}
-          currentPlan={currentPlan}
-          formData={formData}
-          setFormData={setFormData}
-          onClose={closeModal}
-          onSubmit={(data) => handleSubmit(data, currentPlan)}
-        />
-      )}
     </div>
   );
 };
