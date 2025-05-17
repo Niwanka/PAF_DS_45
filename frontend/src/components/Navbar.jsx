@@ -51,46 +51,55 @@ const Navbar = ({ userProfile }) => {
   }, []);
 
   return (
-    <nav className="fixed top-0 left-0 right-0 bg-white border-b border-gray-200 h-16 z-50">
+    <nav className="fixed top-0 left-0 right-0 bg-[#2563EB] h-16 z-50">
       <div className="max-w-7xl mx-auto px-4 h-full">
-        <div className="flex items-center justify-between h-full gap-8">
-          {/* Logo and Search */}
-          <div className="flex items-center gap-8 flex-1">
-            <a href="/home" className="flex-shrink-0">
-              <div className="flex items-center gap-2">
+        <div className="flex items-center h-full">
+          {/* Logo at leftmost position */}
+          <div className="flex-none mr-2">
+            <a href="/home">
+              <div className="flex items-center">
                 <svg 
                   xmlns="http://www.w3.org/2000/svg" 
-                  className="h-8 w-8 text-[#2563EB]" 
+                  className="h-8 w-8 text-white" 
                   viewBox="0 0 24 24" 
                   fill="currentColor"
                 >
                   <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2V3zm20 0h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7V3z"/>
                 </svg>
-                <span className="text-[#2563EB] text-xl font-semibold">SkillShare</span>
+                <span className="text-white text-xl font-semibold whitespace-nowrap">SkillShare</span>
               </div>
             </a>
-            
-            <div className="w-full max-w-xl">
-              <SearchBox />
-            </div>
+          </div>
+
+          {/* Search Box */}
+          <div className="flex-1 px-12">
+            <SearchBox />
           </div>
 
           {/* Right side icons */}
           <div className="flex items-center gap-4">
+            {/* Home Icon */}
+            <button 
+              onClick={() => navigate('/home')}
+              className="p-2 text-white/80 hover:text-white transition-colors"
+            >
+              <i className="fas fa-home text-xl"></i>
+            </button>
+
             {/* Mail Icon */}
-            <button className="p-2 text-gray-500 hover:text-[#2563EB] transition-colors relative">
+            <button className="p-2 text-white/80 hover:text-white transition-colors relative">
               <i className="far fa-envelope text-xl"></i>
             </button>
 
             {/* Notifications */}
             <div className="relative">
               <button 
-                className="p-2 text-gray-500 hover:text-[#2563EB] transition-colors relative notification-button"
+                className="p-2 text-white/80 hover:text-white transition-colors relative notification-button"
                 onClick={toggleNotifications}
               >
                 <i className="far fa-bell text-xl"></i>
                 {hasUnreadNotifications && (
-                  <span className="absolute top-1 right-1 h-2.5 w-2.5 bg-[#2563EB] rounded-full"></span>
+                  <span className="absolute top-1 right-1 h-2.5 w-2.5 bg-white rounded-full"></span>
                 )}
               </button>
               {showNotifications && (
@@ -112,9 +121,9 @@ const Navbar = ({ userProfile }) => {
               onClick={() => navigate(`/profile/${userProfile?.sub}`)}
             >
               <img
-                src={userProfile?.picture || `https://ui-avatars.com/api/?name=${userProfile?.firstName}+${userProfile?.lastName}&background=2563EB&color=fff`}
+                src={userProfile?.picture || `https://ui-avatars.com/api/?name=${userProfile?.firstName}+${userProfile?.lastName}&background=white&color=2563EB`}
                 alt="Profile"
-                className="h-8 w-8 rounded-full border-2 border-[#2563EB]/20"
+                className="h-8 w-8 rounded-full border-2 border-white/20"
               />
             </button>
           </div>

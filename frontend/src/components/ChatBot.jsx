@@ -100,8 +100,8 @@ const ChatBot = () => {
   return (
     <div className={`fixed bottom-4 right-4 ${
       isMinimized 
-        ? 'w-[300px] h-[60px]' 
-        : 'w-[300px] h-[400px]'
+        ? 'w-[350px] h-[60px]'  // Increased from 300px
+        : 'w-[450px] h-[calc(100vh-100px)]'  // Increased from 350px
     } transition-all duration-300 ease-in-out bg-white rounded-[20px] shadow-lg flex flex-col overflow-hidden`}>
       {/* Header */}
       <div className="bg-[#4285f4] px-4 py-3 flex items-center justify-between">
@@ -126,7 +126,7 @@ const ChatBot = () => {
 
       {/* Messages Container */}
       {!isMinimized && (
-        <div className="flex-1 p-4 overflow-y-auto bg-white space-y-4">
+        <div className="flex-1 p-4 overflow-y-auto bg-white space-y-4 max-h-[calc(100vh-200px)]">
           <div className="flex gap-3">
             <div className="w-8 h-8 rounded-full bg-[#4285f4]/10 flex items-center justify-center flex-shrink-0">
               <i className="fas fa-robot text-[#4285f4] text-sm"></i>
