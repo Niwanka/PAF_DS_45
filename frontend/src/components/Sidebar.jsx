@@ -1,10 +1,13 @@
 import React from 'react';
+
 import { useNavigate } from 'react-router-dom';
+
 
 const Sidebar = ({ userProfile }) => {
   const navigate = useNavigate();
 
   return (
+
     <aside className="fixed top-20 left-4 w-[300px] bg-white rounded-3xl shadow-sm overflow-hidden h-[calc(100vh-6rem)] transition-all duration-300 ease-in-out">
       {/* Profile Header */}
       <div className="relative">
@@ -86,6 +89,7 @@ const Sidebar = ({ userProfile }) => {
               <span className="text-[15px] text-gray-500">My Posts</span>
             </div>
           </div>
+
         </div>
       </div>
     </aside>

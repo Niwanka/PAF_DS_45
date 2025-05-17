@@ -25,6 +25,7 @@ public class SecurityConfig {
                 .requestMatchers("/", "/error", "/webjars/**", "/css/**", "/images/**").permitAll()
                 .requestMatchers("/oauth2/authorization/**", "/login/oauth2/code/**").permitAll()
                 .requestMatchers(HttpMethod.PUT, "/api/profile").authenticated()
+                .requestMatchers("/api/progress-updates/**").permitAll()
                 .anyRequest().authenticated()
             )
             .oauth2Login(oauth2 -> oauth2
