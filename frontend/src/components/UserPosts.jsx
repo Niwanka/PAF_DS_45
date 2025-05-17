@@ -172,16 +172,7 @@ const handleDeletePost = async (postId) => {
           <h2 className="post-title">{post.title}</h2>
           <p className="post-content">{post.content}</p>
           
-          {post.tags?.length > 0 && (
-            <div className="post-tags">
-              {post.tags.map((tag, index) => (
-                <span key={`${post._id}-tag-${index}`} className="tag">
-                  {tag}
-                </span>
-              ))}
-            </div>
-          )}
-          
+
           
            
           {post.mediaUrls?.length > 0 && (
@@ -221,6 +212,17 @@ const handleDeletePost = async (postId) => {
               ))}
             </div>
           )}
+
+            {post.tags?.length > 0 && (
+            <div className="post-tags">
+              {post.tags.map((tag, index) => (
+                <span key={`${post._id}-tag-${index}`} className="tag">
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
+          
         </div>
       ))}
 

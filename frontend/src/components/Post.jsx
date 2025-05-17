@@ -165,16 +165,6 @@ const Post = ({ post, currentUserProfile, onPostUpdate }) => {
             <div className="post-content">
                 <h3 className="post-title">{post.title}</h3>
                 <p className="post-text">{post.content}</p>
-                {/* Add tags section */}
-                {post.tags?.length > 0 && (
-                    <div className="post-tags">
-                        {post.tags.map((tag, index) => (
-                            <span key={`${post.id}-tag-${index}`} className="tag">
-                                {tag}
-                            </span>
-                        ))}
-                    </div>
-                )}
 
                 {/* Replace existing image check with mediaUrls check */}
                 {post.mediaUrls?.length > 0 && (
@@ -214,6 +204,17 @@ const Post = ({ post, currentUserProfile, onPostUpdate }) => {
                     ))}
                 </div>
             )}
+
+                            {/* Add tags section */}
+                {post.tags?.length > 0 && (
+                    <div className="post-tags">
+                        {post.tags.map((tag, index) => (
+                            <span key={`${post.id}-tag-${index}`} className="tag">
+                                {tag}
+                            </span>
+                        ))}
+                    </div>
+                )}
             </div>
 
             <div className="post-stats">
