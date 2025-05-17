@@ -206,7 +206,10 @@ const LearningPlanPage = ({ userProfile }) => {
 
       <div className="page">
         <div className="header">
-          <h1>My Learning Plans</h1>
+          <div className="header-content">
+            <h1 className="page-title">My Learning Plans</h1>
+            <p className="page-subtitle">Track your learning progress and manage your skill development</p>
+          </div>
           <button className="create-button" onClick={openCreateModal}>
             Create New Plan
           </button>
