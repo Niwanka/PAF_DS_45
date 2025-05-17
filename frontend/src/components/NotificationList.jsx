@@ -51,7 +51,6 @@ const NotificationList = ({ userId, onNotificationRead }) => {
     const deleteNotification = async (notificationId, event) => {
         event.stopPropagation();
         try {
-            // Show confirmation toast
             toast.warn(
                 <div>
                     Are you sure you want to delete this notification?
@@ -114,7 +113,7 @@ const NotificationList = ({ userId, onNotificationRead }) => {
                 setNotifications(prevNotifications => 
                     prevNotifications.filter(notif => notif._id !== notificationId)
                 );
-                toast.dismiss(); // Dismiss any existing toasts
+                toast.dismiss();
                 toast.success('Notification deleted successfully!', {
                     position: "top-right",
                     autoClose: 3000,
@@ -192,7 +191,7 @@ const NotificationList = ({ userId, onNotificationRead }) => {
             );
             setNotifications([]);
             onNotificationRead();
-            toast.dismiss(); // Dismiss any existing toasts
+            toast.dismiss();
             toast.success('All notifications deleted successfully!', {
                 position: "top-right",
                 autoClose: 3000,
@@ -217,44 +216,68 @@ const NotificationList = ({ userId, onNotificationRead }) => {
         }
     };
 
-    if (loading) return <div>Loading notifications...</div>;
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center p-6">
+                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+            </div>
+        );
+    }
 
     return (
-        <div className="notifications-container">
-            {notifications.length > 0 && (
-                <div className="notifications-header">
+        <div className="bg-white rounded-lg shadow-lg max-h-[500px] overflow-auto notifications-container">
+            <div className="sticky top-0 bg-white px-4 py-3 border-b border-gray-100 flex justify-between items-center notifications-header">
+                <h3 className="font-semibold text-gray-700">Notifications</h3>
+                {notifications.length > 0 && (
                     <button 
                         className="clear-all-btn"
                         onClick={deleteAllNotifications}
                     >
                         Clear All
                     </button>
-                </div>
-            )}
-            {notifications.length === 0 ? (
-                <p>No notifications</p>
-            ) : (
-                notifications.map(notification => (
-                    <div 
-                        key={notification._id}
-                        className={`notification ${!notification.isRead ? 'unread' : ''}`}
-                        onClick={() => markAsRead(notification._id)}
-                    >
-                        <div className="notification-content">
-                            <p className="notification-message">{notification.message}</p>
-                            <small className="notification-time">
-                                {new Date(notification.createdAt).toLocaleString()}
-                            </small>
-                        </div>
-                        <button 
-                            className="delete-notification-btn"
-                            onClick={(e) => deleteNotification(notification._id, e)}
-                        >
-                            <i className="fas fa-times"></i>
-                        </button>
+                )}
+            </div>
+
+            <div className="divide-y divide-gray-100">
+                {notifications.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-8 px-4 text-gray-500">
+                        <i className="far fa-bell-slash text-3xl mb-2"></i>
+                        <p>No notifications</p>
                     </div>
-                ))
-            )}
+                ) : (
+                    notifications.map(notification => (
+                        <div 
+                            key={notification._id}
+                            className={`group flex items-start p-4 hover:bg-gray-50 transition-colors duration-200 cursor-pointer ${
+                                !notification.isRead ? 'bg-blue-50' : ''
+                            }`}
+                            onClick={() => markAsRead(notification._id)}
+                        >
+                            <div className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
+                                !notification.isRead ? 'bg-blue-100 text-blue-500' : 'bg-gray-100 text-gray-500'
+                            }`}>
+                                <i className="fas fa-bell text-sm"></i>
+                            </div>
+
+                            <div className="flex-1 ml-4">
+                                <p className={`text-sm ${!notification.isRead ? 'font-medium' : 'text-gray-600'}`}>
+                                    {notification.message}
+                                </p>
+                                <p className="text-xs text-gray-400 mt-1">
+                                    {new Date(notification.createdAt).toLocaleString()}
+                                </p>
+                            </div>
+
+                            <button 
+                                className="shrink-0 ml-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-1 hover:bg-red-100 rounded-full text-gray-400 hover:text-red-500"
+                                onClick={(e) => deleteNotification(notification._id, e)}
+                            >
+                                <i className="fas fa-times text-sm"></i>
+                            </button>
+                        </div>
+                    ))
+                )}
+            </div>
         </div>
     );
 };
