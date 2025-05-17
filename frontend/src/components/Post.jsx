@@ -13,6 +13,7 @@ const Post = ({ post, currentUserProfile, onPostUpdate }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [authorPicture, setAuthorPicture] = useState(null);
     const [commentCount, setCommentCount] = useState(0);
+    const [authorProfile, setAuthorProfile] = useState(null);
 
     const handleLike = async () => {
         if (!currentUserProfile) {
@@ -73,78 +74,86 @@ const Post = ({ post, currentUserProfile, onPostUpdate }) => {
 
     useEffect(() => {
         const fetchUserProfile = async () => {
-            try {
-                console.log('Post data:', {
-                    userId: post.userId,
-                    authorName: post.authorName,
-                    title: post.title
-                });
-    
-                if (!post.userId) {
-                    console.warn('No userId available for post:', post.title);
-                    return;
+        try {
+            if (!post.userId) {
+                console.warn('No userId available for post:', post.title);
+                return;
+            }
+
+            const allUsers = await axios.get(
+                'http://localhost:9090/api/profile/all',
+                { 
+                    withCredentials: true,
+                    headers: {
+                        'Accept': 'application/json'
+                    }
                 }
-    
-                const allUsers = await axios.get(
-                    'http://localhost:9090/api/profile/all',
-                    { 
-                        withCredentials: true,
-                        headers: {
-                            'Accept': 'application/json'
-                        }
-                    }
-                );
-    
-                console.log('All users:', allUsers.data);
-    
-                // Find the matching user using the sub field instead of userId
-                const userProfile = allUsers.data.find(user => user.sub === post.userId);
-    
-                if (userProfile) {
-                    if (userProfile.picture) {
-                        setAuthorPicture(userProfile.picture);
-                    } else {
-                        setAuthorPicture(`https://ui-avatars.com/api/?name=${post.authorName || 'User'}&background=random`);
-                    }
+            );
+
+            // Find the matching user using the sub field
+            const userProfile = allUsers.data.find(user => user.sub === post.userId);
+
+            if (userProfile) {
+                // Store the entire user profile
+                setAuthorProfile(userProfile);
+                if (userProfile.picture) {
+                    setAuthorPicture(userProfile.picture);
                 } else {
-                    console.warn('User not found in profiles. Searching for sub:', post.userId);
-                    setAuthorPicture(`https://ui-avatars.com/api/?name=${post.authorName || 'User'}&background=random`);
+                    setAuthorPicture(getDefaultAvatar(getUserFullName(userProfile)));
                 }
-    
-            } catch (error) {
-                console.error('Error fetching user profile:', error);
-                setAuthorPicture(`https://ui-avatars.com/api/?name=${post.authorName || 'User'}&background=random`);
+            } else {
+                console.warn('User not found in profiles. Searching for sub:', post.userId);
+                setAuthorProfile(null);
+                setAuthorPicture(getDefaultAvatar(post.authorName));
+            }
+
+        } catch (error) {
+            console.error('Error fetching user profile:', error);
+            setAuthorProfile(null);
+            setAuthorPicture(getDefaultAvatar(post.authorName));
+        }
+    };
+        
+            if (post.userId) {
+                fetchUserProfile();
+            }
+            fetchCommentCount();
+        }, [post.userId, post.id]);
+
+        const handleCommentClick = () => {
+            setShowComments(!showComments);
+            if (!showComments) {
+                fetchCommentCount();
             }
         };
-    
-        if (post.userId) {
-            fetchUserProfile();
-        }
-        fetchCommentCount();
-    }, [post.userId, post.id]);
 
-    const handleCommentClick = () => {
-        setShowComments(!showComments);
-        if (!showComments) {
-            fetchCommentCount();
+        const getDefaultAvatar = (name = 'User') => {
+        return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random`;
+    };
+
+    // Add a helper function for getting user's full name
+    const getUserFullName = (userProfile) => {
+        if (userProfile?.firstName && userProfile?.lastName) {
+            return `${userProfile.firstName} ${userProfile.lastName}`;
         }
+        return userProfile?.name || 'Anonymous User';
     };
 
     return (
         <article className="post-card">
             <div className="post-header">
                 <div className="post-author">
-                <img 
-                    src={authorPicture || `https://ui-avatars.com/api/?name=${post.userName || 'User'}`}
-                    alt={post.userName || 'User'}
-                    className="author-avatar"
-                    onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src = `https://ui-avatars.com/api/?name=${post.userName || 'User'}`;
-                    }}
-                />
+                    <img 
+                        src={authorPicture || getDefaultAvatar(post.authorName)}
+                        alt={post.authorName || 'User'}
+                        className="author-avatar"
+                        onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = getDefaultAvatar(post.authorName);
+                        }}
+                    />
                     <div className="author-info">
-                        <h4>{post.authorName}</h4>
+                        <h4>{getUserFullName(post.userProfile) || post.authorName}</h4>
                         <p className="post-meta">
                             {post.authorTitle}
                             <span className="post-time">

@@ -26,6 +26,10 @@ const PostList = () => {
         const response = await axios.get('http://localhost:9090/api/posts', {
           withCredentials: true
         });
+
+        const sortedPosts = response.data.sort((a, b) => 
+        new Date(b.createdAt) - new Date(a.createdAt)
+      );
         setPosts(response.data);
       } catch (error) {
         setError('Failed to load posts');
@@ -40,9 +44,12 @@ const PostList = () => {
   }, []);
 
   const handlePostUpdate = (updatedPost) => {
-    setPosts(posts.map(post => 
-      post.id === updatedPost.id ? updatedPost : post
-    ));
+    setPosts(currentPosts => 
+      currentPosts
+        .map(post => post.id === updatedPost.id ? updatedPost : post)
+        // Re-sort after update to maintain order
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    );
   };
 
   if (loading) return (
