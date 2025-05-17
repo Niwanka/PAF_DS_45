@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import PlanCard from "./PlanCard";
 import PlanModal from "./PlanModal";
-import "./LearningPlanPage.css";
+import "../styles/LearningPlanPage.css"; // Import your CSS file
 
 const LearningPlanPage = () => {
   const [plans, setPlans] = useState([]);
@@ -26,7 +26,7 @@ const LearningPlanPage = () => {
       try {
         setIsLoading(true);
         const response = await axios.get("/api/learning-plans", {
-          withCredentials: true, // ✅ for session-based/JWT auth
+          withCredentials: true, // for session-based/JWT auth
         });
         setPlans(Array.isArray(response?.data) ? response.data : []);
         setError(null);
@@ -45,7 +45,7 @@ const LearningPlanPage = () => {
     if (window.confirm("Are you sure you want to delete this learning plan?")) {
       try {
         await axios.delete(`/api/learning-plans/${id}`, {
-          withCredentials: true, // ✅ include cookies/token
+          withCredentials: true, // include cookies/token
         });
         setPlans((prev) => prev.filter((plan) => plan.id !== id));
       } catch (error) {
@@ -69,7 +69,7 @@ const LearningPlanPage = () => {
             status: formData.status,
           },
           {
-            withCredentials: true, // ✅ include cookies/token
+            withCredentials: true, //  include cookies/token
           }
         );
         setPlans((prev) =>
@@ -90,7 +90,7 @@ const LearningPlanPage = () => {
             status: formData.status,
           },
           {
-            withCredentials: true, // ✅ include cookies/token
+            withCredentials: true, //include cookies/token
           }
         );
         setPlans((prev) => [...prev, response.data]);
