@@ -1,8 +1,9 @@
 package com.paf_45.bankendapplication.dto;
 
-import com.paf_45.bankendapplication.model.UserProfile;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.paf_45.bankendapplication.model.UserProfile;
 
 public class UserProfileDTO {
     private String id;
@@ -20,6 +21,8 @@ public class UserProfileDTO {
     private int followingCount;
     private String websiteUrl;
     private List<String> languages = new ArrayList<>();
+    private String sub;  
+    private String picture;  
 
     public static UserProfileDTO fromUserProfile(UserProfile userProfile) {
         UserProfileDTO dto = new UserProfileDTO();
@@ -38,6 +41,8 @@ public class UserProfileDTO {
         dto.setFollowingCount(userProfile.getFollowingCount());
         dto.setWebsiteUrl(userProfile.getWebsiteUrl());
         dto.setLanguages(userProfile.getLanguages());
+        dto.setSub(userProfile.getSub());  // Add this line
+        dto.setPicture(userProfile.getPicture());
         return dto;
     }
 
@@ -86,4 +91,10 @@ public class UserProfileDTO {
 
     public List<String> getLanguages() { return languages; }
     public void setLanguages(List<String> languages) { this.languages = languages; }
+
+    public String getSub() { return sub; }
+    public void setSub(String sub) { this.sub = sub; }
+
+    public String getPicture() { return picture; }
+    public void setPicture(String picture) { this.picture = picture; }
 }

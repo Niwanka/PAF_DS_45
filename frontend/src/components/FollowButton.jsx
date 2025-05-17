@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import './FollowButton.css';
+import '../styles/FollowButton.css';
 
 const FollowButton = ({ userId, isFollowing: initialIsFollowing, onFollowChange, disabled }) => {
     const [isFollowing, setIsFollowing] = useState(initialIsFollowing);
