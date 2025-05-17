@@ -6,7 +6,6 @@ import "../styles/LearningPlanPage.css";
 import Navbar from "./Navbar";
 import Swal from 'sweetalert2';
 
-
 const LearningPlanPage = ({ userProfile }) => {
   const [plans, setPlans] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -24,7 +23,6 @@ const LearningPlanPage = ({ userProfile }) => {
   });
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Fetch learning plans from backend
   useEffect(() => {
     const fetchPlans = async () => {
       try {
@@ -46,14 +44,37 @@ const LearningPlanPage = ({ userProfile }) => {
   }, []);
 
   const handleDelete = async (id) => {
-    if (window.confirm("Are you sure you want to delete this learning plan?")) {
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "This will delete the learning plan permanently.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+    });
+
+    if (result.isConfirmed) {
       try {
         await axios.delete(`/api/learning-plans/${id}`, {
           withCredentials: true,
         });
         setPlans((prev) => prev.filter((plan) => plan.id !== id));
+
+        Swal.fire({
+          icon: "success",
+          title: "Deleted!",
+          text: "The learning plan has been deleted.",
+          timer: 2000,
+          showConfirmButton: false,
+        });
       } catch (error) {
         console.error("Failed to delete learning plan", error);
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Failed to delete the learning plan.",
+        });
       }
     }
   };
@@ -80,6 +101,14 @@ const LearningPlanPage = ({ userProfile }) => {
             plan.id === currentPlan.id ? response.data : plan
           )
         );
+
+        Swal.fire({
+          icon: "success",
+          title: "Updated!",
+          text: "The learning plan has been updated successfully.",
+          timer: 2000,
+          showConfirmButton: false,
+        });
       } else {
         const response = await axios.post(
           "/api/learning-plans",
@@ -96,10 +125,23 @@ const LearningPlanPage = ({ userProfile }) => {
           }
         );
         setPlans((prev) => [...prev, response.data]);
+
+        Swal.fire({
+          icon: "success",
+          title: "Created!",
+          text: "New learning plan created successfully.",
+          timer: 2000,
+          showConfirmButton: false,
+        });
       }
       closeModal();
     } catch (error) {
       console.error("Failed to save learning plan", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Something went wrong. Please try again.",
+      });
     }
   };
 
@@ -150,7 +192,6 @@ const LearningPlanPage = ({ userProfile }) => {
     });
   };
 
-  // 🔍 Search logic: filters based on multiple fields
   const filteredPlans = plans.filter((plan) => {
     const resourceText = Array.isArray(plan.resources)
       ? plan.resources.join(" ")
