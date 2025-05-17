@@ -163,3 +163,16 @@
 .hidden {
     display: none;
 }
+
+.file-upload-label.white-text {
+  color: white !important;
+}
+
+.file-upload-label.white-text i {
+  color: white !important;
+}
+
+.upload-text {
+  color: white !important;
+  margin-left: 8px;
+}
