@@ -7,6 +7,7 @@ import UserPage from "./components/UserPage";
 import ViewPosts from "./components/ViewPosts";
 import LearningPlanPage from "./components/LearningPlanPage";
 
+import LearningProgressPage from './components/LearningProgress';
 function App() {
   return (
     <Router>
@@ -21,9 +22,13 @@ function App() {
         <Route path="/Userprofile/:userId" element={<UserPage />} />
         <Route path="/user-posts/:userId" element={<ViewPosts />} />
 
+
         {/* Learning Plan Routes */}
         <Route path="/learning-plans" element={<LearningPlanPage />} />
         {/* No need for a separate route for CreateLearningPlanForm, it's inside LearningPlanPage */}
+
+        <Route path="/learning-progress" element={<LearningProgressPage/>}/>
+
       </Routes>
     </Router>
   );
