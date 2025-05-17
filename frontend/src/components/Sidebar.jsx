@@ -1,6 +1,7 @@
 import React from 'react';
 
-import { useNavigate } from 'react-router-dom';
+import { useNavigate,Link } from 'react-router-dom';
+
 
 
 const Sidebar = ({ userProfile }) => {
@@ -61,26 +62,31 @@ const Sidebar = ({ userProfile }) => {
 
         {/* Learning Navigation */}
         <div className="px-6 py-4">
-          <h3 className="text-blue-600 text-lg font-medium mb-3">Learning Navigation</h3>
+          <h3 className="text-blue-600 text-lg font-medium mb-1">Learning Navigation</h3>
           
           <div className="space-y-4">
-            <div className="flex items-center gap-3 text-gray-600">
+            <Link to="/learning-plans" className="learning-nav-link mb-2">
+            <div className="flex items-center gap-3 text-gray-600"
+            >
               <div className="w-5 h-5 flex items-center justify-center">
                 📋
               </div>
               <span className="text-[15px] text-gray-500">Learning Planning</span>
             </div>
-
-            <div className="flex items-center gap-3 text-gray-600">
+            </Link>
+              
+            <a href="/learning-progress" className="learning-nav-link mb-2">
+            <div className="flex items-center gap-3 text-gray-600"
+                 >
               <div className="w-5 h-5 flex items-center justify-center">
                 📊
               </div>
               <span className="text-[15px] text-gray-500">Learning Progress</span>
             </div>
+            </a>
 
             {/* Added My Posts section */}
-            <div 
-              className="flex items-center gap-3 text-gray-600 cursor-pointer"
+            <div className="flex items-center gap-3 text-gray-600 cursor-pointer ml-2.5"
               onClick={() => navigate(`/user-posts/${userProfile?.sub}`)}
             >
               <div className="w-5 h-5 flex items-center justify-center">
