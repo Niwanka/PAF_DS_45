@@ -5,7 +5,7 @@ import ChatBot from './ChatBot';
 import UserPosts from './UserPosts';
 import PostModal from './PostModal';
 import Sidebar from './Sidebar';
-//import '../styles/ViewPosts.css';
+import '../styles/ViewPosts.css';
 
 const ViewPosts = () => {
   const { userId } = useParams();
@@ -43,7 +43,7 @@ const ViewPosts = () => {
         </aside>
 
         <section className="feed">
-          <div className="post-box">
+          {/* <div className="post-box">
             <div className="post-input">
               <img
                 src={userProfile?.picture || `https://ui-avatars.com/api/?name=${userProfile?.name || "User"}`}
@@ -70,7 +70,7 @@ const ViewPosts = () => {
                 <span>Write</span>
               </div>
             </div>
-          </div>
+          </div> */}
 
           <UserPosts userId={userId} />
         </section>
