@@ -1,14 +1,11 @@
 import React from 'react';
 
-import { useNavigate,Link } from 'react-router-dom';
-
-
+import { useNavigate, Link } from 'react-router-dom';
 
 const Sidebar = ({ userProfile }) => {
   const navigate = useNavigate();
 
   return (
-
     <aside className="fixed top-20 left-4 w-[300px] bg-white rounded-3xl shadow-sm overflow-hidden h-[calc(100vh-6rem)] transition-all duration-300 ease-in-out">
       {/* Profile Header */}
       <div className="relative">
@@ -16,19 +13,20 @@ const Sidebar = ({ userProfile }) => {
         <div className="px-6 pb-4">
           {/* Avatar */}
           <div className="relative -mt-10 mb-4 flex justify-center">
-            <div 
+            <div
               className="w-20 h-20 rounded-full bg-gray-200 border-4 border-white flex items-center justify-center text-xl font-semibold text-gray-700 cursor-pointer hover:shadow-lg transition-shadow"
               onClick={() => navigate(`/profile/${userProfile?.sub}`)}
             >
               {userProfile?.picture ? (
-                <img 
+                <img
                   src={userProfile.picture}
                   alt={`${userProfile.firstName} ${userProfile.lastName}`}
                   className="w-full h-full rounded-full object-cover"
                 />
               ) : (
                 <span>
-                  {userProfile?.firstName?.[0]}{userProfile?.lastName?.[0]}
+                  {userProfile?.firstName?.[0]}
+                  {userProfile?.lastName?.[0]}
                 </span>
               )}
             </div>
@@ -37,7 +35,9 @@ const Sidebar = ({ userProfile }) => {
           {/* Profile Info */}
           <div className="text-center">
             <h2 className="text-lg font-semibold text-gray-800">
-              {userProfile ? `${userProfile.firstName} ${userProfile.lastName}` : 'Yasasvi Atigala'}
+              {userProfile
+                ? `${userProfile.firstName} ${userProfile.lastName}`
+                : 'Yasasvi Atigala'}
             </h2>
             <p className="text-sm text-gray-500 mt-1">
               Learning, Sharing, Growing ✨
@@ -45,13 +45,15 @@ const Sidebar = ({ userProfile }) => {
           </div>
         </div>
       </div>
-      
+
       {/* Add a scrollable container for the content */}
       <div className="overflow-y-auto h-[calc(100%-12rem)] pb-6">
         {/* Profile Stats */}
         <div className="px-6 py-3 space-y-3">
           <div className="flex justify-between items-center">
-            <span className="text-[15px] text-gray-600">Who's viewed your profile</span>
+            <span className="text-[15px] text-gray-600">
+              Who's viewed your profile
+            </span>
             <span className="text-[15px] text-gray-700">47</span>
           </div>
           <div className="flex justify-between items-center">
@@ -62,40 +64,36 @@ const Sidebar = ({ userProfile }) => {
 
         {/* Learning Navigation */}
         <div className="px-6 py-4">
-          <h3 className="text-blue-600 text-lg font-medium mb-1">Learning Navigation</h3>
+          <h3 className="text-blue-600 text-lg font-medium mb-2.5">Learning Navigation</h3>
           
           <div className="space-y-4">
-            <Link to="/learning-plans" className="learning-nav-link mb-2">
-            <div className="flex items-center gap-3 text-gray-600"
-            >
-              <div className="w-5 h-5 flex items-center justify-center">
-                📋
+            <Link to="/learning-plans" className="block"  style={{ textDecoration: 'none' }}>
+              <div className="flex items-center gap-3 text-gray-600 cursor-pointer">
+                <div className="w-5 h-5 flex items-center justify-center">
+                  📋
+                </div>
+                <span className="text-[15px] text-gray-500">Learning Planning</span>
               </div>
-              <span className="text-[15px] text-gray-500">Learning Planning</span>
-            </div>
             </Link>
               
-            <a href="/learning-progress" className="learning-nav-link mb-2">
-            <div className="flex items-center gap-3 text-gray-600"
-                 >
-              <div className="w-5 h-5 flex items-center justify-center">
-                📊
+            <Link to="/learning-progress" className="block"  style={{ textDecoration: 'none' }}>
+              <div className="flex items-center gap-3 text-gray-600 cursor-pointer">
+                <div className="w-5 h-5 flex items-center justify-center">
+                  📊
+                </div>
+                <span className="text-[15px] text-gray-500">Learning Progress</span>
               </div>
-              <span className="text-[15px] text-gray-500">Learning Progress</span>
-            </div>
-            </a>
+            </Link>
 
-            {/* Added My Posts section */}
-            <div className="flex items-center gap-3 text-gray-600 cursor-pointer ml-2.5"
-              onClick={() => navigate(`/user-posts/${userProfile?.sub}`)}
-            >
-              <div className="w-5 h-5 flex items-center justify-center">
-                📝
+            <Link to={`/user-posts/${userProfile?.sub}`} className="block"  style={{ textDecoration: 'none' }}>
+              <div className="flex items-center gap-3 text-gray-600 cursor-pointer">
+                <div className="w-5 h-5 flex items-center justify-center">
+                  📝
+                </div>
+                <span className="text-[15px] text-gray-500">My Posts</span>
               </div>
-              <span className="text-[15px] text-gray-500">My Posts</span>
-            </div>
+            </Link>
           </div>
-
         </div>
       </div>
     </aside>
