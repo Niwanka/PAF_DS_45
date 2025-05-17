@@ -9,6 +9,7 @@ const UserPosts = ({ userId }) => {
   const [error, setError] = useState(null);
   const [editingPost, setEditingPost] = useState(null);
   const [userProfiles, setUserProfiles] = useState({});
+ 
 
   const fetchPosts = async () => {
     try {
@@ -101,7 +102,7 @@ const handleDeletePost = async (postId) => {
   }
 };
 
-// ...existing code...
+
 
   // Handle post deleted from modal
   const handlePostDeleted = (postId) => {
@@ -128,7 +129,7 @@ const handleDeletePost = async (postId) => {
         <div key={post._id} className="post-card">
           <div className="post-header">
             <div className="post-user-info">
-            <img
+            {/* <img
                 src={userProfiles[post.userId] || `https://ui-avatars.com/api/?name=${post.userName || "User"}&background=random`}
                 alt={post.userName}
                 className="user-avatar"
@@ -136,7 +137,7 @@ const handleDeletePost = async (postId) => {
                   e.target.onerror = null;
                   e.target.src = `https://ui-avatars.com/api/?name=${post.userName || "User"}&background=random`;
                 }}
-              />
+              /> */}
               <div>
                 <h3 className="user-name">{post.userName}</h3>
                 <span className="post-date">
@@ -174,46 +175,45 @@ const handleDeletePost = async (postId) => {
           
 
           
-           
-          {post.mediaUrls?.length > 0 && (
-            <div className={`post-media-grid media-count-${post.mediaUrls.length}`}>
-              {post.mediaUrls.slice(0, 3).map((mediaUrl, index) => (
-                <div key={`${post._id}-media-${index}`} className="media-item">
-                  {(mediaUrl.match(/\.(mp4|webm|mov|avi)$/i) || 
-                    mediaUrl.includes('video') ||
-                    mediaUrl.includes('firebase') && mediaUrl.includes('.mp4')) ? (
-                    <div className="video-container">
-                      <video 
-                        controls
-                        className="post-video"
-                        preload="metadata"
-                        playsInline
-                      >
-                        <source 
-                          src={mediaUrl} 
-                          type={
-                            mediaUrl.match(/\.webm$/i) ? 'video/webm' :
-                            mediaUrl.match(/\.mov$/i) ? 'video/quicktime' :
-                            'video/mp4'
-                          } 
-                        />
-                        Your browser does not support the video tag.
-                      </video>
-                    </div>
-                  ) : (
-                    <img 
+        {post.mediaUrls?.length > 0 && (
+        <div className={`post-media-grid media-count-${post.mediaUrls.length}`}>
+          {post.mediaUrls.slice(0, 3).map((mediaUrl, index) => (
+            <div key={`${post._id}-media-${index}`} className="media-item">
+              {(mediaUrl.match(/\.(mp4|webm|mov|avi)$/i) || 
+              mediaUrl.includes('video') ||
+              mediaUrl.includes('firebase') && mediaUrl.includes('.mp4')) ? (
+                <div className="video-container">
+                  <video 
+                    controls
+                    className="post-video"
+                    preload="metadata"
+                    playsInline
+                  >
+                    <source 
                       src={mediaUrl} 
-                      alt={`Media ${index + 1} for ${post.title}`} 
-                      className="post-image"
-                      loading="lazy"
+                      type={
+                        mediaUrl.match(/\.webm$/i) ? 'video/webm' :
+                        mediaUrl.match(/\.mov$/i) ? 'video/quicktime' :
+                        'video/mp4'
+                      } 
                     />
-                  )}
+                    Your browser does not support the video tag.
+                  </video>
                 </div>
-              ))}
+              ) : (
+                <img 
+                  src={mediaUrl} 
+                  alt={`Media ${index + 1} for ${post.title}`} 
+                  className="post-image"
+                  loading="lazy"
+                />
+              )}
             </div>
-          )}
+          ))}
+        </div>
+      )}
 
-            {post.tags?.length > 0 && (
+                {post.tags?.length > 0 && (
             <div className="post-tags">
               {post.tags.map((tag, index) => (
                 <span key={`${post._id}-tag-${index}`} className="tag">
@@ -222,7 +222,7 @@ const handleDeletePost = async (postId) => {
               ))}
             </div>
           )}
-          
+
         </div>
       ))}
 

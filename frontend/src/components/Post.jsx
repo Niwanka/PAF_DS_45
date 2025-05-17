@@ -142,20 +142,20 @@ const Post = ({ post, currentUserProfile, onPostUpdate }) => {
     return (
         <article className="post-card">
             <div className="post-header">
-                <div className="post-author">
+                 <div className="post-author">
                     <img 
-                        src={authorPicture || getDefaultAvatar(post.authorName)}
-                        alt={post.authorName || 'User'}
+                        src={authorPicture || getDefaultAvatar(getUserFullName(authorProfile))}
+                        alt={getUserFullName(authorProfile) || 'User'}
                         className="author-avatar"
                         onError={(e) => {
                             e.target.onerror = null;
-                            e.target.src = getDefaultAvatar(post.authorName);
+                            e.target.src = getDefaultAvatar(getUserFullName(authorProfile));
                         }}
                     />
                     <div className="author-info">
-                        <h4>{getUserFullName(post.userProfile) || post.authorName}</h4>
+                        <h4>{getUserFullName(authorProfile) || post.authorName}</h4>
                         <p className="post-meta">
-                            {post.authorTitle}
+                            {authorProfile?.title || post.authorTitle}
                             <span className="post-time">
                                 • {new Date(post.createdAt).toLocaleDateString()}
                             </span>
