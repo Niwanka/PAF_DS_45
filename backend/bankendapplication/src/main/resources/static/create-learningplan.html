@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Learning Plan Test Form</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+        background-color: #f9f9f9;
+      }
+      input,
+      textarea,
+      select {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+      button {
+        padding: 10px 15px;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-right: 10px;
+        margin-bottom: 10px;
+      }
+      #insertBtn {
+        background: #4caf50;
+      }
+      #insertBtn:hover {
+        background-color: #45a049;
+      }
+      #fetchBtn {
+        background: #2196f3;
+      }
+      #fetchBtn:hover {
+        background-color: #0b7dda;
+      }
+      #response {
+        margin-top: 20px;
+        padding: 10px;
+        background: #f4f4f4;
+        border: 1px solid #ddd;
+        max-height: 500px;
+        overflow-y: auto;
+      }
+      .form-section {
+        background: white;
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+      }
+      .button-group {
+        display: flex;
+        flex-wrap: wrap;
+      }
+      pre {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Learning Plan API Tester</h1>
+
+    <div class="form-section">
+      <h2>Test Learning Plan Insertion</h2>
+      <form id="testForm">
+        <label>Title:</label>
+        <input
+          type="text"
+          id="title"
+          placeholder="e.g., Learn Spring Boot"
+          required
+        />
+
+        <label>Description:</label>
+        <textarea
+          id="description"
+          placeholder="e.g., Master backend development"
+          required
+        ></textarea>
+
+        <label>Topics:</label>
+        <textarea
+          id="topics"
+          placeholder="(comma-separated) e.g., Spring Security, REST APIs, MongoDB"
+          required
+        ></textarea>
+
+        <label>Completion Date:</label>
+        <input type="date" id="completionDate" required />
+
+        <label>Resources:</label>
+        <textarea
+          id="resources"
+          placeholder="(comma-separated URLs) e.g., https://youtube.com/..., https://docs.spring.io/..."
+        ></textarea>
+
+        <label>Status:</label>
+        <select id="status">
+          <option value="draft">Draft</option>
+          <option value="in-progress">In Progress</option>
+          <option value="completed">Completed</option>
+        </select>
+
+        <div class="button-group">
+          <button id="insertBtn" type="submit">Test Insert</button>
+          <button id="fetchBtn" type="button">Fetch All Plans</button>
+        </div>
+      </form>
+    </div>
+
+    <div id="response"></div>
+
+    <script>
+      document
+        .getElementById("testForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          await insertLearningPlan();
+        });
+
+      document
+        .getElementById("fetchBtn")
+        .addEventListener("click", async () => {
+          await fetchAllLearningPlans();
+        });
+
+      async function insertLearningPlan() {
+        const data = {
+          title: document.getElementById("title").value,
+          description: document.getElementById("description").value,
+          topics: document.getElementById("topics").value,
+          completionDate: document.getElementById("completionDate").value,
+          resources: document
+            .getElementById("resources")
+            .value.split(",")
+            .map((url) => url.trim())
+            .filter((url) => url !== ""),
+          status: document.getElementById("status").value,
+        };
+
+        try {
+          const response = await fetch(
+            "http://localhost:9090/api/learning-plans",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(data),
+            }
+          );
+
+          const result = await response.json();
+          document.getElementById("response").innerHTML = `
+            <h3>Insert Result:</h3>
+            <strong>Success!</strong><br>
+            <pre>${JSON.stringify(result, null, 2)}</pre>
+          `;
+        } catch (error) {
+          document.getElementById("response").innerHTML = `
+            <h3>Insert Result:</h3>
+            <strong>Error!</strong><br>
+            <p>${error.message}</p>
+          `;
+        }
+      }
+
+      async function fetchAllLearningPlans() {
+        try {
+          const response = await fetch(
+            "http://localhost:9090/api/learning-plans",
+            {
+              method: "GET",
+              headers: { "Content-Type": "application/json" },
+            }
+          );
+
+          const result = await response.json();
+
+          if (Array.isArray(result) && result.length > 0) {
+            document.getElementById("response").innerHTML = `
+              <h3>All Learning Plans (${result.length}):</h3>
+              <pre>${JSON.stringify(result, null, 2)}</pre>
+            `;
+          } else {
+            document.getElementById("response").innerHTML = `
+              <h3>All Learning Plans:</h3>
+              <p>No learning plans found in the database.</p>
+            `;
+          }
+        } catch (error) {
+          document.getElementById("response").innerHTML = `
+            <h3>Fetch Error:</h3>
+            <strong>Error!</strong><br>
+            <p>${error.message}</p>
+          `;
+        }
+      }
+    </script>
+  </body>
+</html>
