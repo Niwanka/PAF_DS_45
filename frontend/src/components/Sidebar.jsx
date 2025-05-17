@@ -72,7 +72,7 @@ const Sidebar = ({ userProfile }) => {
                 <div className="w-5 h-5 flex items-center justify-center">
                   📋
                 </div>
-                <span className="text-[15px] text-gray-500">Learning Planning</span>
+                <span className="text-[15px] text-gray-500">Learning Plans</span>
               </div>
             </Link>
               
