@@ -9,6 +9,7 @@ import ViewPosts from './components/ViewPosts';
 
 
 
+import LearningProgressPage from './components/LearningProgress';
 function App() {
   return (
     <Router>
@@ -19,6 +20,7 @@ function App() {
         <Route path="/profile/:userId" element={<ProfilePage />} />
         <Route path="/Userprofile/:userId" element={<UserPage />} />
         <Route path="/user-posts/:userId" element={<ViewPosts />} />
+        <Route path="/learning-progress" element={<LearningProgressPage/>}/>
       </Routes>
     </Router>
   );
