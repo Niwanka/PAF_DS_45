@@ -23,7 +23,7 @@ public class LearningPlanController {
         this.learningPlanService = learningPlanService;
     }
 
-    // ✅ Create a new learning plan (assign to logged-in user)
+    //  Create a new learning plan (assign to logged-in user)
     @PostMapping
     public ResponseEntity<LearningPlan> createLearningPlan(@RequestBody LearningPlan learningPlan,
                                                            @AuthenticationPrincipal OAuth2User principal) {
@@ -33,14 +33,14 @@ public class LearningPlanController {
         return new ResponseEntity<>(createdPlan, HttpStatus.CREATED);
     }
 
-    // ✅ Get all learning plans for the logged-in user
+    // Get all learning plans for the logged-in user
     @GetMapping
     public List<LearningPlan> getUserLearningPlans(@AuthenticationPrincipal OAuth2User principal) {
         String userId = principal.getAttribute("sub");
         return learningPlanService.getPlansByUserId(userId);
     }
 
-    // ✅ Get a specific learning plan (must belong to logged-in user)
+    // Get a specific learning plan (must belong to logged-in user)
     @GetMapping("/{id}")
     public ResponseEntity<LearningPlan> getLearningPlanById(@PathVariable String id,
                                                             @AuthenticationPrincipal OAuth2User principal) {
@@ -52,7 +52,7 @@ public class LearningPlanController {
                 : ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 
-    // ✅ Update a learning plan (only if owned by user)
+    // Update a learning plan (only if owned by user)
     @PutMapping("/{id}")
     public ResponseEntity<LearningPlan> updateLearningPlan(@PathVariable String id,
                                                            @RequestBody LearningPlan updatedPlan,
@@ -68,7 +68,7 @@ public class LearningPlanController {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 
-    // ✅ Delete a learning plan (only if owned by user)
+    //  Delete a learning plan (only if owned by user)
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteLearningPlan(@PathVariable String id,
                                                    @AuthenticationPrincipal OAuth2User principal) {
