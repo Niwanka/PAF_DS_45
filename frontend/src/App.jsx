@@ -1,19 +1,10 @@
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Login from './Login';
-import Home from './Home';
-import Dashboard from './Dashboard';
-import ProfilePage from './components/ProfilePage';
-import UserPage from './components/UserPage';
-import ViewPosts from './components/ViewPosts';
-
-
-
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Login from "./Login";
 import Home from "./Home";
 import Dashboard from "./Dashboard";
 import ProfilePage from "./components/ProfilePage";
 import UserPage from "./components/UserPage";
+import ViewPosts from "./components/ViewPosts";
 import LearningPlanPage from "./components/LearningPlanPage";
 
 function App() {
