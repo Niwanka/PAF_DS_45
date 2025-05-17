@@ -80,14 +80,27 @@ const Comment = ({ comment, currentUserId, onDelete, userProfile }) => {
     const confirmDelete = async () => {
         try {
             await onDelete(comment.id);
-            toast.success('Comment deleted successfully!', {
+            toast.dismiss(); // First dismiss any existing toasts
+            const toastId = toast.success('Comment deleted successfully!', {
                 position: "top-right",
-                autoClose: 3000
+                autoClose: 3000, // Will auto close after 3 seconds
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
             });
         } catch (err) {
+            console.error('Failed to delete comment:', err);
+            toast.dismiss();
             toast.error('Failed to delete comment', {
                 position: "top-right",
-                autoClose: 3000
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
             });
         }
     };

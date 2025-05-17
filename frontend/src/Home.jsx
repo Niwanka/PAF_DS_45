@@ -54,72 +54,65 @@ const Home = () => {
   }, []);
 
   return (
-    <div className="home">
+    <div className="min-h-screen bg-[#f3f2ef]">
       <Navbar userProfile={userProfile} />
       
-      <main className="main-content">
-        {/* Left Sidebar - Profile Section */}
-        <aside >
-          <Sidebar userProfile={userProfile} />
-        </aside>
+      <main className="max-w-[1440px] mx-auto px-4 py-6 mt-16">
+        <div className="grid grid-cols-[300px_minmax(0,_650px)_350px] gap-6">
+          {/* Left Sidebar */}
+          <aside className="sticky top-20">
+            <Sidebar userProfile={userProfile} />
+          </aside>
 
-        {/* Main Feed */}
-        <section className="feed">
-          <div className="post-box">
-            <div className="post-input">
-              <img
-                src={
-                  user?.picture ||
-                  `https://ui-avatars.com/api/?name=${user?.name || "User"}`
-                }
-                alt="Profile"
-              />
-              <button 
-                className="post-button"
-                onClick={() => setIsPostModalOpen(true)}
-              >
-                Start a post
-              </button>
-            </div>
-            <div className="post-actions">
-              <div className="post-action">
-                <i className="fas fa-image" style={{ color: "#70b5f9" }}></i>
-                <span>Photo</span>
+          {/* Main Feed */}
+          <section>
+            <div className="bg-white rounded-lg shadow-sm p-4 mb-4">
+              <div className="flex items-center gap-4">
+                <img
+                  src={userProfile?.picture || `https://ui-avatars.com/api/?name=${userProfile?.name || "User"}`}
+                  alt="Profile"
+                  className="h-12 w-12 rounded-full border-2 border-gray-100"
+                />
+                <button 
+                  className="flex-1 text-left px-4 py-3 rounded-full border border-gray-300 hover:bg-gray-50 text-gray-500 text-sm"
+                  onClick={() => setIsPostModalOpen(true)}
+                >
+                  Start a post
+                </button>
               </div>
-              <div className="post-action">
-                <i className="fas fa-video" style={{ color: "#7fc15e" }}></i>
-                <span>Video</span>
-              </div>
-              <div className="post-action">
-                <i className="fas fa-calendar" style={{ color: "#e7a33e" }}></i>
-                <span>Event</span>
-              </div>
-              <div className="post-action">
-                <i
-                  className="fas fa-newspaper"
-                  style={{ color: "#fc9295" }}
-                ></i>
-                <span>Write article</span>
+              <div className="flex justify-between mt-4 pt-4 border-t border-gray-100">
+                <div className="flex items-center gap-2 px-4 py-2 hover:bg-gray-50 rounded-lg cursor-pointer text-gray-600">
+                  <i className="fas fa-image text-[#70b5f9]"></i>
+                  <span>Photo</span>
+                </div>
+                <div className="flex items-center gap-2 px-4 py-2 hover:bg-gray-50 rounded-lg cursor-pointer text-gray-600">
+                  <i className="fas fa-video text-[#7fc15e]"></i>
+                  <span>Video</span>
+                </div>
+                <div className="flex items-center gap-2 px-4 py-2 hover:bg-gray-50 rounded-lg cursor-pointer text-gray-600">
+                  <i className="fas fa-calendar text-[#e7a33e]"></i>
+                  <span>Event</span>
+                </div>
+                <div className="flex items-center gap-2 px-4 py-2 hover:bg-gray-50 rounded-lg cursor-pointer text-gray-600">
+                  <i className="fas fa-newspaper text-[#fc9295]"></i>
+                  <span>Article</span>
+                </div>
               </div>
             </div>
-          </div>
-          {/* Add posts here */}
-          <div>
-          <PostList/>
-          </div>
-        </section>
+            <PostList />
+          </section>
 
-        {/* Right Sidebar - News Section */}
-        <aside >
-          <div className="chatbot-wrapper">
+          {/* Right Sidebar - ChatBot */}
+          <aside className="sticky top-20">
             <ChatBot />
-          </div>
-        </aside>
+          </aside>
+        </div>
       </main>
+
       <PostModal 
         isOpen={isPostModalOpen}
         onClose={() => setIsPostModalOpen(false)}
-        userId={userProfile?.sub} 
+        userId={userProfile?.sub}
       />
     </div>
   );
