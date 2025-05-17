@@ -52,32 +52,30 @@ const Navbar = ({ userProfile }) => {
 
   return (
     <nav className="fixed top-0 left-0 right-0 bg-[#2563EB] h-16 z-50">
-      <div className="max-w-7xl mx-auto px-4 h-full">
-        <div className="flex items-center h-full">
-          {/* Logo at leftmost position */}
-          <div className="flex-none mr-2">
-            <a href="/home">
-              <div className="flex items-center">
-                <svg 
-                  xmlns="http://www.w3.org/2000/svg" 
-                  className="h-8 w-8 text-white" 
-                  viewBox="0 0 24 24" 
-                  fill="currentColor"
-                >
-                  <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2V3zm20 0h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7V3z"/>
-                </svg>
-                <span className="text-white text-xl font-semibold whitespace-nowrap">SkillShare</span>
-              </div>
+      <div className="h-full px-4">
+        <div className="flex items-center justify-between h-full m">
+          {/* Logo with additional margin/padding */}
+          <div className="flex items-center ml-8"> {/* Added ml-8 for margin-left */}
+            <a href="/home" className="flex items-center gap-2">
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                className="h-8 w-8 text-white" 
+                viewBox="0 0 24 24" 
+                fill="currentColor"
+              >
+                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2V3zm20 0h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7V3z"/>
+              </svg>
+              <span className="text-white text-xl font-semibold whitespace-nowrap">SkillShare</span>
             </a>
           </div>
 
-          {/* Search Box */}
-          <div className="flex-1 px-12">
+          {/* Center search box */}
+          <div className="flex-1 px-12 max-w-2xl mx-auto">
             <SearchBox />
           </div>
 
           {/* Right side icons */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 mr-12"> {/* Added mr-8 for margin-right */}
             {/* Home Icon */}
             <button 
               onClick={() => navigate('/home')}
@@ -121,9 +119,9 @@ const Navbar = ({ userProfile }) => {
               onClick={() => navigate(`/profile/${userProfile?.sub}`)}
             >
               <img
-                src={userProfile?.picture || `https://ui-avatars.com/api/?name=${userProfile?.firstName}+${userProfile?.lastName}&background=white&color=2563EB`}
+                src={userProfile?.picture || `https://ui-avatars.com/api/?name=${userProfile?.firstName}+${userProfile?.lastName}&background=ffffff&color=2563EB`}
                 alt="Profile"
-                className="h-8 w-8 rounded-full border-2 border-white/20"
+                className="h-8 w-8 rounded-full border-2 border-white"
               />
             </button>
           </div>
