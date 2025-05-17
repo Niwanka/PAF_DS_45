@@ -35,6 +35,49 @@ const Comment = ({ comment, currentUserId, onDelete, userProfile }) => {
     };
 
     const handleDelete = async () => {
+        // Show confirmation toast
+        toast.warn(
+            <div>
+                Are you sure you want to delete this comment?
+                <div style={{ marginTop: '10px', textAlign: 'right' }}>
+                    <button
+                        onClick={() => confirmDelete()}
+                        style={{
+                            marginRight: '10px',
+                            padding: '5px 10px',
+                            background: '#dc3545',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px'
+                        }}
+                    >
+                        Delete
+                    </button>
+                    <button
+                        onClick={() => toast.dismiss()}
+                        style={{
+                            padding: '5px 10px',
+                            background: '#6c757d',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px'
+                        }}
+                    >
+                        Cancel
+                    </button>
+                </div>
+            </div>,
+            {
+                position: "top-center",
+                autoClose: false,
+                closeOnClick: false,
+                draggable: false,
+                closeButton: false
+            }
+        );
+    };
+
+    const confirmDelete = async () => {
         try {
             await onDelete(comment.id);
             toast.success('Comment deleted successfully!', {
@@ -61,12 +104,27 @@ const Comment = ({ comment, currentUserId, onDelete, userProfile }) => {
         return commentDate.toLocaleDateString();
     };
 
+    const getDefaultAvatar = (name = 'User') => {
+        return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random`;
+    };
+
+    const getUserFullName = () => {
+        if (userProfile?.firstName && userProfile?.lastName) {
+            return `${userProfile.firstName} ${userProfile.lastName}`;
+        }
+        return 'Anonymous User';
+    };
+
     return (
         <div className="comment" onMouseEnter={() => setShowOptions(true)} onMouseLeave={() => setShowOptions(false)}>
             <img
-                src={userProfile?.picture || `https://ui-avatars.com/api/?name=${userProfile?.firstName}+${userProfile?.lastName}&background=random`}
-                alt="User avatar"
+                src={userProfile?.picture || getDefaultAvatar(getUserFullName())}
+                alt={`${getUserFullName()}'s avatar`}
                 className="comment-avatar"
+                onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = getDefaultAvatar(getUserFullName());
+                }}
             />
             <div className="comment-content-wrapper">
                 {isEditing ? (
@@ -101,7 +159,7 @@ const Comment = ({ comment, currentUserId, onDelete, userProfile }) => {
                         <div className="comment-header">
                             <div className="comment-author-info">
                                 <span className="comment-author">
-                                    {userProfile?.firstName} {userProfile?.lastName}
+                                    {getUserFullName()}
                                 </span>
                                 <span className="comment-time">{formatTimeAgo(comment.createdAt)}</span>
                             </div>
@@ -125,10 +183,6 @@ const Comment = ({ comment, currentUserId, onDelete, userProfile }) => {
                             )}
                         </div>
                         <p className="comment-text">{comment.content}</p>
-                        {/* <div className="comment-footer">
-                            <button className="comment-reaction">Like</button>
-                            <button className="comment-reaction">Reply</button>
-                        </div> */}
                     </>
                 )}
             </div>
