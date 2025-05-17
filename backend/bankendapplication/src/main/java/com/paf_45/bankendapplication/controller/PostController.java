@@ -1,7 +1,9 @@
 package com.paf_45.bankendapplication.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -47,25 +49,60 @@ public class PostController {
     }
 
     // Update an existing post
+    // @PutMapping("/{id}")
+    // public ResponseEntity<Post> updatePost(@PathVariable String id, @RequestBody Post postDetails) {
+    //     Optional<Post> existingPost = postService.getPostById(id);
+        
+    //     if (!existingPost.isPresent()) {
+    //         return ResponseEntity.notFound().build();
+    //     }
+        
+    //     Post postToUpdate = existingPost.get();
+        
+    //     // Update the fields from postDetails
+    //     postToUpdate.setTitle(postDetails.getTitle());
+    //     postToUpdate.setContent(postDetails.getContent());
+    //     postToUpdate.setTags(postDetails.getTags());
+    //     postToUpdate.setMediaUrls(postDetails.getMediaUrls());
+        
+    //     Post updatedPost = postService.updatePost(id, postToUpdate);
+    //     return ResponseEntity.ok(updatedPost);
+    // }
+
     @PutMapping("/{id}")
     public ResponseEntity<Post> updatePost(@PathVariable String id, @RequestBody Post postDetails) {
-        Optional<Post> existingPost = postService.getPostById(id);
-        
-        if (!existingPost.isPresent()) {
-            return ResponseEntity.notFound().build();
-        }
-        
-        Post postToUpdate = existingPost.get();
-        
-        // Update the fields from postDetails
-        postToUpdate.setTitle(postDetails.getTitle());
-        postToUpdate.setContent(postDetails.getContent());
-        postToUpdate.setTags(postDetails.getTags());
-        postToUpdate.setMediaUrls(postDetails.getMediaUrls());
-        
-        Post updatedPost = postService.updatePost(id, postToUpdate);
-        return ResponseEntity.ok(updatedPost);
+    Optional<Post> existingPost = postService.getPostById(id);
+    
+    if (!existingPost.isPresent()) {
+        return ResponseEntity.notFound().build();
     }
+    
+    Post postToUpdate = existingPost.get();
+    
+    // Update the basic fields
+    postToUpdate.setTitle(postDetails.getTitle());
+    postToUpdate.setContent(postDetails.getContent());
+    postToUpdate.setTags(postDetails.getTags());
+    
+    // Handle mediaUrls update
+    List<String> newMediaUrls = postDetails.getMediaUrls();
+    if (newMediaUrls != null) {
+        // Clean up empty or null values
+        List<String> cleanedUrls = newMediaUrls.stream()
+            .filter(url -> url != null && !url.trim().isEmpty())
+            .collect(Collectors.toList());
+        postToUpdate.setMediaUrls(cleanedUrls);
+    } else {
+        // If null is sent, clear the media URLs
+        postToUpdate.setMediaUrls(new ArrayList<>());
+    }
+    
+    // Log the update operation
+    System.out.println("Updating post " + id + " with media URLs: " + postToUpdate.getMediaUrls());
+    
+    Post updatedPost = postService.updatePost(id, postToUpdate);
+    return ResponseEntity.ok(updatedPost);
+}
 
     // Delete a post
     @DeleteMapping("/{id}")

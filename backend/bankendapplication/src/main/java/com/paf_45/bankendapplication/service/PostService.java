@@ -58,6 +58,7 @@ public class PostService {
             post.setTitle(updatedPost.getTitle());
             post.setContent(updatedPost.getContent());
             post.setTags(updatedPost.getTags());
+            post.setMediaUrls(updatedPost.getMediaUrls()); 
             post.setUpdatedAt(LocalDateTime.now());
             return postRepository.save(post);
         }).orElse(null);
