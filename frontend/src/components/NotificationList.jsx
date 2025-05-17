@@ -114,11 +114,29 @@ const NotificationList = ({ userId, onNotificationRead }) => {
                 setNotifications(prevNotifications => 
                     prevNotifications.filter(notif => notif._id !== notificationId)
                 );
-                toast.success('Notification deleted successfully!');
+                toast.dismiss(); // Dismiss any existing toasts
+                toast.success('Notification deleted successfully!', {
+                    position: "top-right",
+                    autoClose: 3000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                });
             }
         } catch (error) {
             console.error('Failed to delete notification:', error);
-            toast.error('Failed to delete notification');
+            toast.dismiss();
+            toast.error('Failed to delete notification', {
+                position: "top-right",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+            });
         } finally {
             setIsDeletingNotification(false);
         }
@@ -174,15 +192,27 @@ const NotificationList = ({ userId, onNotificationRead }) => {
             );
             setNotifications([]);
             onNotificationRead();
+            toast.dismiss(); // Dismiss any existing toasts
             toast.success('All notifications deleted successfully!', {
                 position: "top-right",
-                autoClose: 3000
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
             });
         } catch (error) {
             console.error('Failed to delete all notifications:', error);
+            toast.dismiss();
             toast.error('Failed to delete notifications', {
                 position: "top-right",
-                autoClose: 3000
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
             });
         }
     };
